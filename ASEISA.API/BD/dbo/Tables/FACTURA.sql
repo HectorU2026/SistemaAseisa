@@ -1,0 +1,26 @@
+﻿CREATE TABLE [dbo].[FACTURA] (
+    [id_factura]         INT             IDENTITY (1, 1) NOT NULL,
+    [id_venta]           INT             NOT NULL,
+    [id_empresa]         INT             NOT NULL,
+    [id_usuario]         INT             NOT NULL,
+    [id_estado]          INT             NOT NULL,
+    [numero_factura]     VARCHAR (50)    NOT NULL,
+    [fecha_emision]      DATETIME2 (7)   NOT NULL,
+    [tipo_factura]       VARCHAR (50)    NULL,
+    [moneda]             VARCHAR (10)    NULL,
+    [tipo_cambio]        DECIMAL (18, 6) NULL,
+    [subtotal]           DECIMAL (18, 2) NOT NULL,
+    [impuesto]           DECIMAL (18, 2) NOT NULL,
+    [descuento]          DECIMAL (18, 2) NOT NULL,
+    [total]              DECIMAL (18, 2) NOT NULL,
+    [saldo_pendiente]    DECIMAL (18, 2) NOT NULL,
+    [motivo_anulacion]   VARCHAR (500)   NULL,
+    [fecha_creacion]     DATETIME2 (7)   DEFAULT (sysdatetime()) NOT NULL,
+    [fecha_modificacion] DATETIME2 (7)   NULL,
+    CONSTRAINT [PK_FACTURA] PRIMARY KEY CLUSTERED ([id_factura] ASC),
+    CONSTRAINT [FK_FACTURA_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
+    CONSTRAINT [FK_FACTURA_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
+    CONSTRAINT [FK_FACTURA_USUARIO] FOREIGN KEY ([id_usuario]) REFERENCES [dbo].[USUARIO] ([id_usuario]),
+    CONSTRAINT [FK_FACTURA_VENTAS] FOREIGN KEY ([id_venta]) REFERENCES [dbo].[VENTAS] ([id_venta])
+);
+

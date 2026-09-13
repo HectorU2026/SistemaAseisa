@@ -1,0 +1,25 @@
+﻿CREATE TABLE [dbo].[VENTAS] (
+    [id_venta]           INT             IDENTITY (1, 1) NOT NULL,
+    [id_empresa]         INT             NOT NULL,
+    [id_cliente]         INT             NOT NULL,
+    [id_cotizacion]      INT             NULL,
+    [id_usuario]         INT             NOT NULL,
+    [numero_comprobante] VARCHAR (50)    NULL,
+    [tipo_comprobante]   VARCHAR (50)    NULL,
+    [fecha_emision]      DATETIME2 (7)   NOT NULL,
+    [condicion_venta]    VARCHAR (50)    NULL,
+    [moneda]             VARCHAR (10)    NULL,
+    [tipo_cambio]        DECIMAL (18, 6) NULL,
+    [subtotal]           DECIMAL (18, 2) NOT NULL,
+    [impuesto]           DECIMAL (18, 2) NOT NULL,
+    [descuento]          DECIMAL (18, 2) NOT NULL,
+    [total]              DECIMAL (18, 2) NOT NULL,
+    [id_estado]          INT             NOT NULL,
+    CONSTRAINT [PK_VENTAS] PRIMARY KEY CLUSTERED ([id_venta] ASC),
+    CONSTRAINT [FK_VENTAS_CLIENTE] FOREIGN KEY ([id_cliente]) REFERENCES [dbo].[CLIENTE] ([id_cliente]),
+    CONSTRAINT [FK_VENTAS_COTIZACION] FOREIGN KEY ([id_cotizacion]) REFERENCES [dbo].[COTIZACION] ([id_cotizacion]),
+    CONSTRAINT [FK_VENTAS_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
+    CONSTRAINT [FK_VENTAS_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
+    CONSTRAINT [FK_VENTAS_USUARIO] FOREIGN KEY ([id_usuario]) REFERENCES [dbo].[USUARIO] ([id_usuario])
+);
+
