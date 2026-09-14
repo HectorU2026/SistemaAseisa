@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="BD/BD.sqlproj">
+  <Project Path="BD/BD.sqlproj" Id="d5ef7242-48c1-4246-b2b8-42be63107fbc">
     <Build />
     <Deploy />
   </Project>
