@@ -58,7 +58,6 @@
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
-    <Folder Include="dbo\Stored Procedures\" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\VENTAS.sql" />
@@ -99,7 +98,5 @@
     <Build Include="dbo\Tables\BITACORA.sql" />
     <Build Include="dbo\Tables\ASIENTO_CONTABLE.sql" />
     <Build Include="dbo\Tables\ACTIVO_FIJO.sql" />
-    <Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
-    <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
   </ItemGroup>
 </Project>

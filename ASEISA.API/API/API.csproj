@@ -8,16 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.17.10" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.2.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
-    <ProjectReference Include="..\DA\DA.csproj" />
-    <ProjectReference Include="..\Flujo\Flujo.csproj" />
   </ItemGroup>
 
 </Project>
