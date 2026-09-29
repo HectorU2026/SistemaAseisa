@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Abstracciones/Abstracciones.csproj" />
+  <Project Path="Reglas/Reglas.csproj" />
+  <Project Path="Web/Web.csproj" />
+</Solution>
