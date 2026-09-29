@@ -1,0 +1,180 @@
+﻿@page
+@model Web.Pages.Menu_PrincipalModel
+@{
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASEISA · Menú principal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/estilos.css">
+    <style>
+            body{ font-family:'Inter',system-ui,sans-serif; background:#F5F7FA; }
+            a{ color:#F2382F; }
+            .screen-link{ text-decoration:none; color:inherit; }
+            .module-card{ transition:box-shadow .15s ease, transform .15s ease; }
+            .module-card:hover{ box-shadow:0 6px 18px rgba(31,41,55,0.10); transform:translateY(-2px); }
+            .module-icon{
+              width:44px;height:44px;border-radius:10px;
+              background:#F5F7FA; border:1px solid #D1D5DB;
+              display:flex;align-items:center;justify-content:center;
+              color:#F2382F; font-size:19px;
+            }
+            .navbar-brand-box{
+              width:36px;height:36px;border-radius:9px;background:#F2382F;
+              display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;
+            }
+    </style>
+</head>
+<body>
+    <div id="menu-container"></div>
+
+    <div class="container p-3 p-md-4" style="max-width:1150px;">
+
+        <div class="mb-4">
+            <h1 class="h5 fw-bold mb-1">Menu Principal</h1>
+            <p class="text-secondary small mb-0">Seleccione un módulo para continuar.</p>
+        </div>
+
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
+
+            <div class="col">
+                <a href="../Ventas/ventas_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-cart3"></i></div>
+                            <div class="fw-semibold small">Ventas</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Facturas/facturacion_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-receipt"></i></div>
+                            <div class="fw-semibold small">Facturación</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Cuentas_Por_Cobrar/cuentas_cobrar_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-cash-stack"></i></div>
+                            <div class="fw-semibold small">Cuentas por Cobrar</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Compras/compras_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-truck"></i></div>
+                            <div class="fw-semibold small">Compras y Abastecimiento</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Inventario/inventario_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-box-seam"></i></div>
+                            <div class="fw-semibold small">Inventarios</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Cuentas_Por_Pagar/cuentas_pagar_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-file-earmark-minus"></i></div>
+                            <div class="fw-semibold small">Cuentas por Pagar</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Bancos/bancos_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-bank"></i></div>
+                            <div class="fw-semibold small">Bancos</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Activos/activos_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                            <div class="fw-semibold small">Activos Fijos</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Contabilidad/contabilidad_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-calculator"></i></div>
+                            <div class="fw-semibold small">Contabilidad General</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Reportes/reportes_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-bar-chart-line"></i></div>
+                            <div class="fw-semibold small">Reportes</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <a href="../Configuracion/configuracion_index.html" class="screen-link">
+                    <div class="card border-0 shadow-sm module-card h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="module-icon mx-auto mb-3"><i class="bi bi-gear"></i></div>
+                            <div class="fw-semibold small">Configuración</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+    <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                fetch("../Menu/layout.html")
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById("menu-container").innerHTML = data;
+                    })
+                    .catch(error => console.error("Error al cargar el menú:", error));
+            });
+    </script>
+</body>
+</html>
