@@ -26,11 +26,11 @@ namespace DA
             await _sqlConnection.ExecuteAsync(sql, new { Correo = correo });
         }
 
-        public async Task<Usuario> ObtenerInfoUsuario(Usuario usuario)
+        public async Task<Usuario> ObtenerInfoUsuario(string correo)
         {
-            var sql = @"ObtenerInfoUsuario";
+            var sql = @"ObtenerUsuario";
 
-            var resultado = await _sqlConnection.QueryAsync<Usuario>(sql, new { Correo = usuario.Correo });
+            var resultado = await _sqlConnection.QueryAsync<Usuario>(sql, new { Correo = correo });
 
             return resultado.FirstOrDefault();
         }

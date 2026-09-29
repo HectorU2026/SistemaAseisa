@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Reglas;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security;
 using System.Security.Claims;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Web.Pages.Seguridad
 {
@@ -45,14 +47,15 @@ namespace Web.Pages.Seguridad
                     return Page();
                 }
 
-                await ActualizarUltimoAcceso(loginInfo.Correo);
-
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 token = JsonSerializer.Deserialize<Token>(
                     respuesta.Content.ReadAsStringAsync().Result, opciones);
 
                 if (token.ValidacionExitosa)
                 {
+                    await ActualizarUltimoAcceso(loginInfo.Correo);
+
+                    await RegistrarBitacora(loginInfo.Correo);
                     JwtSecurityToken? jwtToken = Autenticacion.leerToken(token.AccessToken);
                     var claims = Autenticacion.GenerarClaims(jwtToken, token.AccessToken);
                     await establecerAutenticacion(claims);
@@ -85,5 +88,61 @@ namespace Web.Pages.Seguridad
                 Console.WriteLine($"Error {respuesta.StatusCode}: {error}");
             }
         }
+
+        private async Task RegistrarBitacora(string correo)
+        {
+            var infoUsuario = await ObtenerInformacionUsuario(correo);
+            if (infoUsuario == null) return;
+
+            var bitacora = new
+            {
+                IdUsuario = infoUsuario.IdUsuario ?? 0,
+                IdEmpresa = infoUsuario.IdEmpresa ?? 1,
+                TablaAfectada = "Usuario",
+                RegistroId = infoUsuario.IdUsuario?.ToString(),
+                Accion = "Login",
+                ValorAnterior = (string?)null,
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    infoUsuario.IdUsuario,
+                    infoUsuario.IdEmpresa,
+                    infoUsuario.Nombre,
+                    infoUsuario.PrimerApellido,
+                    infoUsuario.SegundoApellido,
+                    infoUsuario.Correo,
+                    infoUsuario.NombreUsuario,
+                    infoUsuario.IdEstado,
+                    fecha = DateTime.UtcNow
+                })
+            };
+
+            string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "RegistrarBitacora");
+            var client = new HttpClient();
+            var respuesta = await client.PostAsJsonAsync(endpoint, bitacora);
+
+            if (!respuesta.IsSuccessStatusCode)
+            {
+                var error = await respuesta.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error bitácora: {error}");
+            }
+        }
+
+        private async Task<Usuario?> ObtenerInformacionUsuario(string correoElectronico)
+        {
+            var endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerInfoUsuario");
+            var client = new HttpClient();
+            var url = $"{endpoint}?correo={Uri.EscapeDataString(correoElectronico)}";
+            var respuesta = await client.PostAsync(url, null);
+            if (!respuesta.IsSuccessStatusCode)
+            {
+                var error = await respuesta.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error {respuesta.StatusCode}: {error}");
+            }
+
+            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var contenido = await respuesta.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Usuario>(contenido, opciones);
+        }
+
     }
 }

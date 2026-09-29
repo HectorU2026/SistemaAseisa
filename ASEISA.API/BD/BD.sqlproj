@@ -101,5 +101,6 @@
     <Build Include="dbo\Tables\ACTIVO_FIJO.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
     <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
+    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
   </ItemGroup>
 </Project>

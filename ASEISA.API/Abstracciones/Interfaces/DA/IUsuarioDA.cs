@@ -8,6 +8,6 @@ namespace Abstracciones.Interfaces.DA
     public interface IUsuarioDA
     {
         Task ActualizarUltimoAcceso(string correo);
-        Task<Usuario> ObtenerInfoUsuario(Usuario usuario);
+        Task<Usuario> ObtenerInfoUsuario(string correo);
     }
 }

@@ -24,9 +24,9 @@ namespace API.Controllers
         }
 
         [HttpPost("ObtenerInfoUsuario")]
-        public async Task<ActionResult<Usuario>> ObtenerInfoUsuario([FromBody] Usuario usuario)
+        public async Task<ActionResult<Usuario>> ObtenerInfoUsuario(string correo)
         {
-            var infoUsuario = await usuarioFlujo.ObtenerInfoUsuario(usuario);
+            var infoUsuario = await usuarioFlujo.ObtenerInfoUsuario(correo);
             return Ok(infoUsuario);
         }
     }

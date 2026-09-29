@@ -18,6 +18,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRepositorioDapper, RepositorioDapper>();
 builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
+builder.Services.AddScoped<IBitacoraDA, BitacoraDA>();
+builder.Services.AddScoped<IBitacoraFlujo, BitacoraFlujo>();
 
 
 var app = builder.Build();
