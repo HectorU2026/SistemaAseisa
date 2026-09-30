@@ -1,0 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Abstracciones.Modelos.Seguridad
+{
+    public class Token
+    {
+        public bool ValidacionExitosa { get; set; }
+        public string? AccessToken { get; set; }
+    }
+}
