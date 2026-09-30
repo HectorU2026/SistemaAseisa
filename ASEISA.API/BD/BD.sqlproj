@@ -102,5 +102,6 @@
     <Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
     <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
     <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
   </ItemGroup>
 </Project>
