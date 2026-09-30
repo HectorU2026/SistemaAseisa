@@ -6,7 +6,7 @@
     <Name>BD</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{d5ef7242-48c1-4246-b2b8-42be63107fbc}</ProjectGuid>
+    <ProjectGuid>{b3028f32-c0bd-36f2-f1bb-292c5db930c4}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql170DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
