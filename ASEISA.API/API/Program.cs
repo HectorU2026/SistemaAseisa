@@ -20,6 +20,8 @@ builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
 builder.Services.AddScoped<IBitacoraDA, BitacoraDA>();
 builder.Services.AddScoped<IBitacoraFlujo, BitacoraFlujo>();
+builder.Services.AddScoped<IBodegaDA, BodegaDA>();
+builder.Services.AddScoped<IBodegaFlujo, BodegaFlujo>();
 
 
 var app = builder.Build();
