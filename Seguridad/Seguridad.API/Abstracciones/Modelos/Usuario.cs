@@ -20,6 +20,8 @@ namespace Abstracciones.Modelos
         public string ContrasenaHash { get; set; }
         public DateTime? UltimoAcceso { get; set; }
         public int? IdEstado { get; set; }
+        public DateTime? FechaCreacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
     }
 
     public class UsuarioRecuperar
@@ -36,7 +38,7 @@ namespace Abstracciones.Modelos
     public class CambiarContrasena
     {
         public string Token { get; set; }
-        public string NuevaContrasena { get; set; }
+        public string ContrasenaHash { get; set; }
         public string? correo { get; set; }
     }
 

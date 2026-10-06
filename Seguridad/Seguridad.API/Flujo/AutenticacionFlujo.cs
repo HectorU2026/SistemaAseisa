@@ -37,11 +37,8 @@ namespace Flujo
 
         public async Task<IActionResult> CambiarContrasena(CambiarContrasena usuario)
         {
-            var correo = _recuperarContrasena.ObtenerCorreoDelToken(usuario.Token);
-
-            if (string.IsNullOrEmpty(correo))
-                return new BadRequestObjectResult("Token inválido"); 
-            usuario.correo = correo;
+            if (string.IsNullOrEmpty(usuario.correo))
+                return new BadRequestObjectResult("Token inválido"); ;
             return await _usuarioDA.CambiarContrasena(usuario);
         }
     }

@@ -30,7 +30,7 @@ namespace Web.Pages.Seguridad
         {
             if (ModelState.IsValid)
             {
-                var Hash = Autenticacion.GenerarHash(loginInfo.contrasena);
+                var Hash = Autenticacion.GenerarHash(loginInfo.ContrasenaHash);
                 var contrasena_hash= Autenticacion.ObtenerHash(Hash);
 
                 string endpoint = _configuracion.ObtenerMetodo("ApiEndPointsSeguridad", "Login");
@@ -39,7 +39,7 @@ namespace Web.Pages.Seguridad
                     new Login
                     {
                         Correo = loginInfo.Correo,
-                        contrasena = contrasena_hash
+                        ContrasenaHash = contrasena_hash
                     });
                 if (!respuesta.IsSuccessStatusCode)
                 {
@@ -54,8 +54,8 @@ namespace Web.Pages.Seguridad
                 if (token.ValidacionExitosa)
                 {
                     await ActualizarUltimoAcceso(loginInfo.Correo);
-
                     await RegistrarBitacora(loginInfo.Correo);
+
                     JwtSecurityToken? jwtToken = Autenticacion.leerToken(token.AccessToken);
                     var claims = Autenticacion.GenerarClaims(jwtToken, token.AccessToken);
                     await establecerAutenticacion(claims);
@@ -96,8 +96,8 @@ namespace Web.Pages.Seguridad
 
             var bitacora = new
             {
-                IdUsuario = infoUsuario.IdUsuario ?? 0,
-                IdEmpresa = infoUsuario.IdEmpresa ?? 1,
+                IdUsuario = infoUsuario.IdUsuario,
+                IdEmpresa = infoUsuario.IdEmpresa,
                 TablaAfectada = "Usuario",
                 RegistroId = infoUsuario.IdUsuario?.ToString(),
                 Accion = "Login",
@@ -110,8 +110,12 @@ namespace Web.Pages.Seguridad
                     infoUsuario.PrimerApellido,
                     infoUsuario.SegundoApellido,
                     infoUsuario.Correo,
+                    ContrasenaHash = "***",
                     infoUsuario.NombreUsuario,
+                    infoUsuario.UltimoAcceso,
                     infoUsuario.IdEstado,
+                    infoUsuario.FechaCreacion,
+                    infoUsuario.FechaModificacion,
                     fecha = DateTime.UtcNow
                 })
             };

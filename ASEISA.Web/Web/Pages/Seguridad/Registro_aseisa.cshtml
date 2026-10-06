@@ -70,6 +70,28 @@
       </div>
 
       <div class="mb-3">
+        <label asp-for="Usuario.IdEmpresa" class="form-label small fw-semibold">Empresa <span class="text-danger">*</span></label>
+        <select asp-for="Usuario.IdEmpresa" class="form-select">
+            <option value="">Seleccione una empresa</option>
+            @foreach (var empresa in Model.Empresas)
+            {
+                <option value="@empresa.IdEmpresa">@empresa.NombreComercial</option>
+            }
+        </select>
+        <span asp-validation-for="Usuario.IdEmpresa" class="text-danger small"></span>
+      </div>
+
+      <div class="mb-3">
+        <label asp-for="Usuario.TipoCliente" class="form-label small fw-semibold">Tipo de cliente <span class="text-danger">*</span></label>
+        <select asp-for="Usuario.TipoCliente" class="form-select">
+            <option value="">Seleccione un tipo</option>
+            <option value="Persona física">Persona física</option>
+            <option value="Persona jurídica">Persona jurídica</option>
+        </select>
+        <span asp-validation-for="Usuario.TipoCliente" class="text-danger small"></span>
+      </div>
+
+      <div class="mb-3">
         <label asp-for="Cliente.Telefono" class="form-label small fw-semibold">Teléfono <span class="text-secondary fw-normal">(opcional)</span></label>
         <input asp-for="Cliente.Telefono" class="form-control" placeholder="8888-8888" />
       </div>

@@ -44,18 +44,13 @@ Si no solicitaste este cambio, ignora este correo.
 El enlace expira en 15 minutos.",
 
                 HtmlBody = $@"
-                <h2>Restablecer contraseña</h2>
-                <p>Hola <b>{usuario.Nombre}</b>,</p>
-                <p>Recibimos una solicitud para restablecer tu contraseña.</p>
-                <p>
-                    <a href='{enlace}' 
-                       style='display:inline-block;padding:10px 20px;background:#0d6efd;
-                              color:#fff;text-decoration:none;border-radius:5px;'>
-                        Restablecer contraseña
-                    </a>
-                </p>
-                <p>Si no solicitaste este cambio, ignora este correo.</p>
-                <p><small>El enlace expira en 15 minutos.</small></p>"
+        <h2>Restablecer contraseña</h2>
+        <p>Hola <b>{usuario.Nombre}</b>,</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+        <p>
+            <a href='{enlace}' style='display:inline-block;padding:10px 20px;background:#0d6efd;color:#fff;text-decoration:none;border-radius:5px;'>Restablecer contraseña</a>
+        </p>
+        <p>Si no solicitaste este cambio, ignora este correo.</p>"
             };
             msg.Body = bb.ToMessageBody();
 

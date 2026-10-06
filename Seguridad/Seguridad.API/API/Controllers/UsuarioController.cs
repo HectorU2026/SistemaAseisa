@@ -30,8 +30,7 @@ namespace API.Controllers
         [HttpPost("RegistrarUsuario")]
         public async Task<IActionResult> PostAsync([FromBody] RegistroRequest infoUsuario)
         {
-            var resultado=await _usuarioFlujo.CrearUsuario(infoUsuario);
-            return CreatedAtAction(nameof(ObtenerUsuario),null, resultado);
+            return Ok(await _usuarioFlujo.CrearUsuario(infoUsuario));
         }
 
 
