@@ -10,7 +10,7 @@ namespace Abstracciones.Modelos
     public class LoginBase
     {
         [Required]
-        public string contrasena { get; set; }
+        public string ContrasenaHash { get; set; }
         [Required]
         [EmailAddress]
         public string Correo { get; set; }
