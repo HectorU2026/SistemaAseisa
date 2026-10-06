@@ -43,7 +43,7 @@ namespace BC
 
         private async Task<bool> VerificarHashContraseniaAsync(LoginBase login)
         {
-            return (login != null && login.contrasena == _usuario.contrasena);
+            return (login != null && login.ContrasenaHash == _usuario.ContrasenaHash);
 
         }
 

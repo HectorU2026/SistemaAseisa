@@ -20,6 +20,12 @@ builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
 builder.Services.AddScoped<IBitacoraDA, BitacoraDA>();
 builder.Services.AddScoped<IBitacoraFlujo, BitacoraFlujo>();
+builder.Services.AddScoped<IBodegaDA, BodegaDA>();
+builder.Services.AddScoped<IBodegaFlujo, BodegaFlujo>();
+builder.Services.AddScoped<IProductoDA, ProductoDA>();
+builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
+builder.Services.AddScoped<IEmpresaDA, EmpresaDA>();
+builder.Services.AddScoped<IEmpresaFlujo, EmpresaFlujo>();
 
 
 var app = builder.Build();

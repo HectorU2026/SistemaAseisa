@@ -102,6 +102,10 @@
     <Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
     <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
     <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
     <Build Include="dbo\Tables\TERMINO_PAGO.sql" />
     <Build Include="dbo\Tables\METODO_PAGO.sql" />
     <Build Include="dbo\Tables\CONTACTO.sql" />

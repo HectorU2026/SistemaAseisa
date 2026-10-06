@@ -3,6 +3,7 @@ using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Reglas;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace Web.Pages.Seguridad
@@ -17,28 +18,34 @@ namespace Web.Pages.Seguridad
         [BindProperty]
         public Cliente Cliente { get; set; } = default!;
 
+        public List<EmpresaResponseNombres> Empresas { get; set; } = new();
+        [Required(ErrorMessage = "Debe seleccionar una empresa")]
+        public int? IdEmpresa { get; set; }
+        public RegistroResponse registro { get; set; }
         public RegistroModel(IConfiguracion configuracion)
         {
             _configuracion = configuracion;
         }
 
-        public void OnGet() { }
+        public async Task OnGet() 
+        {
+            await CargarEmpresas();
+        }
 
         public async Task<IActionResult> OnPost()
         {
-            var hash = Autenticacion.GenerarHash(Usuario.ContrasenaHash);
-            Usuario.ContrasenaHash = Autenticacion.ObtenerHash(hash);
-
-            Usuario.IdEmpresa = 1;
-            Usuario.IdEstado = 1;
-            Usuario.TipoCliente = "Persona física";
-
-            Cliente.IdEmpresa = 1;
-            Cliente.IdEstado = 1;
-            Cliente.TipoCliente = "Persona física";
-            Cliente.NombreRazonSocial = $"{Usuario.Nombre} {Usuario.PrimerApellido}";
             if (ModelState.IsValid)
             {
+                var hash = Autenticacion.GenerarHash(Usuario.ContrasenaHash);
+                Usuario.ContrasenaHash = Autenticacion.ObtenerHash(hash);
+                Usuario.IdEstado = 1;
+
+                Cliente.IdEmpresa = Usuario.IdEmpresa;
+                Cliente.IdEstado = 1;
+                Cliente.Correo = Usuario.Correo;
+                Cliente.TipoCliente = Usuario.TipoCliente;
+                Cliente.NombreRazonSocial = $"{Usuario.Nombre} {Usuario.PrimerApellido}";
+
                 var request = new
                 {
                     Usuario = Usuario,
@@ -49,38 +56,74 @@ namespace Web.Pages.Seguridad
                 var client = new HttpClient();
                 var respuesta = await client.PostAsJsonAsync(endpoint, request);
 
-                if (respuesta.IsSuccessStatusCode)
-                    await RegistrarBitacora(Usuario.Correo);
-                    return Redirect("/Seguridad/Login");
+                var contenido = await respuesta.Content.ReadAsStringAsync();
+                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
+                registro = JsonSerializer.Deserialize<RegistroResponse>(contenido, opciones);
+
+                if (respuesta.IsSuccessStatusCode && registro.IdUsuario != null )
+                {
+                    Usuario.IdUsuario = registro.IdUsuario;
+                    await RegistrarBitacora(Usuario, Cliente);
+                    return RedirectToPage("/Seguridad/Login");
+                }
+                else { 
+                    ModelState.AddModelError("", registro?.mensaje);
+                    return Page();
+                }
             }
             ModelState.AddModelError("", "Asegúrese de rellenar todos los campos obligatorios");
             return Page();
         }
 
-        private async Task RegistrarBitacora(string correo)
+        public async Task CargarEmpresas()
         {
-            var infoUsuario = await ObtenerInformacionUsuario(correo);
-            if (infoUsuario == null) return;
+            string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerNombreEmpresa");
+            var cliente = new HttpClient();
+            var solicitud = new HttpRequestMessage(HttpMethod.Get, endpoint);
+            var respuesta = await cliente.SendAsync(solicitud);
+            respuesta.EnsureSuccessStatusCode();
 
-            var bitacora = new
+            var resultado = await respuesta.Content.ReadAsStringAsync();
+            var opciones = new JsonSerializerOptions
+            { PropertyNameCaseInsensitive = true };
+            Empresas = JsonSerializer.Deserialize<List<EmpresaResponseNombres>>
+                (resultado, opciones);
+        }
+
+        private async Task RegistrarBitacora(Usuario usuario, Cliente cliente)
+        {
+            var bitacora = new Bitacora
             {
-                IdUsuario = infoUsuario.IdUsuario ?? 0,
-                IdEmpresa = infoUsuario.IdEmpresa ?? 1,
-                TablaAfectada = "Usuario",
-                RegistroId = infoUsuario.IdUsuario?.ToString(),
-                Accion = "RegistrarUsuario",
+                IdUsuario = usuario.IdUsuario.Value,
+                IdEmpresa = usuario.IdEmpresa.Value,
+                TablaAfectada = "Usuario, Cliente",
+                Accion = "RegistrarUsuarioCliente",
+                RegistroId = usuario.IdUsuario.ToString(),
                 ValorAnterior = (string?)null,
                 ValorNuevo = JsonSerializer.Serialize(new
                 {
-                    infoUsuario.IdUsuario,
-                    infoUsuario.IdEmpresa,
-                    infoUsuario.Nombre,
-                    infoUsuario.PrimerApellido,
-                    infoUsuario.SegundoApellido,
-                    infoUsuario.Correo,
-                    infoUsuario.NombreUsuario,
-                    infoUsuario.IdEstado,
+                    usuario = new
+                    {
+                        usuario.IdEmpresa,
+                        usuario.Nombre,
+                        usuario.PrimerApellido,
+                        usuario.SegundoApellido,
+                        usuario.Correo,
+                        usuario.NombreUsuario,
+                        usuario.IdEstado
+                    },
+                    cliente = new
+                    {
+                        cliente.IdEmpresa,
+                        cliente.TipoCliente,
+                        cliente.NombreRazonSocial,
+                        cliente.Identificacion,
+                        cliente.Correo,
+                        cliente.Telefono,
+                        cliente.Direccion,
+                        cliente.IdEstado
+                    },
                     fecha = DateTime.UtcNow
                 })
             };
@@ -94,23 +137,6 @@ namespace Web.Pages.Seguridad
                 var error = await respuesta.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error bitácora: {error}");
             }
-        }
-
-        private async Task<Usuario?> ObtenerInformacionUsuario(string correoElectronico)
-        {
-            var endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerInfoUsuario");
-            var client = new HttpClient();
-            var url = $"{endpoint}?correo={Uri.EscapeDataString(correoElectronico)}";
-            var respuesta = await client.PostAsync(url, null);
-            if (!respuesta.IsSuccessStatusCode)
-            {
-                var error = await respuesta.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error {respuesta.StatusCode}: {error}");
-            }
-
-            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var contenido = await respuesta.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Usuario>(contenido, opciones);
         }
     }
 }
