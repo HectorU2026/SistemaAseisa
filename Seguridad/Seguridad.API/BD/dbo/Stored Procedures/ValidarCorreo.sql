@@ -1,9 +1,9 @@
-﻿CREATE   PROCEDURE ValidarCorreo 
-@correo VARCHAR(50)
+﻿
+CREATE   PROCEDURE dbo.ValidarCorreo
+    @correo VARCHAR(150)
 AS
 BEGIN
-	SET NOCOUNT ON;
-	SELECT correo, nombre_usuario AS Nombre
-		FROM USUARIO
-		WHERE correo = @correo
+    SET NOCOUNT ON;
+
+    SELECT COUNT(*) FROM dbo.USUARIO WHERE correo = @correo;
 END;

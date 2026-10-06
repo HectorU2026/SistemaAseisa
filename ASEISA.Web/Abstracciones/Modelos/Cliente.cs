@@ -13,7 +13,7 @@ namespace Abstracciones.Modelos
         public string? NombreRazonSocial { get; set; }
         [Required(ErrorMessage = "El campo Identificación es requerido")]
         public string Identificacion { get; set; }
-        public string Correo { get; set; }
+        public string? Correo { get; set; }
         public string? Telefono { get; set; }
         public string? Direccion { get; set; }
         public decimal? LimiteCredito { get; set; }
@@ -21,5 +21,11 @@ namespace Abstracciones.Modelos
         public int? IdEstado { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
+    }
+
+    public class RegistroResponse
+    {
+        public int? IdUsuario { get; set; }
+        public string mensaje { get; set; }
     }
 }

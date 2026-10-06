@@ -104,5 +104,7 @@
     <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
   </ItemGroup>
 </Project>

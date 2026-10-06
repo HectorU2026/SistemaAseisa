@@ -26,4 +26,10 @@ namespace Abstracciones.Modelos
         public Usuario Usuario { get; set; }
         public Cliente Cliente { get; set; }
     }
+
+    public class RegistroResponse
+    {
+        public int? IdUsuario { get; set; }
+        public string mensaje { get; set; }
+    }
 }

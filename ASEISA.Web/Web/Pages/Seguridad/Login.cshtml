@@ -43,10 +43,10 @@
         </div>
 
         <div class="mb-2">
-          <label asp-for="loginInfo.contrasena" class="form-label small fw-semibold">Contraseña</label>
+          <label asp-for="loginInfo.ContrasenaHash" class="form-label small fw-semibold">Contraseña</label>
           <div class="input-group">
             <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
-            <input asp-for="loginInfo.contrasena" type="password" class="form-control" placeholder="••••••••">
+            <input asp-for="loginInfo.ContrasenaHash" type="password" class="form-control" placeholder="••••••••">
           </div>
         </div>
         @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)

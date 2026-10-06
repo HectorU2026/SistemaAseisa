@@ -27,6 +27,8 @@ namespace Abstracciones.Modelos
         public string ContrasenaHash { get; set; }
         public DateTime? UltimoAcceso { get; set; }
         public int? IdEstado { get; set; }
+        public DateTime? FechaCreacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
     }
 
 }

@@ -19,8 +19,27 @@ namespace DA
             _sqlConnection = _repositorioDapper.ObtenerRepositorioDapper();
         }
 
-        public async Task<int> CrearUsuario(RegistroRequest infoUsuario)
+        public async Task<RegistroResponse> CrearUsuario(RegistroRequest infoUsuario)
         {
+            var existeCorreo = await ValidarCorreo(infoUsuario.Usuario.Correo);
+            if (existeCorreo > 0)
+            {
+                return new RegistroResponse
+                {
+                    IdUsuario = null,
+                    mensaje = "El correo ya fue registrado"
+                };
+            }
+
+            var existeUsuario = await ValidarNombreUsuario(infoUsuario.Usuario.NombreUsuario);
+            if (existeUsuario > 0)
+            {
+                return new RegistroResponse
+                {
+                    IdUsuario = null,
+                    mensaje = "El nombre de usuario ya fue registrado"
+                };
+            }
             var sql = @"RegistroUsuario";
 
             var resultado = await _sqlConnection.ExecuteScalarAsync<int>(
@@ -42,7 +61,11 @@ namespace DA
                     nombre_razon_social = infoUsuario.Cliente.NombreRazonSocial,
                     id_rol = 3
                 });
-            return resultado;
+            return new RegistroResponse
+            {
+                IdUsuario = resultado,
+                mensaje = "Usuario registrado correctamente"
+            }; ;
         }
 
         public async Task<LoginAutenticado> ObtenerUsuario(LoginBase login)
@@ -55,17 +78,6 @@ namespace DA
             return resultado.FirstOrDefault();
         }
 
-        public async Task<UsuarioRecuperar> ValidarCorreo(string correo)
-        {
-            string sql = @"ValidarCorreo";
-            var resultado = await _sqlConnection.QueryAsync<UsuarioRecuperar>(sql,
-            new
-            {
-                correo = correo
-            });
-            return resultado.FirstOrDefault();
-        }
-
         public async Task<ActionResult> CambiarContrasena(CambiarContrasena usuario)
         {
             string sql = @"CambiarContrasena";
@@ -73,9 +85,43 @@ namespace DA
             new
             {
                 correo = usuario.correo,
-                contrasena = usuario.NuevaContrasena
+                contrasena = usuario.ContrasenaHash
             });
             return new OkResult();
+        }
+
+        public async Task<UsuarioRecuperar> ValidarCorreoActivo(string correo)
+        {
+            string sql = @"ValidarCorreoActivo";
+            var resultado = await _sqlConnection.QueryAsync<UsuarioRecuperar>(sql,
+                new
+                {
+                    correo = correo
+                });
+
+            return resultado.FirstOrDefault();
+        }
+
+        private async Task<int> ValidarCorreo(string correo)
+        {
+            string sql = @"ValidarCorreo";
+            var resultado = await _sqlConnection.ExecuteScalarAsync<int>(sql,
+                new { 
+                    correo = correo 
+                });
+
+            return resultado;
+        }
+
+        private async Task<int> ValidarNombreUsuario(string nombreUsuario)
+        {
+            string sql = @"ValidarNombreUsuario";
+            var resultado = await _sqlConnection.ExecuteScalarAsync<int>(sql,
+                new { 
+                    nombre_usuario = nombreUsuario 
+                });
+
+            return resultado;
         }
 
     }

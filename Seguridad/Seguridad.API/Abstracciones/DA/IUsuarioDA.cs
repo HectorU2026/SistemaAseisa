@@ -11,9 +11,9 @@ namespace Abstracciones.DA
 { 
     public interface IUsuarioDA
     {
-        Task<int> CrearUsuario(RegistroRequest infoUsuario);
+        Task<RegistroResponse> CrearUsuario(RegistroRequest infoUsuario);
         Task<LoginAutenticado> ObtenerUsuario(LoginBase login);
-        Task<UsuarioRecuperar> ValidarCorreo(string correo);
+        Task<UsuarioRecuperar> ValidarCorreoActivo(string correo);
         Task<ActionResult> CambiarContrasena(CambiarContrasena usuario);
 
     }
