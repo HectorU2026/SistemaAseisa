@@ -103,5 +103,7 @@
     <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
     <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
+    <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
   </ItemGroup>
 </Project>

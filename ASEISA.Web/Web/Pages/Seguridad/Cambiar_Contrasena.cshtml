@@ -45,7 +45,15 @@
                     <label asp-for="Cambio.ConfirmarContrasena" class="form-label small fw-semibold">Confirmar contraseña</label>
                     <input asp-for="Cambio.ConfirmarContrasena" type="password" class="form-control" />
                 </div>
-
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div class="alert alert-danger small" role="alert">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                    </div>
+                }
                 <button type="submit" class="btn btn-aseisa w-100 fw-semibold">Cambiar contraseña</button>
             </form>
 

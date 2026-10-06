@@ -11,7 +11,7 @@ namespace Abstracciones.Flujo
 {
     public interface IUsuarioFlujo
     {
-        Task<ActionResult> CrearUsuario(RegistroRequest infoUusuario);
+        Task<RegistroResponse> CrearUsuario(RegistroRequest infoUusuario);
         Task<LoginAutenticado> ObtenerUsuario(LoginBase login);
 
     }
