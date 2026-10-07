@@ -106,5 +106,12 @@
     <Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
     <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
+    <Build Include="dbo\Tables\TERMINO_PAGO.sql" />
+    <Build Include="dbo\Tables\METODO_PAGO.sql" />
+    <Build Include="dbo\Tables\CONTACTO.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerContactos.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerContacto.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCatalogosPagoContacto.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarContacto.sql" />
   </ItemGroup>
 </Project>

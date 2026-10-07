@@ -26,6 +26,8 @@ builder.Services.AddScoped<IProductoDA, ProductoDA>();
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
 builder.Services.AddScoped<IEmpresaDA, EmpresaDA>();
 builder.Services.AddScoped<IEmpresaFlujo, EmpresaFlujo>();
+builder.Services.AddScoped<IContactoDA, ContactoDA>();
+builder.Services.AddScoped<IContactoFlujo, ContactoFlujo>();
 
 
 var app = builder.Build();
