@@ -19,12 +19,9 @@ namespace Flujo
             _usuarioDA = usuarioDA;
         }
 
-        public async Task<ActionResult> CrearUsuario(RegistroRequest infoUusuario)
+        public async Task<RegistroResponse> CrearUsuario(RegistroRequest infoUusuario)
         {
-            if (await _usuarioDA.ValidarCorreo(infoUusuario.Usuario.Correo) != null)
-                return new BadRequestObjectResult("El correo ya está registrado");
-            var id = await _usuarioDA.CrearUsuario(infoUusuario);
-            return new OkObjectResult(new { IdUsuario = id });        
+            return await _usuarioDA.CrearUsuario(infoUusuario);
         }
 
         public async Task<LoginAutenticado> ObtenerUsuario(LoginBase login)

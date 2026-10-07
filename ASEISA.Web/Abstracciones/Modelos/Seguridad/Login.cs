@@ -15,7 +15,7 @@ namespace Abstracciones.Modelos.Seguridad
 
         [Required]
         [PasswordPropertyText]
-        public string contrasena { get; set; }
+        public string ContrasenaHash { get; set; }
 
     }
     public class restablecerContraseña

@@ -73,5 +73,7 @@
     <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
     <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
     <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
   </ItemGroup>
 </Project>

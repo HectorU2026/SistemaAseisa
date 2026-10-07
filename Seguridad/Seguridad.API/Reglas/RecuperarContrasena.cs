@@ -32,7 +32,7 @@ namespace Reglas
 
         public async Task<ActionResult> GestionRecuperarContrasena(UsuarioRecuperar correo)
         {
-            _usuario = await _usuarioDA.ValidarCorreo(correo.correo);
+            _usuario = await _usuarioDA.ValidarCorreoActivo(correo.correo);
             if (_usuario == null)
             {
                 return new BadRequestObjectResult("Correo no encontrado");
