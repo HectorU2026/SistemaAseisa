@@ -40,6 +40,22 @@ namespace API.Controllers
                 resultado);
         }
 
+        [HttpPut("{idContacto:int}")]
+        public async Task<IActionResult> Editar(
+            [FromRoute] int idContacto,
+            [FromQuery] int idEmpresa,
+            [FromQuery] int idUsuario,
+            [FromBody] ContactoRequest contacto)
+        {
+            if (!await VerificarContactoExiste(idEmpresa, idContacto))
+                return NotFound("El contacto no existe");
+
+            var resultado = await _contactoFlujo.Editar(
+                idEmpresa, idUsuario, idContacto, contacto);
+
+            return Ok(resultado);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Obtener(
             [FromQuery] int idEmpresa,
@@ -80,6 +96,18 @@ namespace API.Controllers
                 idEmpresa);
 
             return Ok(resultado);
+        }
+
+        #endregion
+
+        #region "Helpers"
+        private async Task<bool> VerificarContactoExiste(int idEmpresa, int idContacto)
+        {
+            var resultadoValidacion = false;
+            var resultadoContactoExiste = await _contactoFlujo.Obtener(idEmpresa, idContacto);
+            if (resultadoContactoExiste != null)
+                resultadoValidacion = true;
+            return resultadoValidacion;
         }
 
         #endregion
