@@ -22,7 +22,7 @@ namespace API.Controllers
             await usuarioFlujo.ActualizarUltimoAcceso(correo);
             return Ok();
         }
-
+         
         [HttpGet("ObtenerInfoUsuario")]
         public async Task<ActionResult<Usuario>> ObtenerInfoUsuario(string correo)
         {
