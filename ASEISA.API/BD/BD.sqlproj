@@ -113,5 +113,6 @@
     <Build Include="dbo\Stored Procedures\ObtenerContacto.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCatalogosPagoContacto.sql" />
     <Build Include="dbo\Stored Procedures\AgregarContacto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarContacto.sql" />
   </ItemGroup>
 </Project>
