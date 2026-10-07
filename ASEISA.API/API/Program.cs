@@ -14,7 +14,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 builder.Services.AddScoped<IRepositorioDapper, RepositorioDapper>();
 builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
@@ -22,12 +21,12 @@ builder.Services.AddScoped<IBitacoraDA, BitacoraDA>();
 builder.Services.AddScoped<IBitacoraFlujo, BitacoraFlujo>();
 builder.Services.AddScoped<IBodegaDA, BodegaDA>();
 builder.Services.AddScoped<IBodegaFlujo, BodegaFlujo>();
-builder.Services.AddScoped<IProductoDA, ProductoDA>();
-builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
 builder.Services.AddScoped<IEmpresaDA, EmpresaDA>();
 builder.Services.AddScoped<IEmpresaFlujo, EmpresaFlujo>();
 builder.Services.AddScoped<IContactoDA, ContactoDA>();
 builder.Services.AddScoped<IContactoFlujo, ContactoFlujo>();
+builder.Services.AddScoped<IProductoDA, ProductoDA>();
+builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
 
 
 var app = builder.Build();
