@@ -86,24 +86,38 @@ public class ContactoDA : IContactoDA
         }, commandType: CommandType.StoredProcedure);
     }
 
-    public async Task<ContactoResponse?> Obtener(int idEmpresa, int idContacto)
+    public async Task<ContactoResponse?> Obtener(int idEmpresa, int idContacto, int idUsuario)
     {
         using var conexion = new SqlConnection(_connectionString);
         return await conexion.QuerySingleOrDefaultAsync<ContactoResponse>("dbo.ObtenerContacto", new
         {
             id_empresa = idEmpresa,
-            id_contacto = idContacto
+            id_contacto = idContacto,
+            id_usuario = idUsuario
         }, commandType: CommandType.StoredProcedure);
     }
 
-    public async Task<CatalogosPagoContactoResponse> ObtenerCatalogosPago(int idEmpresa)
+    public async Task<CatalogosPagoContactoResponse> ObtenerCatalogosPago(int idEmpresa, int idUsuario)
     {
         using var conexion = new SqlConnection(_connectionString);
         using var resultados = await conexion.QueryMultipleAsync("dbo.ObtenerCatalogosPagoContacto",
-            new { id_empresa = idEmpresa }, commandType: CommandType.StoredProcedure);
+            new { id_empresa = idEmpresa, id_usuario = idUsuario }, commandType: CommandType.StoredProcedure);
         var terminos = (await resultados.ReadAsync<TerminoPagoResponse>()).ToList();
         var metodos = (await resultados.ReadAsync<MetodoPagoResponse>()).ToList();
         return new CatalogosPagoContactoResponse { TerminosPago = terminos, MetodosPago = metodos };
+    }
+
+    public async Task<int> CambiarEstado(int idEmpresa, int idUsuario, int idContacto, bool activo)
+    {
+        using var conexion = new SqlConnection(_connectionString);
+        var resultado = await conexion.ExecuteScalarAsync<int>("dbo.CambiarEstadoContacto", new
+        {
+            id_empresa = idEmpresa,
+            id_usuario = idUsuario,
+            id_contacto = idContacto,
+            activo = activo
+        }, commandType: CommandType.StoredProcedure);
+        return resultado;
     }
 }
 
