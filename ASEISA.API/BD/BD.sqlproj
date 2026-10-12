@@ -118,5 +118,6 @@
     <Build Include="dbo\Stored Procedures\EditarUsuario.sql" />
     <Build Include="dbo\Stored Procedures\CambiarEstadoUsuario.sql" />
     <Build Include="dbo\Stored Procedures\InformacionUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\RestablecerContrasenaUsuario.sql" />
   </ItemGroup>
 </Project>
