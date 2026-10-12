@@ -116,5 +116,6 @@
     <Build Include="dbo\Stored Procedures\AgregarContacto.sql" />
     <Build Include="dbo\Stored Procedures\EditarContacto.sql" />
     <Build Include="dbo\Stored Procedures\CambiarEstadoContacto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarUsuario.sql" />
   </ItemGroup>
 </Project>
