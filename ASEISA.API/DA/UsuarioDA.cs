@@ -108,5 +108,18 @@ namespace DA
                     contrasena_hash = contrasenaHash
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        // asignar rol a usuario
+        public async Task<int> AsignarRolUsuario(int idEmpresa, int idUsuario, int idRol)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"AsignarRolUsuario", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    id_rol = idRol
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }
