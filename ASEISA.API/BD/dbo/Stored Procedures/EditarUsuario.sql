@@ -32,7 +32,8 @@ BEGIN
             correo             = @correo,
             nombre_usuario     = @nombre_usuario,
             contrasena_hash    = ISNULL(NULLIF(@contrasena_hash, ''), contrasena_hash),
-            id_estado          = @id_estado
+            id_estado          = @id_estado,
+			fecha_modificacion = SYSDATETIME()
         WHERE id_usuario = @id_usuario AND id_empresa = @id_empresa;
 
         -- 2. Actualizar o asegurar el rol en ROL_USUARIO

@@ -36,5 +36,13 @@ namespace API.Controllers
             var idUsuario = await usuarioFlujo.AgregarUsuario(idEmpresa, usuario);
             return Ok(idUsuario);
         }
+        
+        [HttpPut("EditarUsuario")]
+        public async Task<ActionResult<int>> EditarUsuario(int idEmpresa, int idUsuario, [FromBody] UsuarioRequest usuario)
+        {
+            var idUsuarioActualizado = await usuarioFlujo.EditarUsuario(idEmpresa, idUsuario, usuario);
+            return Ok(idUsuarioActualizado);
+        }
+
     }
 }

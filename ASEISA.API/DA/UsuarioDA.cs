@@ -58,5 +58,29 @@ namespace DA
                     id_rol = usuario.IdRol
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<int> EditarUsuario(int idEmpresa, int idUsuario, UsuarioRequest usuario)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"EditarUsuario", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    tipo_cliente = usuario.TipoCliente,
+                    nombre = usuario.Nombre,
+                    primer_apellido = usuario.PrimerApellido,
+                    segundo_apellido = usuario.SegundoApellido,
+                    correo = usuario.Correo,
+                    nombre_usuario = usuario.NombreUsuario,
+                    contrasena_hash = usuario.ContrasenaHash,
+                    id_estado = usuario.IdEstado,
+                    telefono = usuario.Telefono,
+                    direccion = usuario.Direccion,
+                    identificacion = usuario.Identificacion,
+                    nombre_razon_social = usuario.NombreRazonSocial,
+                    id_rol = usuario.IdRol
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

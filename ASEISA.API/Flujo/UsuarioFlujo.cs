@@ -30,5 +30,11 @@ namespace Flujo
         {
             return await _usuarioDA.AgregarUsuario(idEmpresa, usuario);
         }
+        
+        public async Task<int> EditarUsuario(int idEmpresa, int idUsuario, UsuarioRequest usuario)
+        {
+            return await _usuarioDA.EditarUsuario(idEmpresa, idUsuario, usuario);
+        }
+
     }
 }
