@@ -47,5 +47,10 @@ namespace Flujo
             return await _usuarioDA.RestablecerContrasenaUsuario(idEmpresa, idUsuario, contrasenaHash);
         }
 
+        public async Task<int> AsignarRolUsuario(int idEmpresa, int idUsuario, int idRol)
+        {
+            return await _usuarioDA.AsignarRolUsuario(idEmpresa, idUsuario, idRol);
+        }
+
     }
 }
