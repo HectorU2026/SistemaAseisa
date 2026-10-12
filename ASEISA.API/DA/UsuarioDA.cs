@@ -95,5 +95,18 @@ namespace DA
                     id_estado = idEstado
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        //restablecer contraseña
+        public async Task<int> RestablecerContrasenaUsuario(int idEmpresa, int idUsuario, string contrasenaHash)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"RestablecerContrasenaUsuario", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    contrasena_hash = contrasenaHash
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

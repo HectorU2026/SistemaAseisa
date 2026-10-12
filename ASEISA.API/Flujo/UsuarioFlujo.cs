@@ -3,6 +3,7 @@ using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Flujo
@@ -39,6 +40,11 @@ namespace Flujo
         public async Task<int> CambiarEstadoUsuario(int idEmpresa, int idUsuario, int idEstado)
         {
             return await _usuarioDA.CambiarEstadoUsuario(idEmpresa, idUsuario, idEstado);
+        }
+
+        public async Task<int> RestablecerContrasenaUsuario(int idEmpresa, int idUsuario, string contrasenaHash)
+        {
+            return await _usuarioDA.RestablecerContrasenaUsuario(idEmpresa, idUsuario, contrasenaHash);
         }
 
     }

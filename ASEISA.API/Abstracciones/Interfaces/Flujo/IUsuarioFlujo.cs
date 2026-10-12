@@ -12,5 +12,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<int> AgregarUsuario(int idEmpresa, UsuarioRequest usuario);
         Task<int> EditarUsuario(int idEmpresa, int idUsuario, UsuarioRequest usuario);
         Task<int> CambiarEstadoUsuario(int idEmpresa, int idUsuario, int idEstado);
+        Task<int> RestablecerContrasenaUsuario(int idEmpresa, int idUsuario, string contrasenaHash);
     }
 }
