@@ -21,9 +21,14 @@ namespace Flujo
             await _usuarioDA.ActualizarUltimoAcceso(correo);
         }   
 
-        public async Task<Usuario> ObtenerInfoUsuario(string correo)
+        public async Task<UsuarioResponse> ObtenerInfoUsuario(string correo)
         {
             return await _usuarioDA.ObtenerInfoUsuario(correo);
         }   
+
+        public async Task<int> AgregarUsuario(int idEmpresa, UsuarioRequest usuario)
+        {
+            return await _usuarioDA.AgregarUsuario(idEmpresa, usuario);
+        }
     }
 }
