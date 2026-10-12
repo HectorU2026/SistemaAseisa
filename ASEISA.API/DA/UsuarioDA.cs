@@ -29,7 +29,7 @@ namespace DA
 
         public async Task<UsuarioResponse> ObtenerInfoUsuario(string correo)
         {
-            var sql = @"ObtenerUsuario";
+            var sql = @"InformacionUsuario";
 
             var resultado = await _sqlConnection.QueryAsync<UsuarioResponse>(sql, new { Correo = correo });
 
