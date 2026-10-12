@@ -8,5 +8,6 @@ namespace Abstracciones.Interfaces.Flujo
     public interface IProductoFlujo
     {
         Task<int> RegistrarProducto(Producto producto);
+        Task<int> EditarProducto(Producto producto);
     }
 }
