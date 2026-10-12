@@ -8,6 +8,7 @@ namespace Abstracciones.Interfaces.Flujo
     public interface IUsuarioFlujo
     {
         Task ActualizarUltimoAcceso(string correo);
-        Task<Usuario> ObtenerInfoUsuario(string correo);
+        Task<UsuarioResponse> ObtenerInfoUsuario(string correo);
+        Task<int> AgregarUsuario(int idEmpresa, UsuarioRequest usuario);
     }
 }

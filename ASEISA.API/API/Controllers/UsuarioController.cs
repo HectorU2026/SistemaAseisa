@@ -24,10 +24,17 @@ namespace API.Controllers
         }
          
         [HttpGet("ObtenerInfoUsuario")]
-        public async Task<ActionResult<Usuario>> ObtenerInfoUsuario(string correo)
+        public async Task<ActionResult<UsuarioResponse>> ObtenerInfoUsuario(string correo)
         {
             var infoUsuario = await usuarioFlujo.ObtenerInfoUsuario(correo);
             return Ok(infoUsuario);
+        }
+
+        [HttpPost("AgregarUsuario")]
+        public async Task<ActionResult<int>> AgregarUsuario(int idEmpresa, [FromBody] UsuarioRequest usuario)
+        {
+            var idUsuario = await usuarioFlujo.AgregarUsuario(idEmpresa, usuario);
+            return Ok(idUsuario);
         }
     }
 }
