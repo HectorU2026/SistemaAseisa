@@ -58,5 +58,12 @@ namespace API.Controllers
             return Ok(idUsuarioActualizado);
 
         }
+
+        [HttpPost("AsignarRolUsuario")]
+        public async Task<ActionResult<int>> AsignarRolUsuario(int idEmpresa, int idUsuario, int idRol)
+        {
+            var idUsuarioActualizado = await usuarioFlujo.AsignarRolUsuario(idEmpresa, idUsuario, idRol);
+            return Ok(idUsuarioActualizado);
+        }
     }
 }
