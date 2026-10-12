@@ -11,5 +11,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<UsuarioResponse> ObtenerInfoUsuario(string correo);
         Task<int> AgregarUsuario(int idEmpresa, UsuarioRequest usuario);
         Task<int> EditarUsuario(int idEmpresa, int idUsuario, UsuarioRequest usuario);
+        Task<int> CambiarEstadoUsuario(int idEmpresa, int idUsuario, int idEstado);
     }
 }
