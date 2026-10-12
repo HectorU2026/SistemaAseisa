@@ -22,7 +22,7 @@ namespace API.Controllers
             await usuarioFlujo.ActualizarUltimoAcceso(correo);
             return Ok();
         }
-         
+
         [HttpGet("ObtenerInfoUsuario")]
         public async Task<ActionResult<UsuarioResponse>> ObtenerInfoUsuario(string correo)
         {
@@ -36,7 +36,7 @@ namespace API.Controllers
             var idUsuario = await usuarioFlujo.AgregarUsuario(idEmpresa, usuario);
             return Ok(idUsuario);
         }
-        
+
         [HttpPut("EditarUsuario")]
         public async Task<ActionResult<int>> EditarUsuario(int idEmpresa, int idUsuario, [FromBody] UsuarioRequest usuario)
         {
@@ -51,5 +51,12 @@ namespace API.Controllers
             return Ok(idUsuarioActualizado);
         }
 
+        [HttpPut("RestablecerContrasena")]
+        public async Task<ActionResult<int>> RestablecerContrasenaUsuario(int idEmpresa, int idUsuario, string contrasenaHash)
+        {
+            var idUsuarioActualizado = await usuarioFlujo.RestablecerContrasenaUsuario(idEmpresa, idUsuario, contrasenaHash);
+            return Ok(idUsuarioActualizado);
+
+        }
     }
 }
