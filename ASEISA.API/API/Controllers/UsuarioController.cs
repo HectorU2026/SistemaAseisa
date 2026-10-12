@@ -44,5 +44,12 @@ namespace API.Controllers
             return Ok(idUsuarioActualizado);
         }
 
+        [HttpPut("CambiarEstadoUsuario")]
+        public async Task<ActionResult<int>> CambiarEstadoUsuario(int idEmpresa, int idUsuario, int idEstado)
+        {
+            var idUsuarioActualizado = await usuarioFlujo.CambiarEstadoUsuario(idEmpresa, idUsuario, idEstado);
+            return Ok(idUsuarioActualizado);
+        }
+
     }
 }

@@ -82,5 +82,18 @@ namespace DA
                     id_rol = usuario.IdRol
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        // activar o desactivar usuario
+        public async Task<int> CambiarEstadoUsuario(int idEmpresa, int idUsuario, int idEstado)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"CambiarEstadoUsuario", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    id_estado = idEstado
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }
