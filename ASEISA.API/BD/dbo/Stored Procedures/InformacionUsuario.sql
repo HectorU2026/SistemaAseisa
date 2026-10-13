@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE InformarionUsurio
+﻿CREATE PROCEDURE [InformacionUsuario]
     @nombre_usuario varchar(100),
     @hash varchar(500),
     @estado_activo int
