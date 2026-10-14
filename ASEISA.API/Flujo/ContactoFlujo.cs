@@ -79,7 +79,7 @@ public class ContactoFlujo : IContactoFlujo
         ValidarId(idContacto, nameof(idContacto));
 
         return await _contactoDA.Obtener(
-            idEmpresa, idUsuario, idContacto);
+            idEmpresa, idContacto, idUsuario);
     }
 
     public async Task<CatalogosPagoContactoResponse> ObtenerCatalogosPago(int idEmpresa, int idUsuario)
