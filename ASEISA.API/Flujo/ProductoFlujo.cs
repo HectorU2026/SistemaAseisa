@@ -123,5 +123,17 @@ namespace Flujo
 
             return await _productoDA.EditarProducto(producto);
         }
+
+        public async Task<int> InhabilitarProducto(ProductoInhabilitar producto)
+        {
+            if (producto == null
+                || !producto.IdProducto.HasValue
+                || producto.IdProducto <= 0)
+            {
+                return 0;
+            }
+
+            return await _productoDA.InhabilitarProducto(producto.IdProducto.Value);
+        }
     }
 }
