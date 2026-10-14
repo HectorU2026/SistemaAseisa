@@ -43,5 +43,17 @@ namespace DA
                     detalles_json = detallesJson
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<int> AvanzarCotizacionEnviada(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"AvanzarCotizacionEnviada", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    id_cotizacion = idCotizacion
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

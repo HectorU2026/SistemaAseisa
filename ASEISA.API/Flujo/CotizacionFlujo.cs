@@ -20,5 +20,11 @@ namespace Flujo
         {
             return await _cotizacionDA.RegistrarCotizacion(idEmpresa, idUsuario, cotizacion);
         }
+
+        // avanzar cotizacion enviada
+        public async Task<int> AvanzarCotizacionEnviadaFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            return await _cotizacionDA.AvanzarCotizacionEnviada(idEmpresa, idUsuario, idCotizacion);
+        }
     }
 }

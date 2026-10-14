@@ -21,5 +21,12 @@ namespace API.Controllers
             var result = await cotizacionFlujo.RegistrarCotizacionFlujo(idEmpresa, idUsuario, cotizacion);
             return Ok(result);
         }
+
+        [HttpPut("AvanzarCotizacionEnviadaFlujo")]
+        public async Task<IActionResult> AvanzarCotizacionEnviadaFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            var result = await cotizacionFlujo.AvanzarCotizacionEnviadaFlujo(idEmpresa, idUsuario, idCotizacion);
+            return Ok(result);
+        }
     }
 }
