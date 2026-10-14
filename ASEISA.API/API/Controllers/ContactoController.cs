@@ -47,7 +47,7 @@ namespace API.Controllers
             [FromQuery] int idUsuario,
             [FromBody] ContactoRequest contacto)
         {
-            if (!await VerificarContactoExiste(idEmpresa, idContacto))
+            if (!await VerificarContactoExiste(idEmpresa, idContacto, idUsuario))
                 return NotFound("El contacto no existe");
 
             var resultado = await _contactoFlujo.Editar(
@@ -75,10 +75,11 @@ namespace API.Controllers
         [HttpGet("{idContacto:int}")]
         public async Task<IActionResult> ObtenerDetalle(
             [FromRoute] int idContacto,
-            [FromQuery] int idEmpresa)
+            [FromQuery] int idEmpresa,
+            [FromQuery] int idUsuario)
         {
             var resultado = await _contactoFlujo.Obtener(
-                idEmpresa, idContacto);
+                idEmpresa, idUsuario, idContacto);
 
             if (resultado == null)
             {
@@ -90,10 +91,41 @@ namespace API.Controllers
 
         [HttpGet("catalogos-pago")]
         public async Task<IActionResult> ObtenerCatalogosPago(
-            [FromQuery] int idEmpresa)
+            [FromQuery] int idEmpresa,
+            [FromQuery] int idUsuario)
         {
             var resultado = await _contactoFlujo.ObtenerCatalogosPago(
-                idEmpresa);
+                idEmpresa, idUsuario);
+
+            return Ok(resultado);
+        }
+
+        [HttpPut("{idContacto:int}/activar")]
+        public async Task<IActionResult> Activar(
+            [FromRoute] int idContacto,
+            [FromQuery] int idEmpresa,
+            [FromQuery] int idUsuario)
+        {
+            if (!await VerificarContactoExiste(idEmpresa, idContacto, idUsuario))
+                return NotFound("El contacto no existe");
+
+            var resultado = await _contactoFlujo.CambiarEstado(
+                idEmpresa, idUsuario, idContacto, true);
+
+            return Ok(resultado);
+        }
+
+        [HttpPut("{idContacto:int}/desactivar")]
+        public async Task<IActionResult> Desactivar(
+            [FromRoute] int idContacto,
+            [FromQuery] int idEmpresa,
+            [FromQuery] int idUsuario)
+        {
+            if (!await VerificarContactoExiste(idEmpresa, idContacto, idUsuario))
+                return NotFound("El contacto no existe");
+
+            var resultado = await _contactoFlujo.CambiarEstado(
+                idEmpresa, idUsuario, idContacto, false);
 
             return Ok(resultado);
         }
@@ -101,12 +133,16 @@ namespace API.Controllers
         #endregion
 
         #region "Helpers"
-        private async Task<bool> VerificarContactoExiste(int idEmpresa, int idContacto)
+        private async Task<bool> VerificarContactoExiste(
+            int idEmpresa, int idUsuario, int idContacto)
         {
             var resultadoValidacion = false;
-            var resultadoContactoExiste = await _contactoFlujo.Obtener(idEmpresa, idContacto);
+            var resultadoContactoExiste = await _contactoFlujo.Obtener(
+                idEmpresa, idUsuario, idContacto);
+
             if (resultadoContactoExiste != null)
                 resultadoValidacion = true;
+
             return resultadoValidacion;
         }
 

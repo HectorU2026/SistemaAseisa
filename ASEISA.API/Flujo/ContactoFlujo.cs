@@ -71,18 +71,32 @@ public class ContactoFlujo : IContactoFlujo
         return await _contactoDA.Obtener(idEmpresa, datos);
     }
 
-    public async Task<ContactoResponse?> Obtener(int idEmpresa, int idContacto)
+    public async Task<ContactoResponse?> Obtener(
+    int idEmpresa, int idUsuario, int idContacto)
     {
         ValidarId(idEmpresa, nameof(idEmpresa));
+        ValidarId(idUsuario, nameof(idUsuario));
         ValidarId(idContacto, nameof(idContacto));
-        return await _contactoDA.Obtener(idEmpresa, idContacto);
+
+        return await _contactoDA.Obtener(
+            idEmpresa, idUsuario, idContacto);
     }
 
-    public async Task<CatalogosPagoContactoResponse> ObtenerCatalogosPago(int idEmpresa)
+    public async Task<CatalogosPagoContactoResponse> ObtenerCatalogosPago(int idEmpresa, int idUsuario)
     {
         ValidarId(idEmpresa, nameof(idEmpresa));
-        return await _contactoDA.ObtenerCatalogosPago(idEmpresa);
+        return await _contactoDA.ObtenerCatalogosPago(idEmpresa, idUsuario);
     }
+
+    public async Task<int> CambiarEstado(int idEmpresa, int idUsuario, int idContacto, bool activo)
+    {
+        ValidarId(idEmpresa, nameof(idEmpresa));
+        ValidarId(idUsuario, nameof(idUsuario));
+        ValidarId(idContacto, nameof(idContacto));
+        return await _contactoDA.CambiarEstado(idEmpresa, idUsuario, idContacto, activo);
+    }
+
+    #region "Helpers"
 
     private static string? Limpiar(string? valor) =>
         string.IsNullOrWhiteSpace(valor) ? null : valor.Trim();
@@ -128,4 +142,5 @@ public class ContactoFlujo : IContactoFlujo
         ValidarModelo(datos);
         return datos;
     }
+    #endregion
 }

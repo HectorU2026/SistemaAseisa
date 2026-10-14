@@ -101,9 +101,9 @@
     <Build Include="dbo\Tables\ACTIVO_FIJO.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
     <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
-    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarProducto.sql" />
     <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
     <Build Include="dbo\Tables\TERMINO_PAGO.sql" />
@@ -114,5 +114,11 @@
     <Build Include="dbo\Stored Procedures\ObtenerCatalogosPagoContacto.sql" />
     <Build Include="dbo\Stored Procedures\AgregarContacto.sql" />
     <Build Include="dbo\Stored Procedures\EditarContacto.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoContacto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\InformacionUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\RestablecerContrasenaUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\AsignarRolUsuario.sql" />
   </ItemGroup>
 </Project>
