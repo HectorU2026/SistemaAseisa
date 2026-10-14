@@ -52,5 +52,12 @@ namespace Flujo
             return await _usuarioDA.AsignarRolUsuario(idEmpresa, idUsuario, idRol);
         }
 
+        public async Task<int?> ObtenerEmpresaUsuarioActivo(int idUsuario)
+        {
+            if (idUsuario <= 0)
+                return null;
+
+            return await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+        }
     }
 }

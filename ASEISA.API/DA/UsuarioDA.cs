@@ -121,5 +121,18 @@ namespace DA
                     id_rol = idRol
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<int?> ObtenerEmpresaUsuarioActivo(int idUsuario)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+
+            return await conexion.QuerySingleOrDefaultAsync<int?>(
+                "dbo.ObtenerEmpresaUsuarioActivo",
+                new
+                {
+                    id_usuario = idUsuario
+                },
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

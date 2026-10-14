@@ -3,7 +3,6 @@ using Abstracciones.Flujo;
 using Abstracciones.Modelos;
 using Abstracciones.Reglas;
 using Abstracciones.Servicios;
-using Autorizacion.Middleware;
 using BC;
 using DA;
 using DA.Repositorios;
@@ -52,11 +51,6 @@ builder.Services.AddScoped<IAutenticacionBC, AutenticacionReglas>();
 builder.Services.AddScoped<IRecuperarContrasena, RecuperarContrasena>();
 builder.Services.AddScoped<IEnviarGmail, EnviarGmail>();
 
-
-builder.Services.AddTransient<Autorizacion.Abstracciones.Flujo.IAutorizacionFlujo, Autorizacion.Flujo.AutorizacionFlujo>();
-builder.Services.AddTransient<Autorizacion.Abstracciones.DA.ISeguridadDA, Autorizacion.DA.SeguridadDA>();
-builder.Services.AddTransient<Autorizacion.Abstracciones.DA.IRepositorioDapper, Autorizacion.DA.Repositorios.RepositorioDapper>();
-
 var politicaAcceso = "Politica de acceso";
 builder.Services.AddCors(options =>
 {
@@ -79,7 +73,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.AutorizacionClaims();
 app.UseAuthorization();
 
 app.MapControllers();
