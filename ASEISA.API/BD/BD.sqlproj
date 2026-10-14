@@ -121,6 +121,7 @@
     <Build Include="dbo\Stored Procedures\InformacionUsuario.sql" />
     <Build Include="dbo\Stored Procedures\RestablecerContrasenaUsuario.sql" />
     <Build Include="dbo\Stored Procedures\AsignarRolUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEmpresaUsuarioActivo.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionEnviada.sql" />
   </ItemGroup>
