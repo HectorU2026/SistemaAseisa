@@ -83,5 +83,33 @@ namespace API.Controllers
 
             return Ok("Producto editado con éxito");
         }
+
+        [HttpPost("InhabilitarProducto")]
+        public async Task<ActionResult> InhabilitarProducto(ProductoInhabilitar producto)
+        {
+            var resultado = await productoFlujo.InhabilitarProducto(producto);
+
+            if (resultado == 0)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            if (resultado == 3)
+            {
+                return NotFound("El producto no existe");
+            }
+
+            if (resultado == 8)
+            {
+                return BadRequest("El catálogo ESTADO debe tener un único Activo y un único Inactivo");
+            }
+
+            if (resultado != 1)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            return Ok("Producto inhabilitado con éxito");
+        }
     }
 }
