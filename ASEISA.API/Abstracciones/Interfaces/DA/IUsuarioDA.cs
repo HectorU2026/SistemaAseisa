@@ -14,5 +14,6 @@ namespace Abstracciones.Interfaces.DA
         Task<int> CambiarEstadoUsuario(int idEmpresa, int idUsuario, int idEstado);
         Task<int> RestablecerContrasenaUsuario(int idEmpresa, int idUsuario, string contrasenaHash);
         Task<int> AsignarRolUsuario(int idEmpresa, int idUsuario, int idRol);
+        Task<int?> ObtenerEmpresaUsuarioActivo(int idUsuario);
     }
 }

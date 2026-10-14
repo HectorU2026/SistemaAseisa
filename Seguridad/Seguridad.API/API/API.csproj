@@ -7,11 +7,7 @@
     <UserSecretsId>d8e3003c-b75d-4b06-9e1c-cf73a4e36327</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autorizacion.Abstracciones.Proyecto" Version="1.0.5" />
-    <PackageReference Include="Autorizacion.DA.Proyecto" Version="1.0.1" />
-    <PackageReference Include="Autorizacion.Flujo.Proyecto" Version="1.0.1" />
-    <PackageReference Include="Autorizacion.Middleware.Proyecto" Version="1.0.2" />
+  <ItemGroup> 
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
