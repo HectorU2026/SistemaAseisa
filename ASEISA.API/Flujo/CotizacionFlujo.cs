@@ -37,5 +37,11 @@ namespace Flujo
         {
             return await _cotizacionDA.EditarCotizacion(idEmpresa, idUsuario, cotizacion);
         }
+
+        //cancelar cotizacion
+        public async Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            return await _cotizacionDA.CancelarCotizacion(idEmpresa, idUsuario, idCotizacion);
+        }
     }
 }
