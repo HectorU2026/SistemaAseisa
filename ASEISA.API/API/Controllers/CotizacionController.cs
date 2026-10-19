@@ -28,5 +28,13 @@ namespace API.Controllers
             var result = await cotizacionFlujo.AvanzarCotizacionEnviadaFlujo(idEmpresa, idUsuario, idCotizacion);
             return Ok(result);
         }
+
+        //obtener cotizaciones 
+        [HttpGet("ObtenerCotizacionesFlujo")]
+        public async Task<IActionResult> ObtenerCotizacionesFlujo(int idEmpresa)
+        {
+            var result = await cotizacionFlujo.ObtenerCotizacionesFlujo(idEmpresa);
+            return Ok(result);
+        }
     }
 }

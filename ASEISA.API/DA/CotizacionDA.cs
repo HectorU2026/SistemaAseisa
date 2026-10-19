@@ -55,5 +55,16 @@ namespace DA
                     id_cotizacion = idCotizacion
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizaciones(int idEmpresa)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            var resultado = await conexion.QueryAsync<CotizacionResponse>(
+                @"ObtenerCotizaciones",
+                new { id_empresa = idEmpresa },
+                commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado;
+        }
     }
 }

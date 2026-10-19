@@ -124,5 +124,6 @@
     <Build Include="dbo\Stored Procedures\ObtenerEmpresaUsuarioActivo.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
   </ItemGroup>
 </Project>
