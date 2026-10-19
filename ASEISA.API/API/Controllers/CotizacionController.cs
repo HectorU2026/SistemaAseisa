@@ -44,5 +44,13 @@ namespace API.Controllers
             var result = await cotizacionFlujo.EditarCotizacionFlujo(idEmpresa, idUsuario, cotizacion);
             return Ok(result);
         }
+
+        //cancelar cotizacion
+        [HttpPut("CancelarCotizacionFlujo")]
+        public async Task<IActionResult> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            var result = await cotizacionFlujo.CancelarCotizacionFlujo(idEmpresa, idUsuario, idCotizacion);
+            return Ok(result);
+        }
     }
 }
