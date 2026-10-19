@@ -125,5 +125,6 @@
     <Build Include="dbo\Stored Procedures\RegistrarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionEnviada.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
+    <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
   </ItemGroup>
 </Project>

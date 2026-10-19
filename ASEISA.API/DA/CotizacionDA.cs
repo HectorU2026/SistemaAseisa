@@ -66,5 +66,28 @@ namespace DA
 
             return resultado;
         }
+
+        public async Task<int> EditarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
+        {
+            var detallesJson = JsonSerializer.Serialize(cotizacion.Detalles);
+
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"EditarCotizacion", new
+                {
+                    id_cotizacion = cotizacion.IdCotizacion,
+                    id_empresa = idEmpresa,
+                    id_cliente = cotizacion.IdCliente,
+                    fecha_vencimiento = cotizacion.FechaVencimiento,
+                    moneda = cotizacion.Moneda,
+                    tipo_cambio = cotizacion.TipoCambio,
+                    subtotal = cotizacion.Subtotal,
+                    impuesto = cotizacion.Impuesto,
+                    descuento = cotizacion.Descuento,
+                    total = cotizacion.Total,
+                    id_usuario = idUsuario,
+                    detalles_json = detallesJson
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

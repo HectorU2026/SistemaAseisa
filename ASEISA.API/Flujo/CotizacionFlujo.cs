@@ -31,5 +31,11 @@ namespace Flujo
         {
             return await _cotizacionDA.ObtenerCotizaciones(idEmpresa);
         }
+
+        //editar cotizacion 
+        public async Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
+        {
+            return await _cotizacionDA.EditarCotizacion(idEmpresa, idUsuario, cotizacion);
+        }
     }
 }
