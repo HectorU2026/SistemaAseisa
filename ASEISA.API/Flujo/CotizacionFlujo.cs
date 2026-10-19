@@ -26,5 +26,10 @@ namespace Flujo
         {
             return await _cotizacionDA.AvanzarCotizacionEnviada(idEmpresa, idUsuario, idCotizacion);
         }
+
+        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa)
+        {
+            return await _cotizacionDA.ObtenerCotizaciones(idEmpresa);
+        }
     }
 }
