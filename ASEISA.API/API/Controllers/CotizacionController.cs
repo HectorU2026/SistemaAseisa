@@ -36,5 +36,13 @@ namespace API.Controllers
             var result = await cotizacionFlujo.ObtenerCotizacionesFlujo(idEmpresa);
             return Ok(result);
         }
+
+        //editar cotizacion
+        [HttpPut("EditarCotizacionFlujo")]
+        public async Task<IActionResult> EditarCotizacionFlujo(int idEmpresa, int idUsuario, [FromBody] CotizacionRequest cotizacion)
+        {
+            var result = await cotizacionFlujo.EditarCotizacionFlujo(idEmpresa, idUsuario, cotizacion);
+            return Ok(result);
+        }
     }
 }
