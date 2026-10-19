@@ -1,11 +1,15 @@
 ﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
+using Abstracciones.Modelos.Servicios;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using System.Text.Json;
+using static Abstracciones.Modelos.CotizacionResponse;
+using static Abstracciones.Modelos.Facturacion;
 
 namespace DA
 {
@@ -55,5 +59,111 @@ namespace DA
                     id_cotizacion = idCotizacion
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+
+        public async Task<CotizacionResponse?> ObtenerCotizacionPorId(int idCotizacion)
+        {
+            var sql = @"ObtenerCotizacionPorId";
+
+            using var multi = await _sqlConnection.QueryMultipleAsync(sql,
+                new
+                {
+                    id_cotizacion = idCotizacion
+                });
+
+            var cotizacion = await multi.ReadFirstOrDefaultAsync<CotizacionResponse>();
+            var empresa = await multi.ReadFirstOrDefaultAsync<EmpresaCotizacion>();
+            var cliente = await multi.ReadFirstOrDefaultAsync<ClienteCotizacion>();
+
+            cotizacion.Empresa = empresa;
+            cotizacion.Cliente = cliente;
+            cotizacion.Detalles = (await multi.ReadAsync<DetalleCotizacion>()).ToList();
+
+            return cotizacion;
+        }
+
+        public async Task<int> RetrocederCotizacionEnviada(int idCotizacion)
+        {
+            var sql = @"RetrocederCotizacionEnviada";
+
+            return await _sqlConnection.QuerySingleAsync<int>(sql,
+                new
+                {
+                    id_cotizacion = idCotizacion
+                });;
+        }
+
+        public async Task<int> AvanzarCotizacionAOrdenDeVenta(int idCotizacion)
+        {
+            var sql = @"AvanzarCotizacionAOrdenDeVenta";
+
+            return await _sqlConnection.QuerySingleAsync<int>(sql,
+                new
+                {
+                    id_cotizacion = idCotizacion
+                }); 
+        }
+
+        public async Task<FacturacionResponse?> FacturarOrdenDeVenta(FacturarCotizacion factura)
+        {
+            var sql = "FacturarOrdenDeVenta";
+
+            var resultado = await _sqlConnection.QueryFirstOrDefaultAsync<FacturacionResponse>(
+                sql,
+                new
+                {
+                    id_cotizacion = factura.IdCotizacion,
+                    id_empresa = factura.IdEmpresa,
+                    id_cliente = factura.IdCliente,
+                    id_usuario = factura.IdUsuario,
+                    numero_venta = factura.NumeroVenta,
+                    numero_factura = factura.NumeroFactura,
+                    tipo_factura = factura.TipoFactura,
+                    condicion_venta = factura.CondicionVenta,
+                    moneda = factura.Moneda,
+                    tipo_cambio = factura.TipoCambio,
+                    subtotal = factura.Subtotal,
+                    impuesto = factura.Impuesto,
+                    descuento = factura.Descuento,
+                    total = factura.Total
+                });
+
+            return resultado;
+        }
+
+
+        public async Task<IEnumerable<CotizacionResponse>> ObtenerCanceladasRechazadas()
+        {
+            var sql = "ObtenerCotizacionesCanceladasRechazadas";
+
+            using var multi = await _sqlConnection.QueryMultipleAsync(sql);
+            var cotizaciones = (await multi.ReadAsync<CotizacionResponse>()).ToList();
+
+            var detalles = (await multi.ReadAsync<DetalleCotizacion>()).ToList();
+
+            foreach (var cotizacion in cotizaciones)
+            {
+                cotizacion.Detalles = detalles
+                    .Where(d => d.IdCotizacion == cotizacion.IdCotizacion)
+                    .ToList();
+            }
+
+            return cotizaciones;
+        }
+
+
+        public async Task<IEnumerable<FaltanteInventarioResponse>> ValidarInventarioCotizacion(int idCotizacion)
+        {
+            var sql = "ValidarInventarioCotizacion";
+
+            var resultado = await _sqlConnection.QueryAsync<FaltanteInventarioResponse>(
+                sql,
+                new { id_cotizacion = idCotizacion },
+                commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado;
+        }
+
+
     }
 }

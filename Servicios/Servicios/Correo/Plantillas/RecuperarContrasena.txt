@@ -1,0 +1,9 @@
+﻿Hola {{Nombre}},
+
+Recibimos una solicitud para restablecer tu contraseña.
+Abre el siguiente enlace para continuar:
+
+{{Enlace}}
+
+Si no solicitaste este cambio, ignora este correo.
+El enlace expira en 15 minutos.
