@@ -11,5 +11,6 @@ namespace Abstracciones.Interfaces.Flujo
         public Task<int> AvanzarCotizacionEnviadaFlujo(int idEmpresa, int idUsuario, int idCotizacion);
         public Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa);
         public Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
+        public Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion);
     }
 }
