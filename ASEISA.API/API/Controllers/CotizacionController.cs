@@ -28,5 +28,29 @@ namespace API.Controllers
             var result = await cotizacionFlujo.AvanzarCotizacionEnviadaFlujo(idEmpresa, idUsuario, idCotizacion);
             return Ok(result);
         }
+
+        //obtener cotizaciones 
+        [HttpGet("ObtenerCotizacionesFlujo")]
+        public async Task<IActionResult> ObtenerCotizacionesFlujo(int idEmpresa)
+        {
+            var result = await cotizacionFlujo.ObtenerCotizacionesFlujo(idEmpresa);
+            return Ok(result);
+        }
+
+        //editar cotizacion
+        [HttpPut("EditarCotizacionFlujo")]
+        public async Task<IActionResult> EditarCotizacionFlujo(int idEmpresa, int idUsuario, [FromBody] CotizacionRequest cotizacion)
+        {
+            var result = await cotizacionFlujo.EditarCotizacionFlujo(idEmpresa, idUsuario, cotizacion);
+            return Ok(result);
+        }
+
+        //cancelar cotizacion
+        [HttpPut("CancelarCotizacionFlujo")]
+        public async Task<IActionResult> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            var result = await cotizacionFlujo.CancelarCotizacionFlujo(idEmpresa, idUsuario, idCotizacion);
+            return Ok(result);
+        }
     }
 }

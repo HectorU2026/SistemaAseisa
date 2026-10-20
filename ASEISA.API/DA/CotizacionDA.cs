@@ -55,5 +55,51 @@ namespace DA
                     id_cotizacion = idCotizacion
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizaciones(int idEmpresa)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            var resultado = await conexion.QueryAsync<CotizacionResponse>(
+                @"ObtenerCotizaciones",
+                new { id_empresa = idEmpresa },
+                commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado;
+        }
+
+        public async Task<int> EditarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
+        {
+            var detallesJson = JsonSerializer.Serialize(cotizacion.Detalles);
+
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"EditarCotizacion", new
+                {
+                    id_cotizacion = cotizacion.IdCotizacion,
+                    id_empresa = idEmpresa,
+                    id_cliente = cotizacion.IdCliente,
+                    fecha_vencimiento = cotizacion.FechaVencimiento,
+                    moneda = cotizacion.Moneda,
+                    tipo_cambio = cotizacion.TipoCambio,
+                    subtotal = cotizacion.Subtotal,
+                    impuesto = cotizacion.Impuesto,
+                    descuento = cotizacion.Descuento,
+                    total = cotizacion.Total,
+                    id_usuario = idUsuario,
+                    detalles_json = detallesJson
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<int> CancelarCotizacion(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"CancelarCotizacion", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    id_cotizacion = idCotizacion
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }
