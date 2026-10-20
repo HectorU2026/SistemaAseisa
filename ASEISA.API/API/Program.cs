@@ -84,6 +84,8 @@ builder.Services.AddScoped<IContactoDA, ContactoDA>();
 builder.Services.AddScoped<IContactoFlujo, ContactoFlujo>();
 builder.Services.AddScoped<IProductoDA, ProductoDA>();
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
+builder.Services.AddScoped<ICompraDA, CompraDA>();
+builder.Services.AddScoped<ICompraFlujo, CompraFlujo>();
 
 
 var app = builder.Build();
