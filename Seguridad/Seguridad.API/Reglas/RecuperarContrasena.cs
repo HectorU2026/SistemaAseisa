@@ -1,11 +1,11 @@
 ﻿using Abstracciones.DA;
 using Abstracciones.Modelos;
 using Abstracciones.Reglas;
-using Abstracciones.Servicios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Servicios;
+using Servicios.Correo;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -21,13 +21,15 @@ namespace Reglas
         public IConfiguration _configuration;
         public IUsuarioDA _usuarioDA;
         private UsuarioRecuperar _usuario;
-        private IEnviarGmail _enviarGmail;
+        private readonly IEnviarCorreo _enviarCorreo;
+        private readonly IConstructorCorreo _constructorCorreos;
 
-        public RecuperarContrasena(IConfiguration configuration, IUsuarioDA usuarioDA, IEnviarGmail enviarGmail)
+        public RecuperarContrasena(IConfiguration configuration, IUsuarioDA usuarioDA, IEnviarCorreo enviarGmail, IConstructorCorreo constructorCorreos)
         {
             _configuration = configuration;
             _usuarioDA = usuarioDA;
-            _enviarGmail = enviarGmail;
+            _enviarCorreo = enviarGmail;
+            _constructorCorreos = constructorCorreos;
         }
 
         public async Task<ActionResult> GestionRecuperarContrasena(UsuarioRecuperar correo)
@@ -55,7 +57,8 @@ namespace Reglas
                 token = token
             };
 
-            await _enviarGmail.EnviarEmailUsuario(usuario, enlace);
+            var contenido = await _constructorCorreos.RecuperarContrasena(_usuario.Nombre, enlace);
+            await _enviarCorreo.EnviarEmailUsuario(_usuario.correo, contenido.Asunto, contenido.Html, contenido.TextoPlano);
 
             return new OkObjectResult(_usuario);
         }

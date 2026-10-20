@@ -1,0 +1,7 @@
+﻿Estimado(a) {{NombreCliente}},
+
+Adjunto encontrará la cotización {{NumeroCotizacion}} con fecha {{FechaEmision}}.
+Total: {{Total}}
+
+Saludos cordiales,
+{{NombreEmpresa}}

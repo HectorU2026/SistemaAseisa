@@ -1,13 +1,23 @@
 using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Interfaces.Servicio;
 using DA;
 using DA.Repositorio;
 using Flujo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using QuestPDF.Infrastructure;
+using Servicio;
+using Servicios;
+using Servicios.Correo;
 using System.Security.Claims;
 using System.Text;
+
+// Licencia gratuita para usar generar pdf
+QuestPDF.Settings.License = LicenseType.Community;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,7 +96,12 @@ builder.Services.AddScoped<IProductoDA, ProductoDA>();
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
 builder.Services.AddScoped<ICompraDA, CompraDA>();
 builder.Services.AddScoped<ICompraFlujo, CompraFlujo>();
-
+builder.Services.AddScoped<ICotizacionDA, CotizacionDA>();
+builder.Services.AddScoped<ICotizacionFlujo, CotizacionFlujo>();
+builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
+builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
+builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
+builder.Services.AddScoped<IEnviarCotizacion, EnviarCotizacion>();
 
 var app = builder.Build();
 
