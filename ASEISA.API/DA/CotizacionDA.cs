@@ -60,8 +60,7 @@ namespace DA
                 }, commandType: System.Data.CommandType.StoredProcedure);
         }
 
-
-        public async Task<CotizacionResponse?> ObtenerCotizacionPorId(int idCotizacion)
+        public async Task<CotizacionResponseDetallada?> ObtenerCotizacionPorId(int idCotizacion)
         {
             var sql = @"ObtenerCotizacionPorId";
 
@@ -71,13 +70,13 @@ namespace DA
                     id_cotizacion = idCotizacion
                 });
 
-            var cotizacion = await multi.ReadFirstOrDefaultAsync<CotizacionResponse>();
-            var empresa = await multi.ReadFirstOrDefaultAsync<EmpresaCotizacion>();
-            var cliente = await multi.ReadFirstOrDefaultAsync<ClienteCotizacion>();
+            var cotizacion = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada>();
+            var empresa = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada.EmpresaCotizacion>();
+            var cliente = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada.ClienteCotizacion>();
 
             cotizacion.Empresa = empresa;
             cotizacion.Cliente = cliente;
-            cotizacion.Detalles = (await multi.ReadAsync<DetalleCotizacion>()).ToList();
+            cotizacion.Detalles = (await multi.ReadAsync<CotizacionResponseDetallada.DetalleCotizacion>()).ToList();
 
             return cotizacion;
         }
@@ -132,14 +131,14 @@ namespace DA
         }
 
 
-        public async Task<IEnumerable<CotizacionResponse>> ObtenerCanceladasRechazadas()
+        public async Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas()
         {
             var sql = "ObtenerCotizacionesCanceladasRechazadas";
 
             using var multi = await _sqlConnection.QueryMultipleAsync(sql);
 
-            var cotizaciones = (await multi.ReadAsync<CotizacionResponse>()).ToList();
-            var detalles = (await multi.ReadAsync<CotizacionResponse.DetalleCotizacion>()).ToList();
+            var cotizaciones = (await multi.ReadAsync<CotizacionResponseDetallada>()).ToList();
+            var detalles = (await multi.ReadAsync<CotizacionResponseDetallada.DetalleCotizacion>()).ToList();
 
             return cotizaciones.Select(c => {
                 c.Detalles = detalles.Where(d => d.IdCotizacion == c.IdCotizacion).ToList();
@@ -154,12 +153,53 @@ namespace DA
 
             var resultado = await _sqlConnection.QueryAsync<FaltanteInventarioResponse>(
                 sql,
-                new { id_cotizacion = idCotizacion },
-                commandType: System.Data.CommandType.StoredProcedure);
+                new { id_cotizacion = idCotizacion });
+            return resultado;
+        }
+        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizaciones(int idEmpresa)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            var resultado = await conexion.QueryAsync<CotizacionResponse>(
+                @"ObtenerCotizaciones",
+                new { id_empresa = idEmpresa },
+        commandType: System.Data.CommandType.StoredProcedure);
 
             return resultado;
         }
 
+        public async Task<int> EditarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
+        {
+            var detallesJson = JsonSerializer.Serialize(cotizacion.Detalles);
 
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"EditarCotizacion", new
+                {
+                    id_cotizacion = cotizacion.IdCotizacion,
+                    id_empresa = idEmpresa,
+                    id_cliente = cotizacion.IdCliente,
+                    fecha_vencimiento = cotizacion.FechaVencimiento,
+                    moneda = cotizacion.Moneda,
+                    tipo_cambio = cotizacion.TipoCambio,
+                    subtotal = cotizacion.Subtotal,
+                    impuesto = cotizacion.Impuesto,
+                    descuento = cotizacion.Descuento,
+                    total = cotizacion.Total,
+                    id_usuario = idUsuario,
+                    detalles_json = detallesJson
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<int> CancelarCotizacion(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            return await conexion.QuerySingleAsync<int>(
+                @"CancelarCotizacion", new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario,
+                    id_cotizacion = idCotizacion
+                }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }

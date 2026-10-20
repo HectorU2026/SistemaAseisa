@@ -38,7 +38,7 @@ namespace Flujo
             return await _cotizacionDA.AvanzarCotizacionEnviada(idEmpresa, idUsuario, idCotizacion);
         }
         
-        public async Task<CotizacionResponse> ObtenerCotizacionPorId(int idCotizacion)
+        public async Task<CotizacionResponseDetallada> ObtenerCotizacionPorId(int idCotizacion)
         {
             return await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
         }
@@ -117,7 +117,22 @@ namespace Flujo
             return new OkObjectResult(cotizaciones);
         }
 
-        
+        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa)
+        {
+            return await _cotizacionDA.ObtenerCotizaciones(idEmpresa);
+        }
+
+        //editar cotizacion 
+        public async Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
+        {
+            return await _cotizacionDA.EditarCotizacion(idEmpresa, idUsuario, cotizacion);
+        }
+
+        //cancelar cotizacion
+        public async Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            return await _cotizacionDA.CancelarCotizacion(idEmpresa, idUsuario, idCotizacion);
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 ﻿
-CREATE   PROCEDURE dbo.ObtenerCotizacionesCanceladasRechazadas
+CREATE   PROCEDURE [dbo].[ObtenerCotizacionesCanceladasRechazadas]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -24,7 +24,7 @@ BEGIN
         c.total                AS Total,
         c.id_estado            AS IdEstado,
         e.nombre_estado        AS NombreEstado,
-        cli.nombre_razon_social AS [Cliente.NombreRazonSocial] 
+        cli.nombre_razon_social AS NombreRazonSocial
     FROM COTIZACION c
     INNER JOIN ESTADO e ON e.id_estado = c.id_estado
     INNER JOIN CLIENTE cli ON cli.id_cliente = c.id_cliente

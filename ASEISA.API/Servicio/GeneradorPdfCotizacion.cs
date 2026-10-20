@@ -8,12 +8,12 @@ namespace Servicios
 {
     public interface IGeneradorPdfCotizacion
     {
-        byte[] Generar(CotizacionResponse cotizacion);
+        byte[] Generar(CotizacionResponseDetallada cotizacion);
     }
 
     public class GeneradorPdfCotizacion : IGeneradorPdfCotizacion
     {
-        public byte[] Generar(CotizacionResponse cotizacion)
+        public byte[] Generar(CotizacionResponseDetallada cotizacion)
         {
             return Document.Create(container =>
             {

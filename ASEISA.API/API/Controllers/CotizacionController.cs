@@ -80,6 +80,29 @@ namespace API.Controllers
         {
             return await _cotizacionFlujo.ObtenerCanceladasRechazadas();
         }
+        //obtener cotizaciones 
+        [HttpGet("ObtenerCotizacionesFlujo")]
+        public async Task<IActionResult> ObtenerCotizacionesFlujo(int idEmpresa)
+        {
+            var result = await _cotizacionFlujo.ObtenerCotizacionesFlujo(idEmpresa);
+            return Ok(result);
+        }
+
+        //editar cotizacion
+        [HttpPut("EditarCotizacionFlujo")]
+        public async Task<IActionResult> EditarCotizacionFlujo(int idEmpresa, int idUsuario, [FromBody] CotizacionRequest cotizacion)
+        {
+            var result = await _cotizacionFlujo.EditarCotizacionFlujo(idEmpresa, idUsuario, cotizacion);
+            return Ok(result);
+        }
+
+        //cancelar cotizacion
+        [HttpPut("CancelarCotizacionFlujo")]
+        public async Task<IActionResult> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
+        {
+            var result = await _cotizacionFlujo.CancelarCotizacionFlujo(idEmpresa, idUsuario, idCotizacion);
+            return Ok(result);
+        }
     }
 }
 
