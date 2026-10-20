@@ -55,6 +55,7 @@ namespace Abstracciones.Modelos
         public decimal Total { get; set; }
         public int IdEstado { get; set; }
         public string? NombreEstado { get; set; }
+        public string? NombreRazonSocial { get; set; }
         public bool EstadoValido { get; set; }
 
         public EmpresaCotizacion Empresa { get; set; } = new();

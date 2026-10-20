@@ -137,18 +137,14 @@ namespace DA
             var sql = "ObtenerCotizacionesCanceladasRechazadas";
 
             using var multi = await _sqlConnection.QueryMultipleAsync(sql);
+
             var cotizaciones = (await multi.ReadAsync<CotizacionResponse>()).ToList();
+            var detalles = (await multi.ReadAsync<CotizacionResponse.DetalleCotizacion>()).ToList();
 
-            var detalles = (await multi.ReadAsync<DetalleCotizacion>()).ToList();
-
-            foreach (var cotizacion in cotizaciones)
-            {
-                cotizacion.Detalles = detalles
-                    .Where(d => d.IdCotizacion == cotizacion.IdCotizacion)
-                    .ToList();
-            }
-
-            return cotizaciones;
+            return cotizaciones.Select(c => {
+                c.Detalles = detalles.Where(d => d.IdCotizacion == c.IdCotizacion).ToList();
+                return c;
+            }).ToList();
         }
 
 
