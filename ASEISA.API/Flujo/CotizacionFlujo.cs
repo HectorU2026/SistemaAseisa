@@ -1,19 +1,30 @@
 ﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Interfaces.Servicio;
 using Abstracciones.Modelos;
+using DA;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Servicio;
+using Servicios;
+using Servicios.Correo;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
+using static Abstracciones.Modelos.Facturacion;
 
 namespace Flujo
 {
     public class CotizacionFlujo : ICotizacionFlujo
     {
         private ICotizacionDA _cotizacionDA;
+        private IEnviarCotizacion _enviarCotizacion;
 
-        public CotizacionFlujo(ICotizacionDA cotizacionDA)
+        public CotizacionFlujo(ICotizacionDA cotizacionDA, IEnviarCotizacion enviarCotizacion)
         {
             _cotizacionDA = cotizacionDA;
+            _enviarCotizacion = enviarCotizacion;
         }
 
         public async Task<int> RegistrarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
@@ -25,6 +36,85 @@ namespace Flujo
         public async Task<int> AvanzarCotizacionEnviadaFlujo(int idEmpresa, int idUsuario, int idCotizacion)
         {
             return await _cotizacionDA.AvanzarCotizacionEnviada(idEmpresa, idUsuario, idCotizacion);
+        }
+        
+        public async Task<CotizacionResponseDetallada> ObtenerCotizacionPorId(int idCotizacion)
+        {
+            return await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
+        }
+
+        public async Task<IActionResult> EnviarCotizacionPorCorreo(int idCotizacion, string correo)
+        {
+            var cotizacion = await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
+            var resultado = await _enviarCotizacion.EnviarCotizacionPorGmail(idCotizacion, correo);
+            return resultado;
+        }
+
+        public async Task<int> RetrocederCotizacionEnviada(int idCotizacion)
+        {
+            return await _cotizacionDA.RetrocederCotizacionEnviada(idCotizacion);
+        }
+
+        public async Task<ActionResult> AvanzarCotizacionAOrdenDeVenta(int idCotizacion)
+        {
+            var faltantes = await _cotizacionDA.ValidarInventarioCotizacion(idCotizacion);
+
+            if (faltantes.Any())
+            {
+                return new BadRequestObjectResult(new
+                {
+                    Mensaje = "No hay suficiente inventario para avanzar la cotización.",
+                    Faltantes = faltantes
+                });
+            }
+            var resultado = await _cotizacionDA.AvanzarCotizacionAOrdenDeVenta(idCotizacion);
+
+            if (resultado == 0)
+                return new BadRequestObjectResult("No avnazo la cotizacion");
+
+            return new OkObjectResult("Se actualizo a Orden de Venta");
+        }
+
+        public async Task<ActionResult> Facturar(int idCotizacion, int idUsuario, FacturarRequest request)
+        {
+            var cotizacion = await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
+
+            if (cotizacion == null)
+                return new NotFoundObjectResult("Cotización no encontrada.");
+
+            if (cotizacion.NombreEstado != "Orden de Venta")
+                return new BadRequestObjectResult("La cotización debe estar en estado 'Orden de Venta'");
+
+            var factura = new FacturarCotizacion
+            {
+                IdCotizacion = cotizacion.IdCotizacion,
+                IdEmpresa = cotizacion.IdEmpresa,
+                IdCliente = cotizacion.IdCliente,
+                IdUsuario = idUsuario,
+                NumeroVenta = $"VEN-{cotizacion.NumeroCotizacion}",
+                NumeroFactura = $"FAC-{cotizacion.NumeroCotizacion}",
+                TipoFactura = request.TipoFactura,
+                CondicionVenta = request.CondicionVenta,
+                Moneda = cotizacion.Moneda,
+                TipoCambio = cotizacion.TipoCambio,
+                Subtotal = cotizacion.Subtotal,
+                Impuesto = cotizacion.Impuesto,
+                Descuento = cotizacion.Descuento,
+                Total = cotizacion.Total
+            };
+
+            var resultado = await _cotizacionDA.FacturarOrdenDeVenta(factura);
+
+            if (resultado == null || resultado.IdFactura == 0)
+                return new BadRequestObjectResult(resultado?.Mensaje ?? "No se pudo generar la factura");
+
+            return new OkObjectResult(resultado);
+        }
+
+        public async Task<ActionResult> ObtenerCanceladasRechazadas()
+        {
+            var cotizaciones = await _cotizacionDA.ObtenerCanceladasRechazadas();
+            return new OkObjectResult(cotizaciones);
         }
 
         public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa)
@@ -45,3 +135,5 @@ namespace Flujo
         }
     }
 }
+
+

@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\css\estilos.css" />
+  </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
 	<ProjectReference Include="..\Reglas\Reglas.csproj" />
@@ -12,6 +16,11 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\estilos.css" />
+    <None Include="wwwroot\img\logo.png" />
   </ItemGroup>
 
 </Project>
