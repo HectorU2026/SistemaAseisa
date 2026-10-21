@@ -29,7 +29,7 @@ namespace DA
 
         public async Task<UsuarioResponse> ObtenerInfoUsuario(string correo)
         {
-            var sql = @"InformacionUsuario";
+            var sql = @"ObtenerUsuario";
 
             var resultado = await _sqlConnection.QueryAsync<UsuarioResponse>(sql, new { Correo = correo });
 
@@ -120,6 +120,19 @@ namespace DA
                     id_usuario = idUsuario,
                     id_rol = idRol
                 }, commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<int?> ObtenerEmpresaUsuarioActivo(int idUsuario)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+
+            return await conexion.QuerySingleOrDefaultAsync<int?>(
+                "dbo.ObtenerEmpresaUsuarioActivo",
+                new
+                {
+                    id_usuario = idUsuario
+                },
+                commandType: System.Data.CommandType.StoredProcedure);
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Abstracciones.Modelos
 {
@@ -19,8 +14,9 @@ namespace Abstracciones.Modelos
     public class LoginAutenticado : LoginBase
     {
         public int id { get; set; }
+
+        public int IdUsuario { get => id; set => id = value; }
         public string NombreUsuario { get; set; }
         public string rol { get; set; }
     }
 }
-    

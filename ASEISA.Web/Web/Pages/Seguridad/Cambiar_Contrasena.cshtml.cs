@@ -166,7 +166,7 @@ namespace Web.Views.Home.Inicio_Sesion
             var endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerInfoUsuario");
             var client = new HttpClient();
             var url = $"{endpoint}?correo={Uri.EscapeDataString(correoElectronico)}";
-            var respuesta = await client.PostAsync(url, null);
+            var respuesta = await client.GetAsync(url);
             if (!respuesta.IsSuccessStatusCode)
             {
                 var error = await respuesta.Content.ReadAsStringAsync();
@@ -174,7 +174,7 @@ namespace Web.Views.Home.Inicio_Sesion
             }
 
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var contenido = await respuesta.Content.ReadAsStringAsync();
+              var contenido = await respuesta.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<Usuario>(contenido, opciones);
         }
 

@@ -8,4 +8,5 @@
   <Project Path="DA/DA.csproj" Id="dbb14b47-cfc8-4b88-b72c-aeadedac27f3" />
   <Project Path="Flujo/Flujo.csproj" Id="bd682faa-4339-4b75-bd49-d1c1b6a139ae" />
   <Project Path="Reglas/Reglas.csproj" Id="fd7a6d66-bc8e-47b3-8d8a-29deac829fe3" />
+  <Project Path="Servicio/Servicio.csproj" Id="9a15ece2-f0bf-4731-ba40-9f34958d5b59" />
 </Solution>
