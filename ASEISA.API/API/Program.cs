@@ -102,6 +102,11 @@ builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
 builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
 builder.Services.AddScoped<IEnviarCotizacion, EnviarCotizacion>();
+builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
+builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
+builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();
+builder.Services.AddScoped<IIngresoProductoFlujo, IngresoProductoFlujo>();
+
 
 var app = builder.Build();
 
