@@ -24,4 +24,9 @@
     <None Include="wwwroot\img\logo-aseisa.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\estilos.css" />
+    <None Include="wwwroot\img\logo.png" />
+  </ItemGroup>
+
 </Project>
