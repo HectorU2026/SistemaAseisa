@@ -86,5 +86,30 @@ namespace DA
 
             return resultado.FirstOrDefault();
         }
+
+        public async Task<ProductoCatalogoRespuesta> ObtenerProductos(ProductoFiltro filtro)
+        {
+            var sql = @"ObtenerProductos";
+
+            using var resultado = await _sqlConnection.QueryMultipleAsync(sql,
+                new
+                {
+                    id_empresa = filtro.IdEmpresa,
+                    nombre = filtro.Nombre,
+                    pagina = filtro.Pagina,
+                    tamano_pagina = filtro.TamanoPagina
+                });
+
+            var total = await resultado.ReadFirstOrDefaultAsync<int>();
+            var items = (await resultado.ReadAsync<ProductoCatalogoItem>()).ToList();
+
+            return new ProductoCatalogoRespuesta
+            {
+                Pagina = filtro.Pagina ?? 1,
+                TamanoPagina = filtro.TamanoPagina ?? 10,
+                Total = total,
+                Items = items
+            };
+        }
     }
 }

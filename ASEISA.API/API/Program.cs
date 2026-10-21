@@ -27,6 +27,10 @@ builder.Services.AddScoped<IContactoDA, ContactoDA>();
 builder.Services.AddScoped<IContactoFlujo, ContactoFlujo>();
 builder.Services.AddScoped<IProductoDA, ProductoDA>();
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
+builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
+builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
+builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();
+builder.Services.AddScoped<IIngresoProductoFlujo, IngresoProductoFlujo>();
 
 
 var app = builder.Build();
