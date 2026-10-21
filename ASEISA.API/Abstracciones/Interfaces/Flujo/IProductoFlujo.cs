@@ -10,5 +10,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<int> RegistrarProducto(Producto producto);
         Task<int> EditarProducto(Producto producto);
         Task<int> InhabilitarProducto(ProductoInhabilitar producto);
+        Task<ProductoCatalogoRespuesta> ObtenerProductos(ProductoFiltro filtro);
     }
 }

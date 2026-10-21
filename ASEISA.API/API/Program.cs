@@ -94,12 +94,19 @@ builder.Services.AddScoped<IContactoDA, ContactoDA>();
 builder.Services.AddScoped<IContactoFlujo, ContactoFlujo>();
 builder.Services.AddScoped<IProductoDA, ProductoDA>();
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
+builder.Services.AddScoped<ICompraDA, CompraDA>();
+builder.Services.AddScoped<ICompraFlujo, CompraFlujo>();
 builder.Services.AddScoped<ICotizacionDA, CotizacionDA>();
 builder.Services.AddScoped<ICotizacionFlujo, CotizacionFlujo>();
 builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
 builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
 builder.Services.AddScoped<IEnviarCotizacion, EnviarCotizacion>();
+builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
+builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
+builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();
+builder.Services.AddScoped<IIngresoProductoFlujo, IngresoProductoFlujo>();
+
 
 var app = builder.Build();
 
