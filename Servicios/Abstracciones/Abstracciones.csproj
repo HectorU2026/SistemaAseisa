@@ -4,6 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-  </PropertyGroup>
+
+
+    <PackageId>Aseisa.Abstracciones</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>Aseisa</Authors>
+    <Description>Abstracciones para los servicios de Aseisa</Description>
+</PropertyGroup>
 
 </Project>

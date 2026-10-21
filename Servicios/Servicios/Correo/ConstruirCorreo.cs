@@ -8,7 +8,7 @@ namespace Servicios.Correo
     public interface IConstructorCorreo
     {
         Task<ContenidoCorreo> RecuperarContrasena(string nombre, string enlace);
-        Task<ContenidoCorreo> Cotizacion(CotizacionResponseDetallada cotizacion);
+        Task<ContenidoCorreo> Cotizacion(InfoCotizacion cotizacion);
     }
 
     public class ContenidoCorreo
@@ -46,7 +46,7 @@ namespace Servicios.Correo
             };
         }
 
-        public async Task<ContenidoCorreo> Cotizacion(CotizacionResponseDetallada cotizacion)
+        public async Task<ContenidoCorreo> Cotizacion(InfoCotizacion cotizacion)
         {
             var valores = new Dictionary<string, string>
             {
