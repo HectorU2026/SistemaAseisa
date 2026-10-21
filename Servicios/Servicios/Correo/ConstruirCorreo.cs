@@ -1,4 +1,4 @@
-﻿using Abstracciones.Modelos;
+﻿using Servicios.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,13 +9,6 @@ namespace Servicios.Correo
     {
         Task<ContenidoCorreo> RecuperarContrasena(string nombre, string enlace);
         Task<ContenidoCorreo> Cotizacion(CotizacionResponseDetallada cotizacion);
-    }
-
-    public class ContenidoCorreo
-    {
-        public string Asunto { get; set; } = string.Empty;
-        public string Html { get; set; } = string.Empty;
-        public string TextoPlano { get; set; } = string.Empty;
     }
 
     public class ConstructorCorreo : IConstructorCorreo

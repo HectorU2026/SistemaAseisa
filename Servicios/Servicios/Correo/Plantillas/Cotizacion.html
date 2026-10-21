@@ -1,6 +1,37 @@
-﻿<h2>Cotización {{NumeroCotizacion}}</h2>
-<p>Estimado(a) <b>{{NombreCliente}}</b>,</p>
-<p>Adjunto encontrará la cotización solicitada con fecha {{FechaEmision}}.</p>
-<p><b>Total:</b> {{Total}}</p>
-<p>Quedamos atentos a cualquier consulta.</p>
-<p>Saludos cordiales,<br />{{NombreEmpresa}}</p>
+﻿<div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px;">
+
+    <h2 style="color: #ff4831; font-size: 24px; margin-bottom: 20px;">
+        Cotización {{NumeroCotizacion}}
+    </h2>
+
+    <p style="font-size: 16px; line-height: 1.5; margin-bottom: 15px;">
+        Estimado(a) <b>{{NombreCliente}}</b>,
+    </p>
+
+    <p style="font-size: 16px; line-height: 1.5; margin-bottom: 25px;">
+        Adjunto encontrará la cotización solicitada con fecha <b>{{FechaEmision}}</b>.
+    </p>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 25px;">
+        <tr>
+            <td style="background-color: #fcf1f0; border-left: 4px solid #ff4831; padding: 15px; border-radius: 0 6px 6px 0;">
+                <p style="margin: 0; font-size: 16px; color: #555555;">
+                    <b>Total a pagar:</b>
+                    <span style="color: #ff4831; font-weight: bold; font-size: 20px; margin-left: 10px;">{{Total}}</span>
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <p style="font-size: 16px; line-height: 1.5; margin-bottom: 25px;">
+        Quedamos atentos a cualquier consulta.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #eeeeee; margin: 25px 0;">
+
+    <p style="font-size: 15px; line-height: 1.5; color: #555555; margin: 0;">
+        Saludos cordiales,<br>
+        <b>{{NombreEmpresa}}</b>
+    </p>
+
+</div>

@@ -1,5 +1,4 @@
-﻿using Abstracciones.Modelos;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -16,6 +15,7 @@ namespace Servicios
         public byte[] Contenido { get; set; } = Array.Empty<byte>();
         public string TipoMime { get; set; } = "application/octet-stream";
     }
+
 
     public interface IEnviarCorreo
     {
