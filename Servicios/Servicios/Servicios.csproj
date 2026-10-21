@@ -18,9 +18,6 @@
     <PackageReference Include="MailKit" Version="4.18.0" />
     <PackageReference Include="MimeKit" Version="4.18.1" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
-  </ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Correo\Plantillas\**\*.*">

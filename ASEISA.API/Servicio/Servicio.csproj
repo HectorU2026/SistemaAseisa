@@ -10,7 +10,7 @@
     <PackageReference Include="Abstracciones" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.13" />
     <PackageReference Include="QuestPDF" Version="2026.9.1" />
-	<PackageReference Include="Aseisa.Servicios" Version="1.0.0" />
+	<PackageReference Include="Aseisa.Servicios" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

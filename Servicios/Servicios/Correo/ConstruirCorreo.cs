@@ -1,4 +1,5 @@
 ﻿using Abstracciones.Modelos;
+using Servicios.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,14 +9,7 @@ namespace Servicios.Correo
     public interface IConstructorCorreo
     {
         Task<ContenidoCorreo> RecuperarContrasena(string nombre, string enlace);
-        Task<ContenidoCorreo> Cotizacion(InfoCotizacion cotizacion);
-    }
-
-    public class ContenidoCorreo
-    {
-        public string Asunto { get; set; } = string.Empty;
-        public string Html { get; set; } = string.Empty;
-        public string TextoPlano { get; set; } = string.Empty;
+        Task<ContenidoCorreo> Cotizacion(Cotizacion cotizacion);
     }
 
     public class ConstructorCorreo : IConstructorCorreo
@@ -46,7 +40,7 @@ namespace Servicios.Correo
             };
         }
 
-        public async Task<ContenidoCorreo> Cotizacion(InfoCotizacion cotizacion)
+        public async Task<ContenidoCorreo> Cotizacion(Cotizacion cotizacion)
         {
             var valores = new Dictionary<string, string>
             {
