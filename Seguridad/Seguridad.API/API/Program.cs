@@ -2,7 +2,6 @@ using Abstracciones.DA;
 using Abstracciones.Flujo;
 using Abstracciones.Modelos;
 using Abstracciones.Reglas;
-using Abstracciones.Servicios;
 using BC;
 using DA;
 using DA.Repositorios;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Reglas;
 using Servicios;
+using Servicios.Correo;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +49,8 @@ builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
 builder.Services.AddScoped<IAutenticacionFlujo, AutenticacionFlujo>();
 builder.Services.AddScoped<IAutenticacionBC, AutenticacionReglas>();
 builder.Services.AddScoped<IRecuperarContrasena, RecuperarContrasena>();
-builder.Services.AddScoped<IEnviarGmail, EnviarGmail>();
+builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
+builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 
 var politicaAcceso = "Politica de acceso";
 builder.Services.AddCors(options =>

@@ -78,6 +78,8 @@
     <Build Include="dbo\Tables\MOVIMIENTO_BANCARIO.sql" />
     <Build Include="dbo\Tables\FACTURA.sql" />
     <Build Include="dbo\Tables\EXISTENCIA.sql" />
+    <Build Include="dbo\Tables\INVENTARIO_FISICO.sql" />
+    <Build Include="dbo\Tables\INGRESO_PRODUCTO.sql" />
     <Build Include="dbo\Tables\ESTADO.sql" />
     <Build Include="dbo\Tables\EMPRESA.sql" />
     <Build Include="dbo\Tables\DISTRIBUCION_ANALITICA.sql" />
@@ -105,6 +107,10 @@
     <Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
     <Build Include="dbo\Stored Procedures\EditarProducto.sql" />
     <Build Include="dbo\Stored Procedures\InhabilitarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerProductos.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarInventarioFisico.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerExistencia.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarIngresoProducto.sql" />
     <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
     <Build Include="dbo\Tables\TERMINO_PAGO.sql" />
@@ -124,8 +130,32 @@
     <Build Include="dbo\Stored Procedures\ObtenerEmpresaUsuarioActivo.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCotizacionPorId.sql" />
+    <Build Include="dbo\Stored Procedures\RetrocederCotizacionEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarInventarioCotizacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCotizacionesCanceladasRechazadas.sql" />
+    <Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
+    <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\CancelarCotizacion.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCompras.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCompra.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCatalogosCompra.sql" />
+    <Build Include="dbo\Stored Procedures\EditarCompra.sql" />
+    <Build Include="dbo\Stored Procedures\AnularCompra.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarCompra.sql" />
   </ItemGroup>
 </Project>

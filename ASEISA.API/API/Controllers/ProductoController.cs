@@ -111,5 +111,19 @@ namespace API.Controllers
 
             return Ok("Producto inhabilitado con éxito");
         }
+
+        [HttpGet("ObtenerProductos")]
+        public async Task<ActionResult<ProductoCatalogoRespuesta>> ObtenerProductos([FromQuery] ProductoFiltro filtro)
+        {
+            if (filtro == null
+                || !filtro.IdEmpresa.HasValue
+                || filtro.IdEmpresa <= 0)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            var resultado = await productoFlujo.ObtenerProductos(filtro);
+            return Ok(resultado);
+        }
     }
 }

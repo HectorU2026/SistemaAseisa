@@ -136,7 +136,7 @@ namespace Web.Pages.Seguridad
             var endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerInfoUsuario");
             var client = new HttpClient();
             var url = $"{endpoint}?correo={Uri.EscapeDataString(correoElectronico)}";
-            var respuesta = await client.PostAsync(url, null);
+            var respuesta = await client.GetAsync(url);
             if (!respuesta.IsSuccessStatusCode)
             {
                 var error = await respuesta.Content.ReadAsStringAsync();
