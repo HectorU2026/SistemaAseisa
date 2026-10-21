@@ -27,7 +27,7 @@ namespace Web.Pages.Seguridad
             _configuracion = configuracion;
         }
 
-        public async Task OnGet() 
+        public async Task OnGet()
         {
             await CargarEmpresas();
         }
@@ -61,13 +61,14 @@ namespace Web.Pages.Seguridad
 
                 registro = JsonSerializer.Deserialize<RegistroResponse>(contenido, opciones);
 
-                if (respuesta.IsSuccessStatusCode && registro.IdUsuario != null )
+                if (respuesta.IsSuccessStatusCode && registro.IdUsuario != null)
                 {
                     Usuario.IdUsuario = registro.IdUsuario;
                     await RegistrarBitacora(Usuario, Cliente);
                     return RedirectToPage("/Seguridad/Login");
                 }
-                else { 
+                else
+                {
                     ModelState.AddModelError("", registro?.mensaje);
                     return Page();
                 }

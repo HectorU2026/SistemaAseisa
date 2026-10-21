@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\img\logo-aseisa.png" />
+  </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
 	<ProjectReference Include="..\Reglas\Reglas.csproj" />
@@ -12,6 +16,12 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="Pages\Configuracion\" />
+    <Folder Include="Pages\Inventario\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\img\logo-aseisa.png" />
   </ItemGroup>
 
 </Project>

@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,11 +8,12 @@ namespace Web.Pages
     {
         public IActionResult OnGet()
         {
-            if (User.Identity?.IsAuthenticated == true)
-                return RedirectToPage("/Menu_Principal");
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                return RedirectToPage("/Seguridad/Login");
+            }
 
-            return RedirectToPage("/Seguridad/Login");
+            return Page();
         }
-
     }
 }

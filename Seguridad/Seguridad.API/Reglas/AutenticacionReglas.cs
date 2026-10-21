@@ -25,19 +25,43 @@ namespace BC
             _usuarioDA = usuarioDA;
         }
 
-        public async Task<Token> LoginAync(LoginBase login) 
+        public async Task<Token> LoginAync(LoginBase login)
         {
-            Token respuestaToken= new Token() { AccessToken=string.Empty,ValidacionExitosa=false };
-            _usuario = await _usuarioDA.ObtenerUsuario(login); 
+            Token respuestaToken = new Token
+            {
+                AccessToken = string.Empty,
+                ValidacionExitosa = false
+            };
+
+            if (login == null ||
+                string.IsNullOrWhiteSpace(login.Correo) ||
+                string.IsNullOrWhiteSpace(login.ContrasenaHash))
+            {
+                return respuestaToken;
+            }
+
+            _usuario = await _usuarioDA.ObtenerUsuario(login);
+
             if (_usuario == null)
                 return respuestaToken;
-            var resultadoVerificacionCredenciales = await VerificarHashContraseniaAsync(login);
-            if (!resultadoVerificacionCredenciales)
+
+            var credencialesValidas =
+                await VerificarHashContraseniaAsync(login);
+
+            if (!credencialesValidas)
                 return respuestaToken;
-            TokenConfiguracion tokenConfiguracion=_configuration.GetSection("Token").Get<TokenConfiguracion>();
-            JwtSecurityToken token = await GenerarTokenJWT(login,tokenConfiguracion);
-            respuestaToken.AccessToken=new JwtSecurityTokenHandler().WriteToken(token);
+
+            TokenConfiguracion tokenConfiguracion =
+                _configuration.GetSection("Token").Get<TokenConfiguracion>();
+
+            JwtSecurityToken token =
+                await GenerarTokenJWT(login, tokenConfiguracion);
+
+            respuestaToken.AccessToken =
+                new JwtSecurityTokenHandler().WriteToken(token);
+
             respuestaToken.ValidacionExitosa = true;
+
             return respuestaToken;
         }
 
