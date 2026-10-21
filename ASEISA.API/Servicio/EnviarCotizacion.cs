@@ -3,6 +3,7 @@ using Abstracciones.Interfaces.Servicio;
 using DA;
 using Microsoft.AspNetCore.Mvc;
 using Servicios;
+using Servicios.Modelos;
 using Servicios.Correo;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,7 @@ namespace Servicio
 
             if (string.IsNullOrWhiteSpace(correoDestino) || !EsCorreoValido(correoDestino))
                 return new BadRequestObjectResult("Ingrese un correo electrónico válido");
+
 
             var pdf = _generadorPdf.Generar(cotizacion);
 

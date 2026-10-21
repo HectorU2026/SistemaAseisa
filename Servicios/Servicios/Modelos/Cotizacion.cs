@@ -1,4 +1,4 @@
-﻿namespace Abstracciones.Modelos
+﻿namespace Servicios.Modelos
 {
     public class Cotizacion
     {

@@ -99,7 +99,6 @@ builder.Services.AddScoped<ICotizacionFlujo, CotizacionFlujo>();
 builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
 builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
-builder.Services.AddScoped<ICotizacionDA, CotizacionDA>();
 builder.Services.AddScoped<IEnviarCotizacion, EnviarCotizacion>();
 
 var app = builder.Build();
