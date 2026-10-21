@@ -1,0 +1,159 @@
+﻿@page
+@model Web.Pages.Ventas.ventas_canceladasModel
+@{
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizaciones canceladas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/estilos.css">
+</head>
+<body>
+
+    <div id="menu-container"></div>
+
+    <div class="container mt-4">
+
+        <div class="mb-4">
+            <a asp-page="/Ventas/Index" class="text-secondary me-2">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="d-inline-block h4 fw-bold">Cotizaciones canceladas y rechazadas</h1>
+        </div>
+
+        <div class="card p-3 mb-3">
+            <div class="row g-2">
+                <div class="col-12 col-md-6">
+                    <input type="text" class="form-control form-control-sm" placeholder="Buscar cliente">
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="date" class="form-control form-control-sm">
+                </div>
+                <div class="col-12 col-md-2">
+                    <button class="btn btn-rojo btn-sm w-100">Filtrar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Numero Cotización</th>
+                            <th>Cliente</th>
+                            <th>Vencimiento</th>
+                            <th class="text-end">Total</th>
+                            <th>Fecha cancelación</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Cotizaciones != null && Model.Cotizaciones.Any())
+                        {
+                            foreach (var item in Model.Cotizaciones)
+                            {
+                                <tr>
+                                    <td>@item.NumeroCotizacion</td>
+                                    <td>@item.NombreRazonSocial</td>
+                                    <td>@(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                    <td class="text-end">@item.Total.ToString("C")</td>
+                                    <td>@item.FechaEmision.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalDetalle-@item.IdCotizacion">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No hay cotizaciones canceladas o rechazadas por el momento.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white small text-secondary">
+                Mostrando @Model.Cotizaciones.Count registro(s).
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Cotizaciones != null)
+    {
+        foreach (var item in Model.Cotizaciones)
+        {
+            <div class="modal fade" id="modalDetalle-@item.IdCotizacion" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title">Detalle de cotización</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Numero Cotización:</strong> @item.NumeroCotizacion</p>
+                            <p><strong>Cliente:</strong> @item.NombreRazonSocial</p>
+                            <p><strong>Vencimiento:</strong> @(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</p>
+                            <p><strong>Total:</strong> @item.Total.ToString("C")</p>
+                            <p><strong>Fecha cancelación:</strong> @item.FechaEmision.ToString("dd/MM/yyyy")</p>
+                            
+                            <p><strong>Estado:</strong> 
+                                <span class="badge @(item.NombreEstado == "Cancelada" ? "bg-danger" : "bg-warning text-dark")">
+                                    @item.NombreEstado
+                                </span>
+                            </p>
+                            
+                            <hr>
+                            <h6 class="fw-bold small">Productos</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th class="text-end">Cantidad</th>
+                                            <th class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (item.Detalles != null && item.Detalles.Any())
+                                        {
+                                            foreach (var detalle in item.Detalles)
+                                            {
+                                                <tr>
+                                                    <td>@detalle.NombreProducto</td>
+                                                    <td class="text-end">@detalle.Cantidad</td>
+                                                    <td class="text-end">@detalle.Subtotal.ToString("C")</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">No hay productos registrados.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

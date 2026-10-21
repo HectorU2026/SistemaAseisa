@@ -2,8 +2,6 @@ using Abstracciones.DA;
 using Abstracciones.Flujo;
 using Abstracciones.Modelos;
 using Abstracciones.Reglas;
-using Abstracciones.Servicios;
-using Autorizacion.Middleware;
 using BC;
 using DA;
 using DA.Repositorios;
@@ -12,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Reglas;
 using Servicios;
+using Servicios.Correo;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,12 +49,8 @@ builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
 builder.Services.AddScoped<IAutenticacionFlujo, AutenticacionFlujo>();
 builder.Services.AddScoped<IAutenticacionBC, AutenticacionReglas>();
 builder.Services.AddScoped<IRecuperarContrasena, RecuperarContrasena>();
-builder.Services.AddScoped<IEnviarGmail, EnviarGmail>();
-
-
-builder.Services.AddTransient<Autorizacion.Abstracciones.Flujo.IAutorizacionFlujo, Autorizacion.Flujo.AutorizacionFlujo>();
-builder.Services.AddTransient<Autorizacion.Abstracciones.DA.ISeguridadDA, Autorizacion.DA.SeguridadDA>();
-builder.Services.AddTransient<Autorizacion.Abstracciones.DA.IRepositorioDapper, Autorizacion.DA.Repositorios.RepositorioDapper>();
+builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
+builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 
 var politicaAcceso = "Politica de acceso";
 builder.Services.AddCors(options =>
@@ -79,7 +74,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.AutorizacionClaims();
 app.UseAuthorization();
 
 app.MapControllers();
