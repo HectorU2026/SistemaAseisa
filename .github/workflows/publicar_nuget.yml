@@ -1,0 +1,69 @@
+name: Publicar paquete Aseisa.Servicios
+
+on:
+  push:
+    branches: [ '**' ] 
+    paths:
+      - 'Servicios/**'
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Empaquetar Servicios
+        working-directory: Servicios
+        run: dotnet pack -c Release
+
+      - name: Publicar en GitHub Packages
+        working-directory: Servicios
+        run: |
+          find . -name "*.nupkg" | while read pkg; do
+            dotnet nuget push "$pkg" \
+              --api-key ${{ secrets.GITHUB_TOKEN }} \
+              --source "https://nuget.pkg.github.com/JorgeMadri/index.json" \
+              --skip-duplicate
+          done
+
+name: Publicar paquete Aseisa.Servicios
+
+on:
+  push:
+    branches: [ '**' ] 
+    paths:
+      - 'Servicios/**'
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Empaquetar y Publicar
+        working-directory: Servicios
+        run: |
+          dotnet pack -c Release
+          find . -name "*.nupkg" | while read pkg; do
+            dotnet nuget push "$pkg" \
+              --api-key ${{ secrets.TOKEN }} \
+              --source "https://nuget.pkg.github.com/JorgeMadri/index.json" \
+              --skip-duplicate
+          done

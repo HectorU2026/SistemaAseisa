@@ -10,7 +10,7 @@
   <ItemGroup> 
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-	<PackageReference Include="Aseisa.Servicios" Version="1.0.3" />
+	<PackageReference Include="Aseisa.Servicios" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
