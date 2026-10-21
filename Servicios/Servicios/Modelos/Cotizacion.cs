@@ -1,6 +1,6 @@
 ﻿namespace Servicios.Modelos
 {
-    public class Cotizacion
+    public class CotizacionResponseDetallada
     {
         public int IdCotizacion { get; set; }
         public int IdEmpresa { get; set; }

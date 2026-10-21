@@ -39,7 +39,6 @@ namespace Servicio
             if (string.IsNullOrWhiteSpace(correoDestino) || !EsCorreoValido(correoDestino))
                 return new BadRequestObjectResult("Ingrese un correo electrónico válido");
 
-
             var pdf = _generadorPdf.Generar(cotizacion);
 
             var contenido = await _constructorCorreo.Cotizacion(cotizacion);
