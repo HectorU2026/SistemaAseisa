@@ -8,9 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup> 
+    <PackageReference Include="Aseisa.Servicios" Version="1.0.4" /> 
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-	<PackageReference Include="Aseisa.Servicios" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>

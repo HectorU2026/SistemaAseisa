@@ -3,6 +3,7 @@ using Abstracciones.Interfaces.Servicio;
 using DA;
 using Microsoft.AspNetCore.Mvc;
 using Servicios;
+using Servicios.Modelos;
 using Servicios.Correo;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,26 @@ namespace Servicio
 
             var pdf = _generadorPdf.Generar(cotizacion);
 
-            var contenido = await _constructorCorreo.Cotizacion(cotizacion);
+
+            // Mapear los datos de modelo cotizacion
+            var cotizacionParaCorreo = new CotizacionResponseDetallada
+            {
+                NumeroCotizacion = cotizacion.NumeroCotizacion,
+                Total = cotizacion.Total,
+                FechaEmision = cotizacion.FechaEmision,
+
+                Cliente = new CotizacionResponseDetallada.ClienteCotizacion
+                {
+                    NombreRazonSocial = cotizacion.Cliente.NombreRazonSocial
+                },
+
+                Empresa = new CotizacionResponseDetallada.EmpresaCotizacion
+                {
+                    NombreComercial = cotizacion.Empresa.NombreComercial
+                }
+            };
+
+            var contenido = await _constructorCorreo.Cotizacion(cotizacionParaCorreo);
 
             var archivos = new[]
             {
