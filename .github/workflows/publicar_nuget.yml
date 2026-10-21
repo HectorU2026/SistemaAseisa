@@ -20,16 +20,15 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Empaquetar Servicios
-        working-directory: Servicios
-        run: dotnet pack -c Release
 
-      - name: Publicar en GitHub Packages
+      - name: Empaquetar y Publicar
         working-directory: Servicios
         run: |
+          dotnet pack -c Release
+          
           find . -name "*.nupkg" | while read pkg; do
             dotnet nuget push "$pkg" \
-              --api-key ${{ secrets.GITHUB_TOKEN }} \
+              --api-key ${{ secrets.Token }} \
               --source "https://nuget.pkg.github.com/JorgeMadri/index.json" \
               --skip-duplicate
           done
