@@ -1,7 +1,7 @@
 
 using Abstracciones.Interfaces.Reglas;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Reglas;
+using Web.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -145,12 +145,6 @@
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\CancelarCotizacion.sql" />
-    <Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
-    <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
-    <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
-    <Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
-    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
-    <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCompras.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCompra.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCatalogosCompra.sql" />

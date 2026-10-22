@@ -11,7 +11,6 @@
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
-	<ProjectReference Include="..\Reglas\Reglas.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +26,10 @@
   <ItemGroup>
     <None Include="wwwroot\css\estilos.css" />
     <None Include="wwwroot\img\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
   </ItemGroup>
 
 </Project>

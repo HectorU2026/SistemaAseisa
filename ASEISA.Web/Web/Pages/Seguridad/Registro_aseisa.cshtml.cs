@@ -1,10 +1,11 @@
 using Abstracciones.Interfaces.Reglas;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Reglas;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using Web.Modelos;
+using Web.Models;
 
 namespace Web.Pages.Seguridad
 {
@@ -13,15 +14,18 @@ namespace Web.Pages.Seguridad
         private readonly IConfiguracion _configuracion;
 
         [BindProperty]
+        public RegistroFormulario Formulario { get; set; } = new();
+
+        [ValidateNever]
         public Usuario Usuario { get; set; } = default!;
 
-        [BindProperty]
+        [ValidateNever]
         public Cliente Cliente { get; set; } = default!;
 
         public List<EmpresaResponseNombres> Empresas { get; set; } = new();
-        [Required(ErrorMessage = "Debe seleccionar una empresa")]
-        public int? IdEmpresa { get; set; }
-        public RegistroResponse registro { get; set; }
+
+        public RegistroResponse? registro { get; set; }
+
         public RegistroModel(IConfiguracion configuracion)
         {
             _configuracion = configuracion;
@@ -34,74 +38,172 @@ namespace Web.Pages.Seguridad
 
         public async Task<IActionResult> OnPost()
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var hash = Autenticacion.GenerarHash(Usuario.ContrasenaHash);
-                Usuario.ContrasenaHash = Autenticacion.ObtenerHash(hash);
-                Usuario.IdEstado = 1;
+                await CargarEmpresas();
+                return Page();
+            }
 
-                Cliente.IdEmpresa = Usuario.IdEmpresa;
-                Cliente.IdEstado = 1;
-                Cliente.Correo = Usuario.Correo;
-                Cliente.TipoCliente = Usuario.TipoCliente;
-                Cliente.NombreRazonSocial = $"{Usuario.Nombre} {Usuario.PrimerApellido}";
+            // Generar automáticamente el nombre de usuario.
+            string nombreUsuario = Formulario.GenerarNombreUsuario();
 
-                var request = new
-                {
-                    Usuario = Usuario,
-                    Cliente = Cliente
-                };
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                ModelState.AddModelError(
+                    "Formulario.NombreUsuario",
+                    "No fue posible generar el nombre de usuario.");
 
-                string endpoint = _configuracion.ObtenerMetodo("ApiEndPointsSeguridad", "Registro");
-                var client = new HttpClient();
-                var respuesta = await client.PostAsJsonAsync(endpoint, request);
+                await CargarEmpresas();
+                return Page();
+            }
+
+            // Datos de la persona que accederá al sistema.
+            // En personas jurídicas, corresponde al representante.
+            Usuario = new Usuario
+            {
+                IdEmpresa = Formulario.IdEmpresa,
+                TipoCliente = Formulario.TipoCliente,
+                Nombre = Formulario.Nombre.Trim(),
+                PrimerApellido = Formulario.PrimerApellido.Trim(),
+                SegundoApellido = Formulario.SegundoApellido?.Trim(),
+                Correo = Formulario.Correo.Trim(),
+                NombreUsuario = nombreUsuario,
+
+                // Seguridad.API aplicará PBKDF2.
+                ContrasenaHash = Formulario.Contrasena,
+
+                IdEstado = 1
+            };
+
+            // Datos del cliente, sea persona física o jurídica.
+            Cliente = new Cliente
+            {
+                IdEmpresa = Formulario.IdEmpresa,
+                TipoCliente = Formulario.TipoCliente,
+
+                NombreRazonSocial =
+                    Formulario.TipoCliente == "Persona jurídica"
+                    ? Formulario.RazonSocial!.Trim()
+                    : $"{Formulario.Nombre.Trim()} " +
+                      $"{Formulario.PrimerApellido.Trim()} " +
+                      $"{Formulario.SegundoApellido?.Trim()}".Trim(),
+
+                Identificacion = Formulario.Identificacion,
+                Correo = Formulario.Correo.Trim(),
+                Telefono = Formulario.Telefono?.Trim(),
+                Direccion = Formulario.Direccion?.Trim(),
+                IdEstado = 1
+            };
+
+            var request = new RegistroRequest
+            {
+                Usuario = Usuario,
+                Cliente = Cliente
+            };
+
+            string endpoint = _configuracion.ObtenerMetodo(
+                "ApiEndPointsSeguridad", "Registro");
+
+            using var client = new HttpClient();
+
+            try
+            {
+                var respuesta = await client.PostAsJsonAsync(
+                    endpoint, request);
 
                 var contenido = await respuesta.Content.ReadAsStringAsync();
-                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-                registro = JsonSerializer.Deserialize<RegistroResponse>(contenido, opciones);
+                if (!respuesta.IsSuccessStatusCode)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "No fue posible completar el registro. " +
+                        "Verifique los datos e inténtelo nuevamente.");
 
-                if (respuesta.IsSuccessStatusCode && registro.IdUsuario != null)
-                {
-                    Usuario.IdUsuario = registro.IdUsuario;
-                    await RegistrarBitacora(Usuario, Cliente);
-                    return RedirectToPage("/Seguridad/Login");
-                }
-                else
-                {
-                    ModelState.AddModelError("", registro?.mensaje);
+                    await CargarEmpresas();
                     return Page();
                 }
+
+                var opciones = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                registro = JsonSerializer.Deserialize<RegistroResponse>(
+                    contenido, opciones);
+
+                if (registro?.IdUsuario == null)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        registro?.mensaje ??
+                        "No fue posible confirmar el registro.");
+
+                    await CargarEmpresas();
+                    return Page();
+                }
+
+                Usuario.IdUsuario = registro.IdUsuario;
+
+                // Conservar la bitácora del registro.
+                await RegistrarBitacora(Usuario, Cliente);
+
+                return RedirectToPage("/Seguridad/Login");
             }
-            ModelState.AddModelError("", "Asegúrese de rellenar todos los campos obligatorios");
-            return Page();
+            catch (HttpRequestException)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No fue posible conectar con el servicio de registro.");
+
+                await CargarEmpresas();
+                return Page();
+            }
+            catch (JsonException)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "El servicio devolvió una respuesta no válida.");
+
+                await CargarEmpresas();
+                return Page();
+            }
         }
 
         public async Task CargarEmpresas()
         {
-            string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerNombreEmpresa");
-            var cliente = new HttpClient();
-            var solicitud = new HttpRequestMessage(HttpMethod.Get, endpoint);
-            var respuesta = await cliente.SendAsync(solicitud);
+            string endpoint = _configuracion.ObtenerMetodo(
+                "ApiEndPoints", "ObtenerNombreEmpresa");
+
+            using var cliente = new HttpClient();
+
+            var respuesta = await cliente.GetAsync(endpoint);
             respuesta.EnsureSuccessStatusCode();
 
             var resultado = await respuesta.Content.ReadAsStringAsync();
+
             var opciones = new JsonSerializerOptions
-            { PropertyNameCaseInsensitive = true };
-            Empresas = JsonSerializer.Deserialize<List<EmpresaResponseNombres>>
-                (resultado, opciones);
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            Empresas =
+                JsonSerializer.Deserialize<List<EmpresaResponseNombres>>(
+                    resultado, opciones) ?? new();
         }
 
-        private async Task RegistrarBitacora(Usuario usuario, Cliente cliente)
+        private async Task RegistrarBitacora(
+            Usuario usuario, Cliente cliente)
         {
             var bitacora = new Bitacora
             {
-                IdUsuario = usuario.IdUsuario.Value,
-                IdEmpresa = usuario.IdEmpresa.Value,
+                IdUsuario = usuario.IdUsuario!.Value,
+                IdEmpresa = usuario.IdEmpresa!.Value,
                 TablaAfectada = "Usuario, Cliente",
                 Accion = "RegistrarUsuarioCliente",
                 RegistroId = usuario.IdUsuario.ToString(),
-                ValorAnterior = (string?)null,
+                ValorAnterior = null,
+
                 ValorNuevo = JsonSerializer.Serialize(new
                 {
                     usuario = new
@@ -114,6 +216,7 @@ namespace Web.Pages.Seguridad
                         usuario.NombreUsuario,
                         usuario.IdEstado
                     },
+
                     cliente = new
                     {
                         cliente.IdEmpresa,
@@ -125,13 +228,18 @@ namespace Web.Pages.Seguridad
                         cliente.Direccion,
                         cliente.IdEstado
                     },
+
                     fecha = DateTime.UtcNow
                 })
             };
 
-            string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "RegistrarBitacora");
-            var client = new HttpClient();
-            var respuesta = await client.PostAsJsonAsync(endpoint, bitacora);
+            string endpoint = _configuracion.ObtenerMetodo(
+                "ApiEndPoints", "RegistrarBitacora");
+
+            using var client = new HttpClient();
+
+            var respuesta = await client.PostAsJsonAsync(
+                endpoint, bitacora);
 
             if (!respuesta.IsSuccessStatusCode)
             {
