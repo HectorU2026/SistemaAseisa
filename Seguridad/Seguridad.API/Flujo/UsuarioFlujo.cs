@@ -1,12 +1,7 @@
 ﻿using Abstracciones.DA;
 using Abstracciones.Flujo;
 using Abstracciones.Modelos;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Seguridad.Criptografia;
 
 namespace Flujo
 {
@@ -21,6 +16,10 @@ namespace Flujo
 
         public async Task<RegistroResponse> CrearUsuario(RegistroRequest infoUusuario)
         {
+            if (infoUusuario?.Usuario == null ||
+                string.IsNullOrWhiteSpace(infoUusuario.Usuario.ContrasenaHash))
+                throw new ArgumentException("La contraseña es obligatoria.");
+            infoUusuario.Usuario.ContrasenaHash = ContrasenasSeguras.Crear(infoUusuario.Usuario.ContrasenaHash);
             return await _usuarioDA.CrearUsuario(infoUusuario);
         }
 

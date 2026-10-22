@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.10.12217.157 stable
+VisualStudioVersion = 18.10.12217.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Abstracciones", "Abstracciones\Abstracciones.csproj", "{63285EDD-0957-45D8-ACAC-CB69F0D811DE}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers", "Helpers\Helpers.csproj", "{C0A8F25E-E33F-4EB6-816F-82B39846F0E6}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "BD", "BD\BD.sqlproj", "{73E61DD7-788A-4AEB-9BA5-44525D2E996B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Seguridad.Criptografia", "Seguridad.Criptografia\Seguridad.Criptografia.csproj", "{A458A969-49F7-4CD2-A8AB-8C61448D0683}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +55,10 @@ Global
 		{73E61DD7-788A-4AEB-9BA5-44525D2E996B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73E61DD7-788A-4AEB-9BA5-44525D2E996B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{73E61DD7-788A-4AEB-9BA5-44525D2E996B}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{92F0D1FD-71AE-4EAD-93A5-1AD330E9BB6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{92F0D1FD-71AE-4EAD-93A5-1AD330E9BB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{92F0D1FD-71AE-4EAD-93A5-1AD330E9BB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{92F0D1FD-71AE-4EAD-93A5-1AD330E9BB6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A458A969-49F7-4CD2-A8AB-8C61448D0683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A458A969-49F7-4CD2-A8AB-8C61448D0683}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A458A969-49F7-4CD2-A8AB-8C61448D0683}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A458A969-49F7-4CD2-A8AB-8C61448D0683}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

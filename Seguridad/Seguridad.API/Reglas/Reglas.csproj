@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
+    <ProjectReference Include="..\Seguridad.Criptografia\Seguridad.Criptografia.csproj" />
   </ItemGroup>
 
 </Project>

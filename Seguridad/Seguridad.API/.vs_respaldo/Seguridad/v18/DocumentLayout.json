@@ -1,0 +1,57 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\jacru\\source\\repos\\HectorU2026\\SistemaAseisa\\Seguridad\\Seguridad.API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6DC39EBE-6760-4C62-B46D-A9DCE1E1EF34}|API\\API.csproj|c:\\users\\jacru\\source\\repos\\hectoru2026\\sistemaaseisa\\seguridad\\seguridad.api\\api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{6DC39EBE-6760-4C62-B46D-A9DCE1E1EF34}|API\\API.csproj|solutionrelative:api\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6DC39EBE-6760-4C62-B46D-A9DCE1E1EF34}|API\\API.csproj|c:\\users\\jacru\\source\\repos\\hectoru2026\\sistemaaseisa\\seguridad\\seguridad.api\\api\\api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{6DC39EBE-6760-4C62-B46D-A9DCE1E1EF34}|API\\API.csproj|solutionrelative:api\\api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\jacru\\source\\repos\\HectorU2026\\SistemaAseisa\\Seguridad\\Seguridad.API\\API\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "API\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\jacru\\source\\repos\\HectorU2026\\SistemaAseisa\\Seguridad\\Seguridad.API\\API\\Properties\\launchSettings.json",
+              "RelativeToolTip": "API\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAgwCkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-10-21T23:45:09.533Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "API",
+              "DocumentMoniker": "C:\\Users\\jacru\\source\\repos\\HectorU2026\\SistemaAseisa\\Seguridad\\Seguridad.API\\API\\API.csproj",
+              "RelativeDocumentMoniker": "API\\API.csproj",
+              "ToolTip": "C:\\Users\\jacru\\source\\repos\\HectorU2026\\SistemaAseisa\\Seguridad\\Seguridad.API\\API\\API.csproj",
+              "RelativeToolTip": "API\\API.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-10-21T23:42:32.943Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
