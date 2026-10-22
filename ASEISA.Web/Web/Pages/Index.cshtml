@@ -1,4 +1,114 @@
-﻿@page
+﻿
+@page
 @model Web.Pages.IndexModel
+
 @{
+    ViewData["Title"] = "Panel principal";
+
+    var grupos = new (string Id, string Titulo,
+        (string Icono, string Nombre, string Descripcion)[] Modulos)[]
+    {
+        (
+            "comercial",
+            "Gestión comercial",
+            new[]
+            {
+                ("bi-cart3", "Ventas", "Cotizaciones y ventas"),
+                ("bi-receipt", "Facturación", "Comprobantes y notas"),
+                ("bi-people", "Clientes y contactos", "Directorio comercial")
+            }
+        ),
+        (
+            "operaciones",
+            "Operaciones",
+            new[]
+            {
+                ("bi-box-seam", "Inventario", "Productos y bodegas"),
+                ("bi-truck", "Compras", "Órdenes y proveedores"),
+                ("bi-building", "Activos fijos", "Registro y depreciación")
+            }
+        ),
+        (
+            "finanzas",
+            "Finanzas",
+            new[]
+            {
+                ("bi-bank", "Bancos", "Cuentas y movimientos"),
+                ("bi-journal-text", "Contabilidad", "Asientos y cuentas"),
+                ("bi-bar-chart", "Reportes", "Análisis e indicadores")
+            }
+        ),
+        (
+            "administracion",
+            "Administración",
+            new[]
+            {
+                ("bi-person-gear", "Usuarios", "Accesos y roles"),
+                ("bi-gear", "Configuración", "Parámetros generales")
+            }
+        )
+    };
 }
+
+<div class="erp-page-heading">
+    <div>
+        <div class="erp-eyebrow">
+            INICIO / PANEL PRINCIPAL
+        </div>
+
+        <h1>Bienvenido a ASEISA</h1>
+
+        <p>
+            Accedé a los módulos del sistema desde un solo lugar.
+        </p>
+    </div>
+
+    <span class="erp-pill">
+        <i class="bi bi-circle-fill"></i>
+        Entorno de desarrollo
+    </span>
+</div>
+
+<div class="erp-notice">
+    <i class="bi bi-info-circle"></i>
+
+    <div>
+        <strong>Frontend en construcción.</strong>
+        Los módulos se habilitarán conforme conectemos sus
+        pantallas Razor Pages con la API.
+
+        Las tarjetas muestran el alcance previsto del sistema.
+    </div>
+</div>
+
+@foreach (var grupo in grupos)
+{
+    <section class="erp-section" id="@grupo.Id">
+
+        <h2>@grupo.Titulo</h2>
+
+        <div class="erp-module-grid">
+
+            @foreach (var modulo in grupo.Modulos)
+            {
+                <div class="erp-module-card">
+
+                    <span class="erp-module-icon">
+                        <i class="bi @modulo.Icono"></i>
+                    </span>
+
+                    <div>
+                        <h3>@modulo.Nombre</h3>
+
+                        <p>@modulo.Descripcion</p>
+
+                        <span class="erp-status">
+                            Próximamente
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
