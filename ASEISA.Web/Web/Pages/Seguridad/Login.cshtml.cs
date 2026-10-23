@@ -3,150 +3,239 @@ using Abstracciones.Modelos;
 using Abstracciones.Modelos.Seguridad;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Reglas;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security;
+using Web.Servicios;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Web.Pages.Seguridad
 {
     public class LoginModel : PageModel
     {
         private readonly IConfiguracion _configuracion;
+        private readonly IHttpClientFactory _httpClientFactory;
+
         [BindProperty]
-        public Login loginInfo { get; set; } = default!;
-        [BindProperty]
-        public Token token { get; set; } = default!;
-        public LoginModel(IConfiguracion configuracion)
+        public Login loginInfo { get; set; } = new Login
+        {
+            Correo = "",
+            ContrasenaHash = ""
+        };
+
+        public string? MensajeError { get; private set; }
+
+        public LoginModel(
+            IConfiguracion configuracion,
+            IHttpClientFactory httpClientFactory)
         {
             _configuracion = configuracion;
+            _httpClientFactory = httpClientFactory;
         }
-        public async Task<IActionResult> OnPost()
-        {
-            if (ModelState.IsValid)
-            {
-                var Hash = Autenticacion.GenerarHash(loginInfo.ContrasenaHash);
-                var contrasena_hash= Autenticacion.ObtenerHash(Hash);
 
-                string endpoint = _configuracion.ObtenerMetodo("ApiEndPointsSeguridad", "Login");
-                var client = new HttpClient();
-                var respuesta = await client.PostAsJsonAsync<Login>(endpoint,
-                    new Login
-                    {
-                        Correo = loginInfo.Correo,
-                        ContrasenaHash = contrasena_hash
-                    });
+        public IActionResult OnGet()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToPage("/Index");
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            NormalizarErrores();
+            if (!ModelState.IsValid) return Page();
+            var correo = loginInfo.Correo.Trim();
+            try
+            {
+                var endpoint = _configuracion.ObtenerMetodo("ApiEndPointsSeguridad", "Login");
+                using var respuesta = await _httpClientFactory.CreateClient().PostAsJsonAsync(
+                    endpoint, new Login { Correo = correo, ContrasenaHash = loginInfo.ContrasenaHash });
                 if (!respuesta.IsSuccessStatusCode)
                 {
-                    ModelState.AddModelError("", "Hubo un error al intentar iniciar sesión");
+                    MensajeError = "No fue posible iniciar sesión. Verifique sus credenciales.";
                     return Page();
                 }
-
-                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                token = JsonSerializer.Deserialize<Token>(
-                    respuesta.Content.ReadAsStringAsync().Result, opciones);
-
-                if (token.ValidacionExitosa)
+                var token = await respuesta.Content.ReadFromJsonAsync<Token>(
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (token?.ValidacionExitosa != true || string.IsNullOrWhiteSpace(token.AccessToken))
                 {
-                    await ActualizarUltimoAcceso(loginInfo.Correo);
-                    await RegistrarBitacora(loginInfo.Correo);
-
-                    JwtSecurityToken? jwtToken = Autenticacion.leerToken(token.AccessToken);
-                    var claims = Autenticacion.GenerarClaims(jwtToken, token.AccessToken);
-                    await establecerAutenticacion(claims);
-
-                    var urlredirigir = $"{HttpContext.Request.Query["ReturnUrl"]}";
-                    if (string.IsNullOrEmpty(urlredirigir))
-                        return Redirect("/");
-                    return Redirect(urlredirigir);
+                    MensajeError = "No fue posible validar su sesión. Verifique sus credenciales.";
+                    return Page();
                 }
+                var jwt = Autenticacion.leerToken(token.AccessToken);
+                if (jwt == null) throw new JsonException("Token inválido.");
+                var claims = Autenticacion.GenerarClaims(jwt, token.AccessToken);
+                var identidad = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identidad));
+                await EjecutarSinBloquearLogin(() => ActualizarUltimoAcceso(correo));
+                await EjecutarSinBloquearLogin(() => RegistrarBitacora(correo));
+                var returnUrl = Request.Query["ReturnUrl"].ToString();
+                return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
+                    ? LocalRedirect(returnUrl) : RedirectToPage("/Index");
+            }
+            catch (HttpRequestException)
+            {
+                MensajeError = "No fue posible conectar con el servidor de seguridad.";
+            }
+            catch (TaskCanceledException)
+            {
+                MensajeError = "La conexión tardó demasiado. Intente nuevamente.";
+            }
+            catch (JsonException)
+            {
+                MensajeError = "El servidor devolvió una respuesta inesperada.";
+            }
+            catch (Exception)
+            {
+                MensajeError = "Ocurrió un error inesperado al iniciar sesión.";
             }
             return Page();
         }
 
-        private async Task establecerAutenticacion(List<Claim> claims)
+        private void NormalizarErrores()
         {
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-            await HttpContext.SignInAsync(principal);
-        }
+            var correoVacio =
+                string.IsNullOrWhiteSpace(loginInfo?.Correo);
 
-        private async Task ActualizarUltimoAcceso(string correoElectronico)
-        {
-            var endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ActualizarUltimoAcceso");
-            var client = new HttpClient();
-            var url = $"{endpoint}?correo={Uri.EscapeDataString(correoElectronico)}";
-            var respuesta = await client.PostAsync(url, null);
-            if (!respuesta.IsSuccessStatusCode)
+            var claveVacia =
+                string.IsNullOrWhiteSpace(loginInfo?.ContrasenaHash);
+
+            ModelState.Clear();
+
+            if (correoVacio)
             {
-                var error = await respuesta.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error {respuesta.StatusCode}: {error}");
+                ModelState.AddModelError(
+                    "loginInfo.Correo",
+                    "Ingrese su correo electrónico."
+                );
+            }
+            else if (!new EmailAddressAttribute().IsValid(loginInfo.Correo))
+            {
+                ModelState.AddModelError(
+                    "loginInfo.Correo",
+                    "Ingrese un correo electrónico válido."
+                );
+            }
+
+            if (claveVacia)
+            {
+                ModelState.AddModelError(
+                    "loginInfo.ContrasenaHash",
+                    "Ingrese su contraseña."
+                );
             }
         }
 
-        private async Task RegistrarBitacora(string correo)
+        private async Task EjecutarSinBloquearLogin(
+            Func<Task> accion)
         {
-            var infoUsuario = await ObtenerInformacionUsuario(correo);
-            if (infoUsuario == null) return;
+            try
+            {
+                await accion();
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        private async Task ActualizarUltimoAcceso(
+            string correo)
+        {
+            var endpoint = _configuracion.ObtenerMetodo(
+                "ApiEndPoints",
+                "ActualizarUltimoAcceso"
+            );
+
+            var url =
+                $"{endpoint}?correo={Uri.EscapeDataString(correo)}";
+
+            using var respuesta =
+                await _httpClientFactory
+                    .CreateClient()
+                    .PostAsync(url, null);
+
+            respuesta.EnsureSuccessStatusCode();
+        }
+
+        private async Task RegistrarBitacora(
+            string correo)
+        {
+            var usuario =
+                await ObtenerInformacionUsuario(correo);
+
+            if (usuario == null)
+                return;
 
             var bitacora = new
             {
-                IdUsuario = infoUsuario.IdUsuario,
-                IdEmpresa = infoUsuario.IdEmpresa,
+                IdUsuario = usuario.IdUsuario,
+                IdEmpresa = usuario.IdEmpresa,
                 TablaAfectada = "Usuario",
-                RegistroId = infoUsuario.IdUsuario?.ToString(),
+                RegistroId = usuario.IdUsuario?.ToString(),
                 Accion = "Login",
                 ValorAnterior = (string?)null,
-                ValorNuevo = JsonSerializer.Serialize(new
-                {
-                    infoUsuario.IdUsuario,
-                    infoUsuario.IdEmpresa,
-                    infoUsuario.Nombre,
-                    infoUsuario.PrimerApellido,
-                    infoUsuario.SegundoApellido,
-                    infoUsuario.Correo,
-                    ContrasenaHash = "***",
-                    infoUsuario.NombreUsuario,
-                    infoUsuario.UltimoAcceso,
-                    infoUsuario.IdEstado,
-                    infoUsuario.FechaCreacion,
-                    infoUsuario.FechaModificacion,
-                    fecha = DateTime.UtcNow
-                })
+
+                ValorNuevo = JsonSerializer.Serialize(
+                    new
+                    {
+                        usuario.IdUsuario,
+                        usuario.IdEmpresa,
+                        usuario.Nombre,
+                        usuario.PrimerApellido,
+                        usuario.SegundoApellido,
+                        usuario.Correo,
+                        ContrasenaHash = "***",
+                        usuario.NombreUsuario,
+                        usuario.UltimoAcceso,
+                        usuario.IdEstado,
+                        usuario.FechaCreacion,
+                        usuario.FechaModificacion,
+                        fecha = DateTime.UtcNow
+                    }
+                )
             };
 
-            string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "RegistrarBitacora");
-            var client = new HttpClient();
-            var respuesta = await client.PostAsJsonAsync(endpoint, bitacora);
+            var endpoint = _configuracion.ObtenerMetodo(
+                "ApiEndPoints",
+                "RegistrarBitacora"
+            );
 
-            if (!respuesta.IsSuccessStatusCode)
-            {
-                var error = await respuesta.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error bitácora: {error}");
-            }
+            using var respuesta =
+                await _httpClientFactory
+                    .CreateClient()
+                    .PostAsJsonAsync(endpoint, bitacora);
+
+            respuesta.EnsureSuccessStatusCode();
         }
 
-        private async Task<Usuario?> ObtenerInformacionUsuario(string correoElectronico)
+        private async Task<Usuario?> ObtenerInformacionUsuario(
+            string correo)
         {
-            var endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerInfoUsuario");
-            var client = new HttpClient();
-            var url = $"{endpoint}?correo={Uri.EscapeDataString(correoElectronico)}";
-            var respuesta = await client.GetAsync(url);
-            if (!respuesta.IsSuccessStatusCode)
-            {
-                var error = await respuesta.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error {respuesta.StatusCode}: {error}");
-            }
+            var endpoint = _configuracion.ObtenerMetodo(
+                "ApiEndPoints",
+                "ObtenerInfoUsuario"
+            );
 
-            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var contenido = await respuesta.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Usuario>(contenido, opciones);
+            var url =
+                $"{endpoint}?correo={Uri.EscapeDataString(correo)}";
+
+            using var respuesta =
+                await _httpClientFactory
+                    .CreateClient()
+                    .PostAsync(url, null);
+
+            respuesta.EnsureSuccessStatusCode();
+
+            return await respuesta.Content
+                .ReadFromJsonAsync<Usuario>(
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }
+                );
         }
-
     }
 }

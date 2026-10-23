@@ -27,16 +27,17 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpPost("recuperarContrasena")]
-        public async Task<IActionResult> RecuperarContrasena([FromBody] UsuarioRecuperar correo) {
+        public async Task<IActionResult> RecuperarContrasena([FromBody] UsuarioRecuperar correo)
+        {
             return Ok(await _autenticacionFlujo.RecuperarContrasena(correo));
-        
+
         }
 
         [AllowAnonymous]
         [HttpPost("cambiarContrasena")]
         public async Task<IActionResult> CambiarContrasena([FromBody] CambiarContrasena usuario)
         {
-            return Ok(await _autenticacionFlujo.CambiarContrasena(usuario));
+            return await _autenticacionFlujo.CambiarContrasena(usuario);
 
         }
 
