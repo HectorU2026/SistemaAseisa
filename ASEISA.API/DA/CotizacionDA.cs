@@ -116,7 +116,7 @@ namespace DA
                     id_cliente = factura.IdCliente,
                     id_usuario = factura.IdUsuario,
                     numero_venta = factura.NumeroVenta,
-                    numero_factura = factura.NumeroFactura,
+                    numero_factura = (string?)null,
                     tipo_factura = factura.TipoFactura,
                     condicion_venta = factura.CondicionVenta,
                     moneda = factura.Moneda,
@@ -125,7 +125,8 @@ namespace DA
                     impuesto = factura.Impuesto,
                     descuento = factura.Descuento,
                     total = factura.Total
-                });
+                },
+                commandType: CommandType.StoredProcedure);
 
             return resultado;
         }

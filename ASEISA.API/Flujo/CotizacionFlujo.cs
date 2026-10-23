@@ -92,7 +92,6 @@ namespace Flujo
                 IdCliente = cotizacion.IdCliente,
                 IdUsuario = idUsuario,
                 NumeroVenta = $"VEN-{cotizacion.NumeroCotizacion}",
-                NumeroFactura = $"FAC-{cotizacion.NumeroCotizacion}",
                 TipoFactura = request.TipoFactura,
                 CondicionVenta = request.CondicionVenta,
                 Moneda = cotizacion.Moneda,

@@ -19,6 +19,7 @@ namespace Abstracciones.Modelos
         public class FacturacionResponse
         {
             public int IdFactura { get; set; }
+            public string? NumeroFactura { get; set; }
             public string Mensaje { get; set; }
         }
 
