@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
 
     <PackageId>Aseisa.Servicios</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.5</Version>
     <Authors>Aseisa</Authors>
     <Description>Servicios compartidos de Aseisa</Description>
   </PropertyGroup>
@@ -17,10 +17,6 @@
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <PackageReference Include="MailKit" Version="4.18.0" />
     <PackageReference Include="MimeKit" Version="4.18.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Abstracciones\Abstracciones.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

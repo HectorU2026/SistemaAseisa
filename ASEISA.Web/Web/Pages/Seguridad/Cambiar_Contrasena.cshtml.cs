@@ -3,7 +3,7 @@ using Abstracciones.Modelos;
 using Abstracciones.Modelos.Seguridad;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Reglas;
+using Web.Servicios;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 

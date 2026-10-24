@@ -1,0 +1,427 @@
+:root {
+    --red: #ed3933;
+    --red-dark: #c82c27;
+    --ink: #1d2636;
+    --muted: #758094;
+    --line: #e3e7ef
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    font-family: Inter,system-ui,sans-serif;
+    margin: 0;
+    color: var(--ink);
+    background: #f5f6f9
+}
+
+.login-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(360px,46%) 1fr
+}
+
+.brand-panel {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg,#202938 0%,#151d29 80%);
+    color: #fff;
+    padding: clamp(32px,5vw,76px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between
+}
+
+    .brand-panel:after {
+        content: "";
+        position: absolute;
+        width: 540px;
+        height: 540px;
+        border: 1px solid #ffffff13;
+        border-radius: 50%;
+        bottom: -270px;
+        right: -220px;
+        box-shadow: 0 0 0 90px #ffffff06,0 0 0 180px #ffffff04;
+        pointer-events: none
+    }
+
+.brand-top {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    z-index: 1
+}
+
+    .brand-top strong {
+        display: block;
+        font-size: 24px;
+        letter-spacing: .08em
+    }
+
+    .brand-top span {
+        font-size: 12px;
+        color: #b8c0cc
+    }
+
+.brand-emblem {
+    width: 47px;
+    height: 47px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--red);
+    font-size: 21px
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+    max-width: 510px
+}
+
+.brand-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #ffb3ae;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase
+}
+
+.brand-content h1 {
+    font-size: clamp(40px,4.5vw,66px);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: -.055em;
+    margin: 24px 0
+}
+
+    .brand-content h1 em {
+        font-style: normal;
+        color: #ff625b
+    }
+
+.brand-content p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #c0c8d3;
+    max-width: 430px
+}
+
+.brand-features {
+    display: grid;
+    gap: 15px;
+    margin-top: 34px;
+    font-size: 14px;
+    color: #e3e7ed
+}
+
+    .brand-features i {
+        color: #ff6962;
+        margin-right: 9px
+    }
+
+.brand-bottom {
+    color: #8c98aa;
+    font-size: 12px;
+    z-index: 1
+}
+
+.form-panel {
+    display: grid;
+    place-items: center;
+    padding: 42px 24px
+}
+
+.login-card {
+    width: min(100%,430px)
+}
+
+.mobile-brand {
+    display: none
+}
+
+.welcome-label {
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 800;
+    letter-spacing: .13em;
+    margin-bottom: 14px
+}
+
+.login-card h2 {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -.04em;
+    margin: 0 0 12px
+}
+
+.intro {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin: 0 0 35px
+}
+
+.field-group {
+    margin-bottom: 23px
+}
+
+    .field-group label {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        display: block
+    }
+
+.field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px
+}
+
+    .field-label-row a, .register-line a {
+        font-size: 12px;
+        color: var(--red-dark);
+        text-decoration: none;
+        font-weight: 700
+    }
+
+.field-input {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 0 16px;
+    background: #fff;
+    transition: border-color .15s,box-shadow .15s
+}
+
+    .field-input:focus-within {
+        border-color: var(--red);
+        box-shadow: 0 0 0 3px #ed39331a
+    }
+
+    .field-input.invalid {
+        border-color: #e56a6a
+    }
+
+    .field-input > i {
+        font-size: 17px;
+        color: #929aaa
+    }
+
+    .field-input input {
+        border: 0;
+        outline: 0;
+        min-width: 0;
+        width: 100%;
+        background: transparent;
+        color: var(--ink);
+        font-size: 14px
+    }
+
+        .field-input input::placeholder {
+            color: #a5acb9
+        }
+
+.toggle-password {
+    border: 0;
+    background: transparent;
+    color: #7e8898;
+    padding: 5px
+}
+
+.field-error {
+    display: block;
+    color: #c83232;
+    font-size: 12px;
+    margin-top: 7px
+}
+
+    .field-error:empty {
+        display: none
+    }
+
+.submit-button {
+    margin-top: 5px;
+    border: 0;
+    border-radius: 11px;
+    height: 54px;
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    transition: background .2s,transform .2s
+}
+
+    .submit-button:hover {
+        background: var(--red-dark);
+        transform: translateY(-1px)
+    }
+
+.login-alert {
+    background: #fff0f0;
+    color: #a12b2b;
+    border: 1px solid #f4c8c8;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 13px;
+    margin-bottom: 22px
+}
+
+.register-line {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 26px
+}
+
+.login-footer {
+    text-align: center;
+    color: #9aa3b1;
+    font-size: 11px;
+    margin-top: 50px
+}
+
+@media(max-width:900px) {
+    .login-shell {
+        grid-template-columns: 1fr
+    }
+
+    .brand-panel {
+        display: none
+    }
+
+    .form-panel {
+        min-height: 100vh
+    }
+
+    .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 45px;
+        letter-spacing: .06em
+    }
+
+    .mobile-brand-icon {
+        background: var(--red);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 9px
+    }
+}
+
+@media(max-width:480px) {
+    .form-panel {
+        padding: 30px 22px
+    }
+
+    .login-card h2 {
+        font-size: 29px
+    }
+
+    .intro {
+        margin-bottom: 27px
+    }
+
+    .field-label-row a {
+        font-size: 11px
+    }
+}
+
+
+/* ========================================
+   LOGOTIPO CORPORATIVO DE ASEISA
+======================================== */
+
+/* Encabezado de identidad */
+.brand-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/* Contenedor blanco para destacar el logo */
+.brand-logo-container {
+    width: 92px;
+    height: 104px;
+    padding: 8px;
+    background: #ffffff;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Imagen del logo */
+.brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Texto junto al logotipo */
+.brand-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .brand-identity strong {
+        font-size: 27px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        color: #ffffff;
+    }
+
+    .brand-identity span {
+        font-size: 13px;
+        color: #b9c5d6;
+    }
+
+.mobile-brand-logo {
+    width: 48px;
+    height: 58px;
+    object-fit: contain;
+    background: #ffffff;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .brand-logo-container {
+        width: 72px;
+        height: 82px;
+    }
+
+    .brand-identity strong {
+        font-size: 23px;
+    }
+}
+
