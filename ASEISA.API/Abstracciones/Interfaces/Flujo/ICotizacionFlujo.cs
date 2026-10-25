@@ -12,7 +12,7 @@ namespace Abstracciones.Interfaces.Flujo
     {
         public Task<int> RegistrarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
         public Task<int> AvanzarCotizacionEnviadaFlujo(int idEmpresa, int idUsuario, int idCotizacion);
-        Task<CotizacionResponseDetallada> ObtenerCotizacionPorId(int idCotizacion);
+        Task<CotizacionResponseDetallada?> ObtenerCotizacionPorId(int idCotizacion);
         Task<IActionResult> EnviarCotizacionPorCorreo(int idCotizacion, string correo);
         Task<int> RetrocederCotizacionEnviada(int idCotizacion);
         Task<ActionResult> AvanzarCotizacionAOrdenDeVenta(int idCotizacion);
