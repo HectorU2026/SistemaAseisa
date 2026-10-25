@@ -1,4 +1,5 @@
-﻿using Abstracciones.Interfaces.DA;
+﻿
+using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Interfaces.Servicio;
 using Abstracciones.Modelos;
@@ -20,11 +21,16 @@ namespace Flujo
     {
         private ICotizacionDA _cotizacionDA;
         private IEnviarCotizacion _enviarCotizacion;
+        private IUsuarioDA _usuarioDA;
 
-        public CotizacionFlujo(ICotizacionDA cotizacionDA, IEnviarCotizacion enviarCotizacion)
+        public CotizacionFlujo(
+            ICotizacionDA cotizacionDA,
+            IEnviarCotizacion enviarCotizacion,
+            IUsuarioDA usuarioDA)
         {
             _cotizacionDA = cotizacionDA;
             _enviarCotizacion = enviarCotizacion;
+            _usuarioDA = usuarioDA;
         }
 
         public async Task<int> RegistrarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
@@ -37,8 +43,8 @@ namespace Flujo
         {
             return await _cotizacionDA.AvanzarCotizacionEnviada(idEmpresa, idUsuario, idCotizacion);
         }
-        
-        public async Task<CotizacionResponseDetallada> ObtenerCotizacionPorId(int idCotizacion)
+
+        public async Task<CotizacionResponseDetallada?> ObtenerCotizacionPorId(int idCotizacion)
         {
             return await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
         }
@@ -67,6 +73,7 @@ namespace Flujo
                     Faltantes = faltantes
                 });
             }
+
             var resultado = await _cotizacionDA.AvanzarCotizacionAOrdenDeVenta(idCotizacion);
 
             if (resultado == 0)
@@ -77,13 +84,27 @@ namespace Flujo
 
         public async Task<ActionResult> Facturar(int idCotizacion, int idUsuario, FacturarRequest request)
         {
+            // FAC-001: Verificar que el usuario esté activo
+            // y obtener la empresa a la que pertenece.
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
             var cotizacion = await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
 
             if (cotizacion == null)
                 return new NotFoundObjectResult("Cotización no encontrada.");
 
+            // FAC-001: Impedir facturar cotizaciones de otra empresa.
+            if (cotizacion.IdEmpresa != idEmpresaUsuario.Value)
+                return new ForbidResult();
+
             if (cotizacion.NombreEstado != "Orden de Venta")
                 return new BadRequestObjectResult("La cotización debe estar en estado 'Orden de Venta'");
+
+            if (!request.FechaFactura.HasValue || request.FechaFactura.Value == DateTime.MinValue)
+                return new BadRequestObjectResult("La fecha de factura es obligatoria");
 
             var factura = new FacturarCotizacion
             {
@@ -94,6 +115,7 @@ namespace Flujo
                 NumeroVenta = $"VEN-{cotizacion.NumeroCotizacion}",
                 TipoFactura = request.TipoFactura,
                 CondicionVenta = request.CondicionVenta,
+                FechaFactura = request.FechaFactura.Value,
                 Moneda = cotizacion.Moneda,
                 TipoCambio = cotizacion.TipoCambio,
                 Subtotal = cotizacion.Subtotal,
@@ -121,7 +143,7 @@ namespace Flujo
             return await _cotizacionDA.ObtenerCotizaciones(idEmpresa);
         }
 
-        //editar cotizacion 
+        //editar cotizacion
         public async Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
         {
             return await _cotizacionDA.EditarCotizacion(idEmpresa, idUsuario, cotizacion);
@@ -134,5 +156,3 @@ namespace Flujo
         }
     }
 }
-
-
