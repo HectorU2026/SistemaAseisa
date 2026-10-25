@@ -1,4 +1,5 @@
-﻿using Abstracciones.Interfaces.DA;
+﻿
+using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using Abstracciones.Modelos.Servicios;
 using Dapper;
@@ -23,6 +24,7 @@ namespace DA
             _repositorioDapper = repositorioDapper;
             _sqlConnection = _repositorioDapper.ObtenerRepositorio();
         }
+
         public async Task<int> RegistrarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
         {
             var detallesJson = JsonSerializer.Serialize(cotizacion.Detalles);
@@ -71,6 +73,13 @@ namespace DA
                 });
 
             var cotizacion = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada>();
+
+            // Si la cotización no existe, devolvemos null.
+            if (cotizacion == null)
+            {
+                return null;
+            }
+
             var empresa = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada.EmpresaCotizacion>();
             var cliente = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada.ClienteCotizacion>();
 
@@ -89,7 +98,7 @@ namespace DA
                 new
                 {
                     id_cotizacion = idCotizacion
-                });;
+                }); ;
         }
 
         public async Task<int> AvanzarCotizacionAOrdenDeVenta(int idCotizacion)
@@ -100,7 +109,7 @@ namespace DA
                 new
                 {
                     id_cotizacion = idCotizacion
-                }); 
+                });
         }
 
         public async Task<FacturacionResponse?> FacturarOrdenDeVenta(FacturarCotizacion factura)
@@ -116,7 +125,7 @@ namespace DA
                     id_cliente = factura.IdCliente,
                     id_usuario = factura.IdUsuario,
                     numero_venta = factura.NumeroVenta,
-                    numero_factura = factura.NumeroFactura,
+                    numero_factura = (string?)null,
                     tipo_factura = factura.TipoFactura,
                     condicion_venta = factura.CondicionVenta,
                     moneda = factura.Moneda,
@@ -124,12 +133,13 @@ namespace DA
                     subtotal = factura.Subtotal,
                     impuesto = factura.Impuesto,
                     descuento = factura.Descuento,
-                    total = factura.Total
-                });
+                    total = factura.Total,
+                    fecha_factura = factura.FechaFactura
+                },
+                commandType: CommandType.StoredProcedure);
 
             return resultado;
         }
-
 
         public async Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas()
         {
@@ -146,7 +156,6 @@ namespace DA
             }).ToList();
         }
 
-
         public async Task<IEnumerable<FaltanteInventarioResponse>> ValidarInventarioCotizacion(int idCotizacion)
         {
             var sql = "ValidarInventarioCotizacion";
@@ -156,13 +165,14 @@ namespace DA
                 new { id_cotizacion = idCotizacion });
             return resultado;
         }
+
         public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizaciones(int idEmpresa)
         {
             using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
             var resultado = await conexion.QueryAsync<CotizacionResponse>(
                 @"ObtenerCotizaciones",
                 new { id_empresa = idEmpresa },
-        commandType: System.Data.CommandType.StoredProcedure);
+                commandType: System.Data.CommandType.StoredProcedure);
 
             return resultado;
         }

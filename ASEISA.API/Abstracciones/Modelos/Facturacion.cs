@@ -14,11 +14,15 @@ namespace Abstracciones.Modelos
 
             [Required(ErrorMessage = "La condición de venta es obligatoria")]
             public string CondicionVenta { get; set; } = "Contado";
+
+            [Required(ErrorMessage = "La fecha de factura es obligatoria")]
+            public DateTime? FechaFactura { get; set; }
         }
 
         public class FacturacionResponse
         {
             public int IdFactura { get; set; }
+            public string? NumeroFactura { get; set; }
             public string Mensaje { get; set; }
         }
 
@@ -39,6 +43,7 @@ namespace Abstracciones.Modelos
             public decimal Impuesto { get; set; }
             public decimal Descuento { get; set; }
             public decimal Total { get; set; }
+            public DateTime FechaFactura { get; set; }
         }
 
     }

@@ -1,6 +1,7 @@
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using API.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrador,Contador,Auxiliar")]
     [InventarioFisicoModelStateFilter]
     public class InventarioFisicoController : Controller
     {
