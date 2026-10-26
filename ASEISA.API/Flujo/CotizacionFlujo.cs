@@ -116,6 +116,7 @@ namespace Flujo
                 TipoFactura = request.TipoFactura,
                 CondicionVenta = request.CondicionVenta,
                 FechaFactura = request.FechaFactura.Value,
+                IdTerminoPago = request.IdTerminoPago,
                 Moneda = cotizacion.Moneda,
                 TipoCambio = cotizacion.TipoCambio,
                 Subtotal = cotizacion.Subtotal,

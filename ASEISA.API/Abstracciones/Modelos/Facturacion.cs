@@ -17,6 +17,10 @@ namespace Abstracciones.Modelos
 
             [Required(ErrorMessage = "La fecha de factura es obligatoria")]
             public DateTime? FechaFactura { get; set; }
+
+            [Required(ErrorMessage = "El término de pago es obligatorio")]
+            [Range(1, int.MaxValue, ErrorMessage = "Seleccione un término de pago válido")]
+            public int IdTerminoPago { get; set; }
         }
 
         public class FacturacionResponse
@@ -44,6 +48,7 @@ namespace Abstracciones.Modelos
             public decimal Descuento { get; set; }
             public decimal Total { get; set; }
             public DateTime FechaFactura { get; set; }
+            public int IdTerminoPago { get; set; }
         }
 
     }

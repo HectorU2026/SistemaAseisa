@@ -13,7 +13,8 @@
     @impuesto        DECIMAL(18,2),
     @descuento       DECIMAL(18,2),
     @total           DECIMAL(18,2),
-    @fecha_factura   DATETIME2
+    @fecha_factura   DATETIME2,
+    @id_termino_pago INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -43,6 +44,11 @@ BEGIN
     DECLARE @total_debe_asiento DECIMAL(18,2);
     DECLARE @total_haber_asiento DECIMAL(18,2);
     DECLARE @id_estado_empresa INT;
+    DECLARE @termino_pago_nombre NVARCHAR(100);
+    DECLARE @dias_credito INT;
+    DECLARE @fecha_vencimiento DATETIME2(7);
+    DECLARE @es_contado BIT;
+    DECLARE @es_credito BIT;
 
     BEGIN TRY
         BEGIN TRANSACTION;
@@ -59,6 +65,87 @@ BEGIN
 
             RETURN;
         END;
+
+        SET @es_contado = CASE
+            WHEN LOWER(LTRIM(RTRIM(ISNULL(@condicion_venta, '')))) COLLATE Latin1_General_CI_AI = 'contado'
+            THEN 1 ELSE 0 END;
+
+        SET @es_credito = CASE
+            WHEN LOWER(LTRIM(RTRIM(ISNULL(@condicion_venta, '')))) COLLATE Latin1_General_CI_AI = 'credito'
+            THEN 1 ELSE 0 END;
+
+        IF @es_contado = 0 AND @es_credito = 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                0 AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                'La condición de venta debe ser Contado o Crédito' AS Mensaje;
+
+            RETURN;
+        END;
+
+        IF @id_termino_pago IS NULL OR @id_termino_pago <= 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                0 AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                'El término de pago es obligatorio' AS Mensaje;
+
+            RETURN;
+        END;
+
+        SELECT
+            @termino_pago_nombre = nombre,
+            @dias_credito = dias_credito
+        FROM dbo.TERMINO_PAGO
+        WHERE id_termino_pago = @id_termino_pago
+          AND id_empresa = @id_empresa
+          AND activo = 1;
+
+        IF @termino_pago_nombre IS NULL OR @dias_credito IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                0 AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                'El término de pago no existe, no está activo o no pertenece a la empresa' AS Mensaje;
+
+            RETURN;
+        END;
+
+        IF @es_contado = 1 AND @dias_credito <> 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                0 AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                'La venta de contado requiere un término con 0 días de crédito' AS Mensaje;
+
+            RETURN;
+        END;
+
+        IF @es_credito = 1 AND @dias_credito <= 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                0 AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                'La venta a crédito requiere un término con días de crédito mayores a cero' AS Mensaje;
+
+            RETURN;
+        END;
+
+        IF @es_contado = 1
+            SET @fecha_vencimiento = @fecha_factura;
+        ELSE
+            SET @fecha_vencimiento = DATEADD(DAY, @dias_credito, @fecha_factura);
 
         SELECT @id_estado_orden_venta = id_estado
         FROM ESTADO
@@ -515,7 +602,10 @@ BEGIN
             impuesto,
             descuento,
             total,
-            saldo_pendiente
+            saldo_pendiente,
+            fecha_vencimiento,
+            id_termino_pago,
+            termino_pago_nombre
         )
         VALUES
         (
@@ -532,7 +622,10 @@ BEGIN
             @impuesto,
             @descuento,
             @total,
-            @total
+            @total,
+            @fecha_vencimiento,
+            @id_termino_pago,
+            @termino_pago_nombre
         );
 
         SET @id_factura = CAST(SCOPE_IDENTITY() AS INT);
