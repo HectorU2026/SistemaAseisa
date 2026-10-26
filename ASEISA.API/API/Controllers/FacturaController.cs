@@ -45,5 +45,39 @@ namespace API.Controllers
 
             return await _facturaFlujo.ObtenerFactura(idUsuario, idFactura);
         }
+
+        [HttpPut("{idFactura:int}/confirmar")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> Confirmar(
+            [FromRoute] int idFactura,
+            [FromBody] FacturaCambioEstadoRequest request)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.Confirmar(idUsuario, idFactura, request.VersionFila);
+        }
+
+        [HttpPut("{idFactura:int}/restablecer")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> Restablecer(
+            [FromRoute] int idFactura,
+            [FromBody] FacturaCambioEstadoRequest request)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.Restablecer(idUsuario, idFactura, request.VersionFila);
+        }
     }
 }
