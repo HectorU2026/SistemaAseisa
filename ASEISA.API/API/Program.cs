@@ -98,6 +98,8 @@ builder.Services.AddScoped<ICompraDA, CompraDA>();
 builder.Services.AddScoped<ICompraFlujo, CompraFlujo>();
 builder.Services.AddScoped<ICotizacionDA, CotizacionDA>();
 builder.Services.AddScoped<ICotizacionFlujo, CotizacionFlujo>();
+builder.Services.AddScoped<IFacturaDA, FacturaDA>();
+builder.Services.AddScoped<IFacturaFlujo, FacturaFlujo>();
 builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
 builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
