@@ -70,12 +70,18 @@ namespace DA
 
         public async Task<LoginAutenticado> ObtenerUsuario(LoginBase login)
         {
+            var filas = await ObtenerUsuarioConRoles(login);
+            return filas.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<LoginAutenticado>> ObtenerUsuarioConRoles(LoginBase login)
+        {
             string sql = @"ObtenerUsuario";
-            var resultado = await _sqlConnection.QueryAsync<LoginAutenticado>(sql, 
-            new { 
+            var resultado = await _sqlConnection.QueryAsync<LoginAutenticado>(sql,
+            new {
                 correo = login.Correo
             });
-            return resultado.FirstOrDefault();
+            return resultado;
         }
 
         public async Task<ActionResult> CambiarContrasena(CambiarContrasena usuario)

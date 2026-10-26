@@ -134,7 +134,8 @@ namespace DA
                     impuesto = factura.Impuesto,
                     descuento = factura.Descuento,
                     total = factura.Total,
-                    fecha_factura = factura.FechaFactura
+                    fecha_factura = factura.FechaFactura,
+                    id_termino_pago = factura.IdTerminoPago
                 },
                 commandType: CommandType.StoredProcedure);
 
