@@ -13,6 +13,7 @@ namespace Abstracciones.DA
     {
         Task<RegistroResponse> CrearUsuario(RegistroRequest infoUsuario);
         Task<LoginAutenticado> ObtenerUsuario(LoginBase login);
+        Task<IEnumerable<LoginAutenticado>> ObtenerUsuarioConRoles(LoginBase login);
         Task<UsuarioRecuperar> ValidarCorreoActivo(string correo);
         Task<ActionResult> CambiarContrasena(CambiarContrasena usuario);
 
