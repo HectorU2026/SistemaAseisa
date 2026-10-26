@@ -41,5 +41,47 @@ namespace Flujo
 
             return new OkObjectResult(factura);
         }
+
+        public async Task<ActionResult> Confirmar(int idUsuario, int idFactura, byte[]? versionFila)
+        {
+            return await EjecutarCambioEstado(idUsuario, idFactura, versionFila, _facturaDA.Confirmar);
+        }
+
+        public async Task<ActionResult> Restablecer(int idUsuario, int idFactura, byte[]? versionFila)
+        {
+            return await EjecutarCambioEstado(idUsuario, idFactura, versionFila, _facturaDA.Restablecer);
+        }
+
+        private async Task<ActionResult> EjecutarCambioEstado(
+            int idUsuario,
+            int idFactura,
+            byte[]? versionFila,
+            Func<int, int, int, byte[], Task<FacturaCambioEstadoResultado>> operacion)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            if (versionFila == null || versionFila.Length != 8)
+                return new BadRequestObjectResult("La versión de la factura es obligatoria");
+
+            var resultado = await operacion(idEmpresaUsuario.Value, idUsuario, idFactura, versionFila);
+
+            return resultado.Codigo switch
+            {
+                1 => new OkObjectResult(new
+                {
+                    resultado.IdFactura,
+                    resultado.NumeroFactura,
+                    resultado.Estado,
+                    resultado.VersionFila,
+                    resultado.Mensaje
+                }),
+                0 => new NotFoundObjectResult(resultado.Mensaje),
+                2 => new ConflictObjectResult(resultado.Mensaje),
+                _ => new BadRequestObjectResult(resultado.Mensaje)
+            };
+        }
     }
 }

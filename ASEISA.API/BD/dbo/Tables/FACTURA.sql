@@ -20,6 +20,7 @@
     [fecha_vencimiento]    DATETIME2 (7)   NULL,
     [id_termino_pago]      INT             NULL,
     [termino_pago_nombre]  NVARCHAR (100)  NULL,
+    [version_fila]         ROWVERSION      NOT NULL,
     CONSTRAINT [PK_FACTURA] PRIMARY KEY CLUSTERED ([id_factura] ASC),
     CONSTRAINT [FK_FACTURA_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
     CONSTRAINT [FK_FACTURA_ESTADO_FACTURA] FOREIGN KEY ([id_estado_factura]) REFERENCES [dbo].[ESTADO_FACTURA] ([id_estado_factura]),

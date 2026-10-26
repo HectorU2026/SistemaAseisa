@@ -32,7 +32,8 @@ BEGIN
         f.saldo_pendiente      AS SaldoPendiente,
         f.motivo_anulacion     AS MotivoAnulacion,
         f.id_estado_factura    AS IdEstadoFactura,
-        ef.nombre_estado       AS Estado
+        ef.nombre_estado       AS Estado,
+        f.version_fila         AS VersionFila
     INTO #cabecera
     FROM dbo.FACTURA f
     INNER JOIN dbo.VENTAS v
