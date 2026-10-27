@@ -3,7 +3,7 @@
     [id_venta]           INT             NOT NULL,
     [id_empresa]         INT             NOT NULL,
     [id_usuario]         INT             NOT NULL,
-    [id_estado]          INT             NOT NULL,
+    [id_estado_factura]  INT             NOT NULL,
     [numero_factura]     VARCHAR (50)    NOT NULL,
     [fecha_emision]      DATETIME2 (7)   NOT NULL,
     [tipo_factura]       VARCHAR (50)    NULL,
@@ -15,12 +15,18 @@
     [total]              DECIMAL (18, 2) NOT NULL,
     [saldo_pendiente]    DECIMAL (18, 2) NOT NULL,
     [motivo_anulacion]   VARCHAR (500)   NULL,
-    [fecha_creacion]     DATETIME2 (7)   DEFAULT (sysdatetime()) NOT NULL,
-    [fecha_modificacion] DATETIME2 (7)   NULL,
+    [fecha_creacion]       DATETIME2 (7)   DEFAULT (sysdatetime()) NOT NULL,
+    [fecha_modificacion]   DATETIME2 (7)   NULL,
+    [fecha_vencimiento]    DATETIME2 (7)   NULL,
+    [id_termino_pago]      INT             NULL,
+    [termino_pago_nombre]  NVARCHAR (100)  NULL,
+    [version_fila]         ROWVERSION      NOT NULL,
     CONSTRAINT [PK_FACTURA] PRIMARY KEY CLUSTERED ([id_factura] ASC),
     CONSTRAINT [FK_FACTURA_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
-    CONSTRAINT [FK_FACTURA_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
+    CONSTRAINT [FK_FACTURA_ESTADO_FACTURA] FOREIGN KEY ([id_estado_factura]) REFERENCES [dbo].[ESTADO_FACTURA] ([id_estado_factura]),
+    CONSTRAINT [FK_FACTURA_TERMINO_EMPRESA] FOREIGN KEY ([id_termino_pago], [id_empresa]) REFERENCES [dbo].[TERMINO_PAGO] ([id_termino_pago], [id_empresa]),
     CONSTRAINT [FK_FACTURA_USUARIO] FOREIGN KEY ([id_usuario]) REFERENCES [dbo].[USUARIO] ([id_usuario]),
-    CONSTRAINT [FK_FACTURA_VENTAS] FOREIGN KEY ([id_venta]) REFERENCES [dbo].[VENTAS] ([id_venta])
+    CONSTRAINT [FK_FACTURA_VENTAS] FOREIGN KEY ([id_venta]) REFERENCES [dbo].[VENTAS] ([id_venta]),
+    CONSTRAINT [UQ_FACTURA_EMPRESA_NUMERO] UNIQUE NONCLUSTERED ([id_empresa] ASC, [numero_factura] ASC)
 );
 
