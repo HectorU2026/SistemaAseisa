@@ -144,6 +144,8 @@
     <Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFacturas.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />

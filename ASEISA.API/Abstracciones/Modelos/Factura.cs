@@ -94,7 +94,24 @@ namespace Abstracciones.Modelos
         public string? MotivoAnulacion { get; set; }
         public int IdEstadoFactura { get; set; }
         public string Estado { get; set; }
+        public byte[] VersionFila { get; set; }
         public List<FacturaProducto> Productos { get; set; } = new();
         public FacturaAsiento? Asiento { get; set; }
+    }
+
+    public class FacturaCambioEstadoRequest
+    {
+        [Required]
+        public byte[] VersionFila { get; set; }
+    }
+
+    public class FacturaCambioEstadoResultado
+    {
+        public int Codigo { get; set; }
+        public string Mensaje { get; set; }
+        public int? IdFactura { get; set; }
+        public string? NumeroFactura { get; set; }
+        public string? Estado { get; set; }
+        public byte[]? VersionFila { get; set; }
     }
 }

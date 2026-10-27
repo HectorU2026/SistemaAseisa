@@ -3,9 +3,10 @@ using Abstracciones.Modelos;
 using Abstracciones.Modelos.Seguridad;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Web.Servicios;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Text.Json;
+using Web.Servicios;
 
 namespace Web.Views.Home.Inicio_Sesion
 {
@@ -55,16 +56,18 @@ namespace Web.Views.Home.Inicio_Sesion
                     return Page();
                 }
 
-                string endpoint = _configuracion.ObtenerMetodo("ApiEndPointsSeguridad", "CambiarContrasena");
+                string endpoint = _configuracion.ObtenerMetodo(
+                    "ApiEndPointsSeguridad",
+                    "CambiarContrasena"
+                );
+
                 var client = new HttpClient();
-                var Hash = Autenticacion.GenerarHash(Cambio.NuevaContrasena);
-                var contrasena_hash = Autenticacion.ObtenerHash(Hash);
+
                 var respuesta = await client.PostAsJsonAsync(endpoint,
                     new
                     {
                         Token = Cambio.Token,
-                        correo = correo,
-                        ContrasenaHash = contrasena_hash
+                        ContrasenaHash = Cambio.NuevaContrasena
                     });
 
                 if (!respuesta.IsSuccessStatusCode)
@@ -74,7 +77,7 @@ namespace Web.Views.Home.Inicio_Sesion
                     return Page();
                 }
 
-                await RegistrarBitacora(usuarioAntes, contrasena_hash);
+                await RegistrarBitacora(usuarioAntes);
                 return Redirect("/Seguridad/Login");
             }
             CargarToken(Cambio.Token);
@@ -88,7 +91,7 @@ namespace Web.Views.Home.Inicio_Sesion
             return jwt.Claims.FirstOrDefault(c => c.Type == "correo")?.Value;
         }
 
-        private async Task RegistrarBitacora(Usuario usuarioAntes, string contrasena_hash)
+        private async Task RegistrarBitacora(Usuario usuarioAntes)
         {
             var usuarioDespues = new Usuario
             {
