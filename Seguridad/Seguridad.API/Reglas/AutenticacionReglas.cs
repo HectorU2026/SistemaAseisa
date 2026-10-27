@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Seguridad.Criptografia;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -39,7 +40,10 @@ namespace BC
                 return resultado;
             }
 
-            var usuario = await _usuarioDA.ObtenerUsuario(login);
+            var filasUsuario = (await _usuarioDA.ObtenerUsuarioConRoles(login))
+                .ToList();
+
+            var usuario = filasUsuario.FirstOrDefault();
 
             if (usuario == null)
                 return resultado;
@@ -88,13 +92,19 @@ namespace BC
                     usuario.NombreUsuario),
 
                 new Claim(
-                    ClaimTypes.Role,
-                    usuario.rol),
-
-                new Claim(
                     ClaimTypes.Email,
                     usuario.Correo)
             };
+
+            var rolesActivos = filasUsuario
+                .Select(fila => fila.rol)
+                .Where(rol => !string.IsNullOrWhiteSpace(rol))
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var rol in rolesActivos)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, rol));
+            }
 
             var jwt = new JwtSecurityToken(
                 cfg.Issuer,

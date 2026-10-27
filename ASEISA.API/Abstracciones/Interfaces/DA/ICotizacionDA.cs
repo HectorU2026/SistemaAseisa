@@ -11,7 +11,7 @@ namespace Abstracciones.Interfaces.DA
     {
         public Task<int> RegistrarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
         public Task<int> AvanzarCotizacionEnviada(int idEmpresa, int idUsuario, int idCotizacion);
-        Task<CotizacionResponseDetallada> ObtenerCotizacionPorId(int idCotizacion);
+        Task<CotizacionResponseDetallada?> ObtenerCotizacionPorId(int idCotizacion);
         Task<int> RetrocederCotizacionEnviada(int idCotizacion);
         Task<int> AvanzarCotizacionAOrdenDeVenta(int idCotizacion);
         Task<FacturacionResponse?> FacturarOrdenDeVenta(FacturarCotizacion factura);

@@ -81,6 +81,7 @@
     <Build Include="dbo\Tables\INVENTARIO_FISICO.sql" />
     <Build Include="dbo\Tables\INGRESO_PRODUCTO.sql" />
     <Build Include="dbo\Tables\ESTADO.sql" />
+    <Build Include="dbo\Tables\ESTADO_FACTURA.sql" />
     <Build Include="dbo\Tables\EMPRESA.sql" />
     <Build Include="dbo\Tables\DISTRIBUCION_ANALITICA.sql" />
     <Build Include="dbo\Tables\DETALLE_VENTA.sql" />
@@ -141,6 +142,10 @@
     <Build Include="dbo\Stored Procedures\ValidarInventarioCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizacionesCanceladasRechazadas.sql" />
     <Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFacturas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />

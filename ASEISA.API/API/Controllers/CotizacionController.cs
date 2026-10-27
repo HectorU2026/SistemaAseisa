@@ -38,7 +38,7 @@ namespace API.Controllers
             var result = await _cotizacionFlujo.ObtenerCotizacionPorId(idCotizacion);
             return Ok(result);
         }
-        
+
         [HttpPut("EnviarCotizacionPorCorreo")]
         public async Task<IActionResult> EnviarCotizacionPorCorreo(int idCotizacion, string correo)
         {
@@ -60,17 +60,24 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        // FAC-001: Crear factura a partir de una orden de venta
+        // Roles autorizados: Administrador, Vendedor y Contador
+        [Authorize(Roles = "Administrador,Vendedor,Contador")]
         [HttpPost("FacturarOrdenDeVenta/{idCotizacion}")]
         public async Task<IActionResult> Facturar(int idCotizacion, [FromBody] FacturarRequest request)
         {
             var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(idUsuarioClaim) || !int.TryParse(idUsuarioClaim, out int idUsuario))
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
             {
                 return Unauthorized("No se pudo identificar al usuario.");
             }
 
-            var resultado = await _cotizacionFlujo.Facturar(idCotizacion, idUsuario, request);
-
+            var resultado = await _cotizacionFlujo.Facturar(
+                idCotizacion,
+                idUsuario,
+                request);
 
             return resultado;
         }
@@ -80,7 +87,8 @@ namespace API.Controllers
         {
             return await _cotizacionFlujo.ObtenerCanceladasRechazadas();
         }
-        //obtener cotizaciones 
+
+        // Obtener cotizaciones
         [HttpGet("ObtenerCotizacionesFlujo")]
         public async Task<IActionResult> ObtenerCotizacionesFlujo(int idEmpresa)
         {
@@ -88,7 +96,7 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        //editar cotizacion
+        // Editar cotizacion
         [HttpPut("EditarCotizacionFlujo")]
         public async Task<IActionResult> EditarCotizacionFlujo(int idEmpresa, int idUsuario, [FromBody] CotizacionRequest cotizacion)
         {
@@ -96,7 +104,7 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        //cancelar cotizacion
+        // Cancelar cotizacion
         [HttpPut("CancelarCotizacionFlujo")]
         public async Task<IActionResult> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
         {
@@ -105,5 +113,3 @@ namespace API.Controllers
         }
     }
 }
-
-
