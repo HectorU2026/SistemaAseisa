@@ -29,8 +29,7 @@ namespace API.Controllers
         [HttpPost("recuperarContrasena")]
         public async Task<IActionResult> RecuperarContrasena([FromBody] UsuarioRecuperar correo)
         {
-            return Ok(await _autenticacionFlujo.RecuperarContrasena(correo));
-
+            return await _autenticacionFlujo.RecuperarContrasena(correo);
         }
 
         [AllowAnonymous]

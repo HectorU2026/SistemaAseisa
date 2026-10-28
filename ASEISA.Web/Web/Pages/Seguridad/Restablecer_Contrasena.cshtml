@@ -1,80 +1,158 @@
-﻿@page
+﻿
+@page
 @model Web.Views.Home.Inicio_Sesion.Restablecer_ContrasenaModel
+
 @{
     Layout = null;
 }
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASEISA · Restablecer contraseña</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/estilos.css">
-    <style>
-            body {
-                font-family: 'Inter',system-ui,sans-serif;
-                background: #F5F7FA;
-            }
 
-            .btn-aseisa {
-                background: #F2382F;
-                border-color: #F2382F;
-                color: #fff;
-            }
+    <title>ASEISA | Recuperar contraseña</title>
 
-                .btn-aseisa:hover {
-                    background: #C92C24;
-                    border-color: #C92C24;
-                    color: #fff;
-                }
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
-            a {
-                color: #F2382F;
-            }
-    </style>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
+    <link rel="stylesheet"
+          href="~/css/restablecer-contrasena.css"
+          asp-append-version="true">
 </head>
-<body class="d-flex align-items-center justify-content-center min-vh-100 p-3">
 
-    <div class="card shadow-sm border-0" style="max-width:380px; width:100%;">
-        <div class="card-body p-4">
+<body>
 
-            <div class="bg-danger bg-opacity-10 rounded d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:40px;height:40px;background-color:#F2382F !important;">
-                <span class="text-white fw-bold">A</span>
+    <main class="auth-container">
+
+        <section class="auth-card">
+
+            <div class="auth-header">
+
+                <div class="brand-logo">
+                    <img src="~/img/logo-aseisa.png"
+                         alt="Logo de ASEISA">
+                </div>
+
+                <span class="brand-name">ASEISA</span>
+
+                <div class="recovery-icon">
+                    <i class="bi bi-envelope-check"></i>
+                </div>
+
+                <h1>¿Olvidó su contraseña?</h1>
+
+                <p>
+                    No se preocupe. Ingrese su correo electrónico
+                    y le enviaremos un enlace para recuperar
+                    el acceso a su cuenta.
+                </p>
+
             </div>
 
-            <h1 class="h5 fw-bold mb-1">Olvido su contraseña?</h1>
-            <p class="text-secondary small mb-3">Ingrese su correo y le enviaremos un enlace para restablecerla.</p>
+            @if (!string.IsNullOrEmpty(Model.MensajeExito))
+            {
+                <div class="success-message" role="status">
 
-            <form method="post">
-                <div class="mb-3">
-                    <label asp-for="correoInfo.Correo" class="form-label small fw-semibold">Correo electrónico</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
-                        <input asp-for="correoInfo.Correo" type="email" class="form-control" placeholder="nombre@aseisa.com">
+                    <div class="success-icon">
+                        <i class="bi bi-check-circle-fill"></i>
                     </div>
+
+                    <div>
+                        <strong>Solicitud recibida</strong>
+                        <p class="mb-0">@Model.MensajeExito</p>
+                    </div>
+
                 </div>
-                @if (!string.IsNullOrEmpty(Model.MensajeExito))
-                {
-                    <div class="alert alert-success small" role="alert">
-                        @Model.MensajeExito
-                    </div>
-                }
+            }
 
-                <button type="submit" class="btn btn-aseisa w-100 fw-semibold">Enviar</button>
+            <form method="post" id="recoveryForm">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger small mb-3"></div>
+
+                <div class="form-group">
+
+                    <label asp-for="correoInfo.Correo"
+                           class="form-label">
+                        Correo electrónico
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="bi bi-envelope input-icon"></i>
+
+                        <input asp-for="correoInfo.Correo"
+                               type="email"
+                               class="form-control custom-input"
+                               placeholder="nombre@ejemplo.com"
+                               autocomplete="email"
+                               required />
+
+                    </div>
+
+                    <span asp-validation-for="correoInfo.Correo"
+                          class="text-danger small"></span>
+
+                    <small class="input-hint">
+                        Utilice el correo asociado a su cuenta.
+                    </small>
+
+                </div>
+
+                <div class="security-info">
+
+                    <div class="security-info-title">
+                        <i class="bi bi-shield-check"></i>
+                        Recuperación segura
+                    </div>
+
+                    <p>
+                        Le enviaremos un enlace para establecer
+                        una nueva contraseña. Por seguridad,
+                        no comparta ese enlace con nadie.
+                    </p>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-aseisa w-100"
+                        id="submitButton">
+
+                    <i class="bi bi-send me-2"></i>
+                    Enviar enlace de recuperación
+
+                </button>
+
             </form>
 
-            <p class="text-center text-secondary small mt-3 mb-0">
-                <a asp-page="/Seguridad/Login" class="fw-semibold text-decoration-none">
-                    <i class="bi bi-arrow-left me-1"></i>Volver a iniciar sesión
-                </a>
-            </p>
+            <div class="auth-footer">
 
+                <a asp-page="/Seguridad/Login">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Volver a iniciar sesión
+                </a>
+
+            </div>
+
+        </section>
+
+        <div class="page-footer">
+            <i class="bi bi-lock-fill me-1"></i>
+            Protección de cuentas · ASEISA
         </div>
-    </div>
+
+    </main>
+
+    <script src="~/js/restablecer-contrasena.js"
+            asp-append-version="true"></script>
 
 </body>
 </html>
