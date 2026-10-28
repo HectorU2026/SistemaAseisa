@@ -1,0 +1,435 @@
+﻿@page
+@model Web.Pages.Contacto.Listado_ContactoModel
+
+@{
+    ViewData["Title"] = "Listado de contactos";
+
+    int total = Model.Contactos.Count;
+    int activos = Model.Contactos.Count(c => c.Estado == "Activo");
+    int clientes = Model.Contactos.Count(c =>
+        c.RolContacto == "Cliente" || c.RolContacto == "Ambos");
+    int proveedores = Model.Contactos.Count(c =>
+        c.RolContacto == "Proveedor" || c.RolContacto == "Ambos");
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<div class="contactos-page">
+
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-people"></i>
+                <span>Gestión comercial / Contactos</span>
+            </div>
+
+            <h1>Contactos</h1>
+            <p>Administre los clientes y proveedores registrados en ASEISA.</p>
+        </div>
+
+        <a asp-page="/Contacto/Agregar_Contacto"
+           class="btn btn-contacto-primary">
+            <i class="bi bi-plus-lg"></i>
+            Nuevo contacto
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] is string mensaje)
+    {
+        <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            @mensaje
+        </div>
+    }
+
+    @if (TempData["MensajeError"] is string mensajeError)
+{
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @mensajeError
+    </div>
+}
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    <div class="contactos-stats">
+        <div class="contacto-stat">
+            <div class="stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div>
+                <span>Total de contactos</span>
+                <strong>@total</strong>
+            </div>
+        </div>
+
+        <div class="contacto-stat">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div>
+                <span>Contactos activos</span>
+                <strong>@activos</strong>
+            </div>
+        </div>
+
+        <div class="contacto-stat">
+            <div class="stat-icon">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div>
+                <span>Clientes</span>
+                <strong>@clientes</strong>
+            </div>
+        </div>
+
+        <div class="contacto-stat">
+            <div class="stat-icon">
+                <i class="bi bi-truck"></i>
+            </div>
+            <div>
+                <span>Proveedores</span>
+                <strong>@proveedores</strong>
+            </div>
+        </div>
+    </div>
+
+    <section class="contactos-panel">
+
+        <div class="contactos-panel-header">
+            <div>
+                <h2>Listado de contactos</h2>
+                <p>Consulte y filtre los contactos de la empresa.</p>
+            </div>
+
+            <span class="contactos-count">
+                @total registros
+            </span>
+        </div>
+
+        <form method="get" class="contactos-filtros">
+
+            <div class="contactos-search">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       name="Busqueda"
+                       value="@Model.Busqueda"
+                       placeholder="Buscar por nombre, cédula, correo o teléfono..."
+                       aria-label="Buscar contactos" />
+            </div>
+
+            <select name="RolContacto"
+                    class="form-select"
+                    aria-label="Filtrar por tipo de contacto">
+                <option value="">Todos los tipos</option>
+                <option value="Cliente"
+                        selected="@(Model.RolContacto == "Cliente")">
+                    Cliente
+                </option>
+                <option value="Proveedor"
+                        selected="@(Model.RolContacto == "Proveedor")">
+                    Proveedor
+                </option>
+                <option value="Ambos"
+                        selected="@(Model.RolContacto == "Ambos")">
+                    Ambos
+                </option>
+            </select>
+
+            <select name="Estado"
+                    class="form-select"
+                    aria-label="Filtrar por estado">
+                <option value="">Todos los estados</option>
+                <option value="Activo"
+                        selected="@(Model.Estado == "Activo")">
+                    Activo
+                </option>
+                <option value="Inactivo"
+                        selected="@(Model.Estado == "Inactivo")">
+                    Inactivo
+                </option>
+            </select>
+
+            <button type="submit" class="btn btn-contacto-primary">
+                <i class="bi bi-funnel"></i>
+                Filtrar
+            </button>
+
+            <a asp-page="/Contacto/Listado_Contacto"
+               class="btn btn-contacto-outline">
+                Limpiar
+            </a>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table contactos-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Contacto</th>
+                        <th>Identificación</th>
+                        <th>Teléfono</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Contactos.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="contactos-empty">
+                                <i class="bi bi-inbox"></i>
+                                <strong>No se encontraron contactos</strong>
+                                <span>
+                                    No hay registros que coincidan con los filtros.
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var contacto in Model.Contactos)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="contacto-info">
+                                        <div class="contacto-avatar">
+                                            @contacto.Nombre.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div>
+                                            <strong>@contacto.Nombre</strong>
+                                            <small>@contacto.Correo</small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @(contacto.Cedula
+                                        ?? contacto.IdentificacionFiscal
+                                        ?? "—")
+                                </td>
+
+                                <td>@contacto.Telefono</td>
+
+                                <td>
+                                    <span class="contacto-tipo">
+                                        @contacto.RolContacto
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="contacto-estado @(contacto.Estado == "Activo" ? "activo" : "inactivo")">
+                                        <span class="estado-punto"></span>
+                                        @contacto.Estado
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @contacto.FechaRegistro.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <td class="text-end">
+    <div class="d-inline-flex align-items-center gap-1">
+
+        <a asp-page="/Contacto/Detalle_Contacto"
+           asp-route-idContacto="@contacto.IdContacto"
+           class="btn btn-contacto-action"
+           title="Ver detalle"
+           aria-label="Ver detalle de @contacto.Nombre">
+            <i class="bi bi-eye"></i>
+        </a>
+
+        <a asp-page="/Contacto/Editar_Contacto"
+           asp-route-idContacto="@contacto.IdContacto"
+           class="btn btn-contacto-action"
+           title="Editar contacto"
+           aria-label="Editar contacto de @contacto.Nombre">
+            <i class="bi bi-pencil"></i>
+        </a>
+
+        @if (contacto.Estado == "Activo")
+        {
+            <button type="button"
+                    class="btn btn-contacto-estado btn-contacto-desactivar"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCambiarEstado"
+                    data-contacto-id="@contacto.IdContacto"
+                    data-contacto-nombre="@contacto.Nombre"
+                    data-contacto-accion="Desactivar">
+                <i class="bi bi-person-x"></i>
+                Desactivar
+            </button>
+        }
+        else
+        {
+            <button type="button"
+                    class="btn btn-contacto-estado btn-contacto-activar"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCambiarEstado"
+                    data-contacto-id="@contacto.IdContacto"
+                    data-contacto-nombre="@contacto.Nombre"
+                    data-contacto-accion="Activar">
+                <i class="bi bi-person-check"></i>
+                Activar
+            </button>
+        }
+
+            </div>
+        </td>
+        </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="contactos-footer">
+            Mostrando @total contactos
+        </div>
+
+    </section>
+</div>
+
+<div class="modal fade"
+     id="modalCambiarEstado"
+     tabindex="-1"
+     aria-labelledby="modalCambiarEstadoTitulo"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content contacto-modal">
+
+            <div class="modal-body text-center">
+
+                <div class="contacto-modal-icono"
+                     id="modalEstadoIcono">
+                    <i class="bi bi-person-x"></i>
+                </div>
+
+                <h3 id="modalCambiarEstadoTitulo">
+                    ¿Desactivar contacto?
+                </h3>
+
+                <p class="contacto-modal-descripcion">
+                    ¿Está seguro de que desea
+                    <span id="modalEstadoAccionTexto">desactivar</span>
+                    a <strong id="modalEstadoNombre"></strong>?
+                </p>
+
+                <p class="contacto-modal-ayuda"
+                   id="modalEstadoAyuda">
+                    Podrá volver a activar este contacto cuando lo necesite.
+                </p>
+
+                <form method="post" id="formCambiarEstado">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="idContacto"
+                           id="modalEstadoIdContacto" />
+
+                    <div class="contacto-modal-acciones">
+                        <button type="button"
+                                class="btn btn-contacto-outline"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-contacto-confirmar"
+                                id="modalEstadoConfirmar">
+                            <i class="bi bi-person-x"></i>
+                            <span>Desactivar</span>
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const modal = document.getElementById("modalCambiarEstado");
+
+        if (!modal) return;
+
+        modal.addEventListener("show.bs.modal", function (event) {
+
+            const boton = event.relatedTarget;
+
+            if (!boton) return;
+
+            const idContacto = boton.getAttribute("data-contacto-id");
+            const nombre = boton.getAttribute("data-contacto-nombre");
+            const accion = boton.getAttribute("data-contacto-accion");
+
+            const activar = accion === "Activar";
+
+            const formulario = document.getElementById("formCambiarEstado");
+            const titulo = document.getElementById("modalCambiarEstadoTitulo");
+            const nombreElemento = document.getElementById("modalEstadoNombre");
+            const accionTexto = document.getElementById("modalEstadoAccionTexto");
+            const ayuda = document.getElementById("modalEstadoAyuda");
+            const icono = document.getElementById("modalEstadoIcono");
+            const confirmar = document.getElementById("modalEstadoConfirmar");
+
+            document.getElementById("modalEstadoIdContacto").value = idContacto;
+
+            // Actualizar título y descripción
+            titulo.textContent = activar
+                ? "¿Activar contacto?"
+                : "¿Desactivar contacto?";
+
+            nombreElemento.textContent = nombre;
+
+            accionTexto.textContent = activar
+                ? "activar"
+                : "desactivar";
+
+            ayuda.textContent = activar
+                ? "Este contacto volverá a estar disponible para las operaciones correspondientes."
+                : "Podrá volver a activar este contacto cuando lo necesite.";
+
+            const url = new URL(window.location.href);
+            url.searchParams.set("handler", accion);
+            formulario.action = url.pathname + url.search;
+
+            icono.className = activar
+                ? "contacto-modal-icono activar"
+                : "contacto-modal-icono desactivar";
+
+            icono.innerHTML = activar
+                ? '<i class="bi bi-person-check"></i>'
+                : '<i class="bi bi-person-x"></i>';
+
+            confirmar.className = activar
+                ? "btn btn-contacto-confirmar activar"
+                : "btn btn-contacto-confirmar desactivar";
+
+            confirmar.querySelector("span").textContent = accion;
+
+            confirmar.querySelector("i").className = activar
+                ? "bi bi-person-check"
+                : "bi bi-person-x";
+        });
+
+        document.getElementById("formCambiarEstado")
+            .addEventListener("submit", function () {
+                const boton = document.getElementById("modalEstadoConfirmar");
+                boton.disabled = true;
+            });
+    });
+</script>
+
+
