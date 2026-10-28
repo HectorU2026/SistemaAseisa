@@ -1,10 +1,10 @@
-﻿
-@page
+﻿@page
 @model Web.Pages.IndexModel
 
 @{
     ViewData["Title"] = "Panel principal";
 
+    // INDICADORES GENERALES
     var indicadores = new[]
     {
         new
@@ -33,11 +33,20 @@
         }
     };
 
+    // MÓDULOS DEL SISTEMA
+    // Ruta: página Razor a la que dirige la tarjeta.
+    // Disponible: indica si el módulo está habilitado.
     var grupos = new (
         string Id,
         string Titulo,
         string Icono,
-        (string Icono, string Nombre, string Descripcion)[] Modulos
+        (
+            string Icono,
+            string Nombre,
+            string Descripcion,
+            string Ruta,
+            bool Disponible
+        )[] Modulos
     )[]
     {
         (
@@ -46,9 +55,27 @@
             "bi-cart3",
             new[]
             {
-                ("bi-cart3", "Ventas", "Cotizaciones y ventas"),
-                ("bi-receipt", "Facturación", "Comprobantes y notas"),
-                ("bi-people", "Clientes y contactos", "Directorio comercial")
+                (
+                    "bi-cart3",
+                    "Ventas",
+                    "Cotizaciones y ventas",
+                    "/Ventas/Listado",
+                    false
+                ),
+                (
+                    "bi-receipt",
+                    "Facturación",
+                    "Comprobantes y notas",
+                    "/Facturacion/Listado",
+                    false
+                ),
+                (
+                    "bi-people",
+                    "Clientes y contactos",
+                    "Directorio comercial",
+                    "/Contacto/Listado_Contacto",
+                    true
+                )
             }
         ),
         (
@@ -57,9 +84,27 @@
             "bi-box-seam",
             new[]
             {
-                ("bi-box-seam", "Inventario", "Productos y bodegas"),
-                ("bi-truck", "Compras", "Órdenes y proveedores"),
-                ("bi-building", "Activos fijos", "Registro y depreciación")
+                (
+                    "bi-box-seam",
+                    "Inventario",
+                    "Productos y bodegas",
+                    "/Inventario/Listado",
+                    false
+                ),
+                (
+                    "bi-truck",
+                    "Compras",
+                    "Órdenes y proveedores",
+                    "/Compras/Listado",
+                    false
+                ),
+                (
+                    "bi-building",
+                    "Activos fijos",
+                    "Registro y depreciación",
+                    "/ActivosFijos/Listado",
+                    false
+                )
             }
         ),
         (
@@ -68,9 +113,27 @@
             "bi-bank",
             new[]
             {
-                ("bi-bank", "Bancos", "Cuentas y movimientos"),
-                ("bi-journal-text", "Contabilidad", "Asientos y cuentas"),
-                ("bi-bar-chart", "Reportes", "Análisis e indicadores")
+                (
+                    "bi-bank",
+                    "Bancos",
+                    "Cuentas y movimientos",
+                    "/Bancos/Listado",
+                    false
+                ),
+                (
+                    "bi-journal-text",
+                    "Contabilidad",
+                    "Asientos y cuentas",
+                    "/Contabilidad/Listado",
+                    false
+                ),
+                (
+                    "bi-bar-chart",
+                    "Reportes",
+                    "Análisis e indicadores",
+                    "/Reportes/Listado",
+                    false
+                )
             }
         ),
         (
@@ -79,11 +142,27 @@
             "bi-gear",
             new[]
             {
-                ("bi-person-gear", "Usuarios", "Accesos y roles"),
-                ("bi-gear", "Configuración", "Parámetros generales")
+                (
+                    "bi-person-gear",
+                    "Usuarios",
+                    "Accesos y roles",
+                    "/Usuarios/Listado",
+                    false
+                ),
+                (
+                    "bi-gear",
+                    "Configuración",
+                    "Parámetros generales",
+                    "/Configuracion/Index",
+                    false
+                )
             }
         )
     };
+
+    int totalModulos = grupos.Sum(g => g.Modulos.Length);
+    int modulosDisponibles = grupos.Sum(
+        g => g.Modulos.Count(m => m.Disponible));
 }
 
 <link rel="stylesheet"
@@ -93,7 +172,6 @@
 <div class="dashboard-home">
 
     <!-- ENCABEZADO PRINCIPAL -->
-
     <header class="dashboard-header">
 
         <div>
@@ -117,7 +195,6 @@
     </header>
 
     <!-- INDICADORES GENERALES -->
-
     <section class="dashboard-kpis"
              aria-label="Indicadores generales">
 
@@ -126,13 +203,11 @@
             <article class="dashboard-kpi">
 
                 <div class="kpi-top">
-
                     <span>@indicador.Titulo</span>
 
                     <div class="kpi-icon">
                         <i class="bi @indicador.Icono"></i>
                     </div>
-
                 </div>
 
                 <strong class="kpi-value">—</strong>
@@ -152,12 +227,10 @@
     </section>
 
     <!-- PANELES ANALÍTICOS -->
-
     <section class="dashboard-analytics"
              aria-label="Resumen de operaciones">
 
         <!-- RESUMEN DE VENTAS -->
-
         <article class="dashboard-panel">
 
             <div class="panel-heading">
@@ -199,7 +272,6 @@
         </article>
 
         <!-- ACTIVIDAD RECIENTE -->
-
         <article class="dashboard-panel">
 
             <div class="panel-heading">
@@ -238,7 +310,6 @@
     </section>
 
     <!-- MÓDULOS DEL SISTEMA -->
-
     <section class="dashboard-modules"
              aria-labelledby="modulosTitulo">
 
@@ -256,13 +327,12 @@
             </div>
 
             <span class="modules-count">
-                11 módulos
+                @totalModulos módulos
             </span>
 
         </div>
 
         <!-- GRUPOS DE MÓDULOS -->
-
         @foreach (var grupo in grupos)
         {
             <div class="module-group"
@@ -277,6 +347,12 @@
 
                     @foreach (var modulo in grupo.Modulos)
                     {
+                        bool disponible = modulo.Disponible;
+
+                        string? ruta = disponible
+                            ? Url.Page(modulo.Ruta)
+                            : null;
+
                         <article class="module-card">
 
                             <div class="module-icon">
@@ -291,14 +367,35 @@
                                     @modulo.Descripcion
                                 </p>
 
-                                <span class="module-status">
-                                    <i class="bi bi-clock me-1"></i>
-                                    Próximamente
-                                </span>
+                                @if (disponible)
+                                {
+                                    <span class="module-status module-status-available">
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        Disponible
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="module-status">
+                                        <i class="bi bi-clock me-1"></i>
+                                        Próximamente
+                                    </span>
+                                }
 
                             </div>
 
-                            <i class="bi bi-arrow-up-right module-arrow"></i>
+                            @if (disponible && !string.IsNullOrEmpty(ruta))
+                            {
+                                <a href="@ruta"
+                                   class="module-card-link"
+                                   aria-label="Acceder a @modulo.Nombre">
+                                    <i class="bi bi-arrow-up-right"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <i class="bi bi-arrow-up-right module-arrow"></i>
+                            }
 
                         </article>
                     }
@@ -311,7 +408,6 @@
     </section>
 
     <!-- AVISO DE DESARROLLO -->
-
     <div class="dashboard-development-note">
 
         <i class="bi bi-info-circle"></i>
@@ -322,11 +418,14 @@
             </strong>
 
             <p>
+                Actualmente hay @modulosDisponibles
+                de @totalModulos módulos habilitados.
                 Los indicadores, gráficos y módulos
-                se habilitarán progresivamente
-                conforme se integren las funcionalidades
-                de ASEISA con los servicios de la API.
+                restantes se integrarán progresivamente
+                con los servicios de ASEISA.API.
             </p>
         </div>
+
     </div>
+
 </div>

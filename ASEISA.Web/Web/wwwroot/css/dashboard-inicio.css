@@ -375,3 +375,48 @@
         margin: 0;
     }
 
+.module-card {
+    position: relative;
+}
+
+.module-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 20px;
+    color: inherit;
+    text-decoration: none;
+    border-radius: inherit;
+}
+
+    .module-card-link:hover {
+        color: #F2382F;
+    }
+
+    .module-card-link:focus-visible {
+        outline: 3px solid #F2382F;
+        outline-offset: 2px;
+    }
+
+.module-card:has(.module-card-link) {
+    cursor: pointer;
+}
+
+    .module-card:has(.module-card-link):hover {
+        border-color: #F2382F;
+    }
+
+.module-status-available {
+    color: #16804b;
+    font-weight: 700;
+}
+
+    .module-status-available i {
+        color: #16a34a;
+    }
+
+
+

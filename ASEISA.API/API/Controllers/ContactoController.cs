@@ -1,4 +1,5 @@
-﻿using Abstracciones.Interfaces.Flujo;
+﻿using Microsoft.Data.SqlClient;
+using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ namespace API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Agregar(
-            [FromBody] ContactoRequest contacto)
+    [FromBody] ContactoRequest contacto)
         {
             var contexto = await ObtenerContextoUsuario();
 
@@ -38,13 +39,32 @@ namespace API.Controllers
 
             var (idEmpresa, idUsuario) = contexto.Value;
 
-            var resultado = await _contactoFlujo.Agregar(
-                idEmpresa, idUsuario, contacto);
+            try
+            {
+                var resultado = await _contactoFlujo.Agregar(
+                    idEmpresa, idUsuario, contacto);
 
-            return CreatedAtAction(
-                nameof(ObtenerDetalle),
-                new { idContacto = resultado.IdContacto },
-                resultado);
+                return CreatedAtAction(
+                    nameof(ObtenerDetalle),
+                    new { idContacto = resultado.IdContacto },
+                    resultado);
+            }
+            catch (SqlException ex) when (
+                ex.Message.Contains(
+                    "Identificacion registrada",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(
+                    "Intento de registrar un contacto con identificación duplicada. " +
+                    "Empresa: {IdEmpresa}. Usuario: {IdUsuario}.",
+                    idEmpresa,
+                    idUsuario);
+
+                return Conflict(new
+                {
+                    mensaje = "La cédula o identificación fiscal ingresada ya está registrada en otro contacto."
+                });
+            }
         }
 
         [HttpPut("{idContacto:int}")]
@@ -59,14 +79,39 @@ namespace API.Controllers
 
             var (idEmpresa, idUsuario) = contexto.Value;
 
-            if (!await VerificarContactoExiste(idEmpresa, idContacto, idUsuario))
-                return NotFound("El contacto no existe");
+            if (!await VerificarContactoExiste(
+                idEmpresa, idContacto, idUsuario))
+            {
+                return NotFound("El contacto no existe.");
+            }
 
-            var resultado = await _contactoFlujo.Editar(
-                idEmpresa, idUsuario, idContacto, contacto);
+            try
+            {
+                var resultado = await _contactoFlujo.Editar(
+                    idEmpresa,
+                    idUsuario,
+                    idContacto,
+                    contacto);
 
-            return Ok(resultado);
+                return Ok(resultado);
+            }
+            catch (SqlException ex) when (
+                ex.Message.Contains(
+                    "Identificacion registrada",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(
+                    "Identificación duplicada al editar contacto {IdContacto}. Empresa: {IdEmpresa}.",
+                    idContacto,
+                    idEmpresa);
+
+                return Conflict(new
+                {
+                    mensaje = "La cédula o identificación fiscal ingresada ya está registrada en otro contacto."
+                });
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Obtener(
@@ -101,8 +146,7 @@ namespace API.Controllers
 
             var (idEmpresa, idUsuario) = contexto.Value;
 
-            var resultado = await _contactoFlujo.Obtener(
-                idEmpresa, idContacto, idUsuario);
+            var resultado = await _contactoFlujo.Obtener(idEmpresa, idUsuario, idContacto);
 
             if (resultado == null)
             {
@@ -176,8 +220,7 @@ namespace API.Controllers
             int idEmpresa, int idContacto, int idUsuario)
         {
             var resultadoValidacion = false;
-            var resultadoContactoExiste = await _contactoFlujo.Obtener(
-                idEmpresa, idContacto, idUsuario);
+            var resultadoContactoExiste = await _contactoFlujo.Obtener(idEmpresa, idUsuario, idContacto);
 
             if (resultadoContactoExiste != null)
                 resultadoValidacion = true;
