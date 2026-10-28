@@ -1,0 +1,227 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Abstracciones.Modelos;
+
+public static class RolesContacto
+{
+    public const string Cliente = "Cliente";
+    public const string Proveedor = "Proveedor";
+    public const string Ambos = "Ambos";
+}
+
+public class ContactoRequest : IValidatableObject
+{
+    [StringLength(12, ErrorMessage = "La cédula no puede superar los 12 dígitos.")]
+    public string? Cedula { get; set; }
+
+    [StringLength(30, ErrorMessage = "La identificación fiscal no puede superar los 30 caracteres.")]
+    public string? IdentificacionFiscal { get; set; }
+
+    [Required(ErrorMessage = "El nombre es requerido.")]
+    [StringLength(200, MinimumLength = 2,
+        ErrorMessage = "El nombre debe contener entre 2 y 200 caracteres.")]
+    public string Nombre { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El correo es requerido.")]
+    [EmailAddress(ErrorMessage = "Ingrese un correo electrónico válido.")]
+    [StringLength(150, ErrorMessage = "El correo no puede superar los 150 caracteres.")]
+    public string Correo { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El teléfono es requerido.")]
+    [StringLength(16, ErrorMessage = "El teléfono no puede superar los 15 dígitos y un prefijo +.")]
+    public string Telefono { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El país es requerido.")]
+    [StringLength(100)]
+    public string Pais { get; set; } = string.Empty;
+
+    [StringLength(100)]
+    public string? Provincia { get; set; }
+
+    [StringLength(100)]
+    public string? Canton { get; set; }
+
+    [StringLength(100)]
+    public string? Distrito { get; set; }
+
+    [Required(ErrorMessage = "La dirección detallada es requerida.")]
+    [StringLength(300, MinimumLength = 5,
+        ErrorMessage = "La dirección debe contener entre 5 y 300 caracteres.")]
+    public string DetalleDireccion { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El rol del contacto es requerido.")]
+    [RegularExpression("^(Cliente|Proveedor|Ambos)$", ErrorMessage = "Seleccione Cliente, Proveedor o Ambos.")]
+    public string RolContacto { get; set; } = string.Empty;
+
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un estado valido.")]
+    public int IdEstado { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdVendedor { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdComprador { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdTerminoPagoVentas { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdMetodoPagoVentas { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdTerminoPagoCompras { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdMetodoPagoCompras { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var esCostaRica = string.Equals(
+    Pais?.Trim(),
+    "Costa Rica",
+    StringComparison.OrdinalIgnoreCase
+);
+
+        if (!string.IsNullOrWhiteSpace(Cedula))
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(Cedula, @"^\d+$"))
+            {
+                yield return new ValidationResult(
+                    "La cédula debe contener únicamente números.",
+                    new[] { nameof(Cedula) });
+            }
+            else if (esCostaRica &&
+                     Cedula.Length != 9 &&
+                     Cedula.Length != 10 &&
+                     Cedula.Length != 12)
+            {
+                yield return new ValidationResult(
+                    "La cédula costarricense debe contener 9, 10 o 12 dígitos, según su tipo.",
+                    new[] { nameof(Cedula) });
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(Telefono))
+        {
+            var patron = esCostaRica
+                ? @"^[0-9]{8}$"
+                : @"^\+?[0-9]{7,15}$";
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(Telefono, patron))
+            {
+                yield return new ValidationResult(
+                    esCostaRica
+                        ? "El teléfono de Costa Rica debe contener exactamente 8 dígitos."
+                        : "El teléfono debe contener entre 7 y 15 dígitos, con prefijo + opcional.",
+                    new[] { nameof(Telefono) });
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(Cedula) && string.IsNullOrWhiteSpace(IdentificacionFiscal))
+            yield return new ValidationResult("Ingrese cedula o identificacion fiscal.",
+                new[] { nameof(Cedula), nameof(IdentificacionFiscal) });
+
+        if (string.Equals((Pais ?? string.Empty).Trim(), "Costa Rica", StringComparison.OrdinalIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(Cedula))
+                yield return new ValidationResult("La cedula es requerida para Costa Rica.", new[] { nameof(Cedula) });
+            if (string.IsNullOrWhiteSpace(Provincia))
+                yield return new ValidationResult("La provincia es requerida para Costa Rica.", new[] { nameof(Provincia) });
+            if (string.IsNullOrWhiteSpace(Canton))
+                yield return new ValidationResult("El canton es requerido para Costa Rica.", new[] { nameof(Canton) });
+            if (string.IsNullOrWhiteSpace(Distrito))
+                yield return new ValidationResult("El distrito es requerido para Costa Rica.", new[] { nameof(Distrito) });
+        }
+        else if (!string.IsNullOrWhiteSpace(Pais) && string.IsNullOrWhiteSpace(IdentificacionFiscal))
+        {
+            yield return new ValidationResult("El contacto extranjero requiere identificacion fiscal.",
+                new[] { nameof(IdentificacionFiscal) });
+        }
+
+        if (RolContacto == RolesContacto.Cliente &&
+            (IdComprador.HasValue || IdTerminoPagoCompras.HasValue || IdMetodoPagoCompras.HasValue))
+            yield return new ValidationResult("Un cliente no admite configuracion de compras.",
+                new[] { nameof(IdComprador), nameof(IdTerminoPagoCompras), nameof(IdMetodoPagoCompras) });
+
+        if (RolContacto == RolesContacto.Proveedor &&
+            (IdVendedor.HasValue || IdTerminoPagoVentas.HasValue || IdMetodoPagoVentas.HasValue))
+            yield return new ValidationResult("Un proveedor no admite configuracion de ventas.",
+                new[] { nameof(IdVendedor), nameof(IdTerminoPagoVentas), nameof(IdMetodoPagoVentas) });
+    }
+}
+
+public class ContactoResponse
+{
+    public int IdContacto { get; set; }
+    public int IdEmpresa { get; set; }
+    public string? Cedula { get; set; }
+    public string? IdentificacionFiscal { get; set; }
+    public string Nombre { get; set; } = string.Empty;
+    public string Correo { get; set; } = string.Empty;
+    public string Telefono { get; set; } = string.Empty;
+    public string Pais { get; set; } = string.Empty;
+    public string? Provincia { get; set; }
+    public string? Canton { get; set; }
+    public string? Distrito { get; set; }
+    public string DetalleDireccion { get; set; } = string.Empty;
+    public string RolContacto { get; set; } = string.Empty;
+    public int IdEstado { get; set; }
+    public string Estado { get; set; } = string.Empty;
+    public int? IdCliente { get; set; }
+    public int? IdProveedor { get; set; }
+    public int? IdVendedor { get; set; }
+    public int? IdComprador { get; set; }
+    public int? IdTerminoPagoVentas { get; set; }
+    public int? IdMetodoPagoVentas { get; set; }
+    public int? IdTerminoPagoCompras { get; set; }
+    public int? IdMetodoPagoCompras { get; set; }
+    public string? TerminoPagoVentas { get; set; }
+    public string? MetodoPagoVentas { get; set; }
+    public string? TerminoPagoCompras { get; set; }
+    public string? MetodoPagoCompras { get; set; }
+    public DateTime FechaRegistro { get; set; }
+    public DateTime? FechaModificacion { get; set; }
+}
+
+public class ContactoCreadoResponse
+{
+    public int IdContacto { get; set; }
+    public int? IdCliente { get; set; }
+    public int? IdProveedor { get; set; }
+}
+
+public class ContactoFiltro
+{
+    [StringLength(200)]
+    public string? Busqueda { get; set; }
+
+    [RegularExpression("^(Cliente|Proveedor|Ambos)$")]
+    public string? RolContacto { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int? IdEstado { get; set; }
+}
+
+public class ContactoCatalogosPagoResponse
+{
+    public List<ContactoTerminoPago> TerminosPago { get; set; } = new();
+
+    public List<ContactoMetodoPago> MetodosPago { get; set; } = new();
+}
+
+public class ContactoTerminoPago
+{
+    public int IdTerminoPago { get; set; }
+
+    public string Nombre { get; set; } = string.Empty;
+
+    public int DiasCredito { get; set; }
+}
+
+public class ContactoMetodoPago
+{
+    public int IdMetodoPago { get; set; }
+
+    public string Nombre { get; set; } = string.Empty;
+}
+
