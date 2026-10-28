@@ -5,12 +5,45 @@
 @{
     ViewData["Title"] = "Panel principal";
 
-    var grupos = new (string Id, string Titulo,
-        (string Icono, string Nombre, string Descripcion)[] Modulos)[]
+    var indicadores = new[]
+    {
+        new
+        {
+            Titulo = "Ventas del mes",
+            Icono = "bi-graph-up-arrow",
+            Descripcion = "Ingresos comerciales"
+        },
+        new
+        {
+            Titulo = "Compras del mes",
+            Icono = "bi-cart-check",
+            Descripcion = "Operaciones de compra"
+        },
+        new
+        {
+            Titulo = "Facturas pendientes",
+            Icono = "bi-receipt-cutoff",
+            Descripcion = "Documentos pendientes"
+        },
+        new
+        {
+            Titulo = "Productos activos",
+            Icono = "bi-box-seam",
+            Descripcion = "Productos registrados"
+        }
+    };
+
+    var grupos = new (
+        string Id,
+        string Titulo,
+        string Icono,
+        (string Icono, string Nombre, string Descripcion)[] Modulos
+    )[]
     {
         (
             "comercial",
             "Gestión comercial",
+            "bi-cart3",
             new[]
             {
                 ("bi-cart3", "Ventas", "Cotizaciones y ventas"),
@@ -21,6 +54,7 @@
         (
             "operaciones",
             "Operaciones",
+            "bi-box-seam",
             new[]
             {
                 ("bi-box-seam", "Inventario", "Productos y bodegas"),
@@ -31,6 +65,7 @@
         (
             "finanzas",
             "Finanzas",
+            "bi-bank",
             new[]
             {
                 ("bi-bank", "Bancos", "Cuentas y movimientos"),
@@ -41,6 +76,7 @@
         (
             "administracion",
             "Administración",
+            "bi-gear",
             new[]
             {
                 ("bi-person-gear", "Usuarios", "Accesos y roles"),
@@ -50,65 +86,247 @@
     };
 }
 
-<div class="erp-page-heading">
-    <div>
-        <div class="erp-eyebrow">
-            INICIO / PANEL PRINCIPAL
+<link rel="stylesheet"
+      href="~/css/dashboard-inicio.css"
+      asp-append-version="true" />
+
+<div class="dashboard-home">
+
+    <!-- ENCABEZADO PRINCIPAL -->
+
+    <header class="dashboard-header">
+
+        <div>
+            <span class="dashboard-eyebrow">
+                INICIO / PANEL PRINCIPAL
+            </span>
+
+            <h1>Bienvenido a ASEISA</h1>
+
+            <p>
+                Consulte el estado general de las operaciones
+                y acceda a los módulos de gestión empresarial.
+            </p>
         </div>
 
-        <h1>Bienvenido a ASEISA</h1>
+        <span class="dashboard-environment">
+            <i class="bi bi-circle-fill"></i>
+            Entorno de desarrollo
+        </span>
 
-        <p>
-            Accedé a los módulos del sistema desde un solo lugar.
-        </p>
-    </div>
+    </header>
 
-    <span class="erp-pill">
-        <i class="bi bi-circle-fill"></i>
-        Entorno de desarrollo
-    </span>
-</div>
+    <!-- INDICADORES GENERALES -->
 
-<div class="erp-notice">
-    <i class="bi bi-info-circle"></i>
+    <section class="dashboard-kpis"
+             aria-label="Indicadores generales">
 
-    <div>
-        <strong>Frontend en construcción.</strong>
-        Los módulos se habilitarán conforme conectemos sus
-        pantallas Razor Pages con la API.
+        @foreach (var indicador in indicadores)
+        {
+            <article class="dashboard-kpi">
 
-        Las tarjetas muestran el alcance previsto del sistema.
-    </div>
-</div>
+                <div class="kpi-top">
 
-@foreach (var grupo in grupos)
-{
-    <section class="erp-section" id="@grupo.Id">
+                    <span>@indicador.Titulo</span>
 
-        <h2>@grupo.Titulo</h2>
-
-        <div class="erp-module-grid">
-
-            @foreach (var modulo in grupo.Modulos)
-            {
-                <div class="erp-module-card">
-
-                    <span class="erp-module-icon">
-                        <i class="bi @modulo.Icono"></i>
-                    </span>
-
-                    <div>
-                        <h3>@modulo.Nombre</h3>
-
-                        <p>@modulo.Descripcion</p>
-
-                        <span class="erp-status">
-                            Próximamente
-                        </span>
+                    <div class="kpi-icon">
+                        <i class="bi @indicador.Icono"></i>
                     </div>
-                </div>
-            }
-        </div>
-    </section>
-}
 
+                </div>
+
+                <strong class="kpi-value">—</strong>
+
+                <div class="kpi-description">
+                    @indicador.Descripcion
+                </div>
+
+                <small>
+                    <i class="bi bi-clock-history"></i>
+                    Pendiente de integración
+                </small>
+
+            </article>
+        }
+
+    </section>
+
+    <!-- PANELES ANALÍTICOS -->
+
+    <section class="dashboard-analytics"
+             aria-label="Resumen de operaciones">
+
+        <!-- RESUMEN DE VENTAS -->
+
+        <article class="dashboard-panel">
+
+            <div class="panel-heading">
+
+                <div>
+                    <h2>Resumen de ventas</h2>
+
+                    <p>
+                        Comportamiento de las ventas
+                        durante los últimos meses.
+                    </p>
+                </div>
+
+                <span class="panel-tag">
+                    Próximamente
+                </span>
+
+            </div>
+
+            <div class="panel-empty">
+
+                <div class="empty-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+
+                <strong>
+                    Visualización de ventas
+                </strong>
+
+                <p>
+                    Aquí se mostrarán los gráficos
+                    e indicadores de ventas cuando
+                    estén disponibles los datos
+                    del módulo comercial.
+                </p>
+
+            </div>
+
+        </article>
+
+        <!-- ACTIVIDAD RECIENTE -->
+
+        <article class="dashboard-panel">
+
+            <div class="panel-heading">
+
+                <div>
+                    <h2>Actividad reciente</h2>
+
+                    <p>
+                        Últimos movimientos registrados
+                        en el sistema.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="panel-empty">
+
+                <div class="empty-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <strong>
+                    Sin actividad disponible
+                </strong>
+
+                <p>
+                    Los movimientos recientes aparecerán
+                    aquí cuando se integre la consulta
+                    de la bitácora del sistema.
+                </p>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- MÓDULOS DEL SISTEMA -->
+
+    <section class="dashboard-modules"
+             aria-labelledby="modulosTitulo">
+
+        <div class="modules-heading">
+
+            <div>
+                <h2 id="modulosTitulo">
+                    Módulos del sistema
+                </h2>
+
+                <p>
+                    Explore las herramientas de gestión
+                    disponibles en ASEISA.
+                </p>
+            </div>
+
+            <span class="modules-count">
+                11 módulos
+            </span>
+
+        </div>
+
+        <!-- GRUPOS DE MÓDULOS -->
+
+        @foreach (var grupo in grupos)
+        {
+            <div class="module-group"
+                 id="@grupo.Id">
+
+                <h3>
+                    <i class="bi @grupo.Icono me-2"></i>
+                    @grupo.Titulo
+                </h3>
+
+                <div class="module-grid">
+
+                    @foreach (var modulo in grupo.Modulos)
+                    {
+                        <article class="module-card">
+
+                            <div class="module-icon">
+                                <i class="bi @modulo.Icono"></i>
+                            </div>
+
+                            <div class="module-content">
+
+                                <h4>@modulo.Nombre</h4>
+
+                                <p>
+                                    @modulo.Descripcion
+                                </p>
+
+                                <span class="module-status">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Próximamente
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-arrow-up-right module-arrow"></i>
+
+                        </article>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </section>
+
+    <!-- AVISO DE DESARROLLO -->
+
+    <div class="dashboard-development-note">
+
+        <i class="bi bi-info-circle"></i>
+
+        <div>
+            <strong>
+                Plataforma en desarrollo
+            </strong>
+
+            <p>
+                Los indicadores, gráficos y módulos
+                se habilitarán progresivamente
+                conforme se integren las funcionalidades
+                de ASEISA con los servicios de la API.
+            </p>
+        </div>
+    </div>
+</div>

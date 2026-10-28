@@ -1,60 +1,244 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
     <title>@ViewData["Title"] - ASEISA ERP</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/aseisa-erp.css" asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/aseisa-erp.css"
+          asp-append-version="true" />
 </head>
+
 <body>
+
     <div class="erp-shell">
-        <aside class="erp-sidebar" id="erpSidebar" aria-label="Navegación principal">
+
+        <!-- Menú lateral -->
+        <aside class="erp-sidebar"
+               id="erpSidebar"
+               aria-label="Navegación principal">
+
             <a asp-page="/Index" class="erp-brand">
-                <span class="erp-brand-mark">A</span>
-                <span><strong>ASEISA</strong><small>Gestión empresarial</small></span>
+
+                <img src="~/img/logo-aseisa.png"
+                     alt="ASEISA"
+                     class="erp-brand-logo" />
+
+                <span class="erp-brand-text">
+                    <strong>ASEISA</strong>
+                    <small>Gestión empresarial</small>
+                </span>
+
             </a>
-            <div class="erp-sidebar-caption">GENERAL</div>
-            <nav class="erp-nav">
-                <a asp-page="/Index"><i class="bi bi-grid-1x2"></i> Panel principal</a>
-                <a asp-page="/Seguridad/Login"><i class="bi bi-person-lock"></i> Seguridad</a>
-            </nav>
-            <div class="erp-sidebar-caption">MÓDULOS</div>
-            <nav class="erp-nav">
-                <a asp-page="/Index" asp-fragment="comercial"><i class="bi bi-cart3"></i> Comercial</a>
-                <a asp-page="/Index" asp-fragment="operaciones"><i class="bi bi-box-seam"></i> Operaciones</a>
-                <a asp-page="/Index" asp-fragment="finanzas"><i class="bi bi-bank"></i> Finanzas</a>
-                <a asp-page="/Index" asp-fragment="administracion"><i class="bi bi-gear"></i> Administración</a>
-            </nav>
-            <div class="erp-sidebar-bottom">ASEISA ERP · Versión de desarrollo</div>
+
+            <div class="erp-sidebar-scroll">
+
+                <div class="erp-sidebar-caption">
+                    GENERAL
+                </div>
+
+                <nav class="erp-nav">
+
+                    <a asp-page="/Index"
+                       class="erp-nav-link"
+                       data-page="dashboard">
+
+                        <i class="bi bi-grid-1x2"></i>
+                        <span>Panel principal</span>
+
+                    </a>
+
+                </nav>
+
+                <div class="erp-sidebar-caption">
+                    GESTIÓN EMPRESARIAL
+                </div>
+
+                <nav class="erp-nav">
+
+                    <a asp-page="/Index"
+                       asp-fragment="comercial"
+                       class="erp-nav-link">
+
+                        <i class="bi bi-cart3"></i>
+                        <span>Gestión comercial</span>
+
+                    </a>
+
+                    <a asp-page="/Index"
+                       asp-fragment="operaciones"
+                       class="erp-nav-link">
+
+                        <i class="bi bi-box-seam"></i>
+                        <span>Operaciones</span>
+
+                    </a>
+
+                    <a asp-page="/Index"
+                       asp-fragment="finanzas"
+                       class="erp-nav-link">
+
+                        <i class="bi bi-bank"></i>
+                        <span>Finanzas</span>
+
+                    </a>
+
+                    <a asp-page="/Index"
+                       asp-fragment="administracion"
+                       class="erp-nav-link">
+
+                        <i class="bi bi-gear"></i>
+                        <span>Administración</span>
+
+                    </a>
+
+                </nav>
+
+                <div class="erp-sidebar-caption">
+                    SISTEMA
+                </div>
+
+                <nav class="erp-nav">
+
+                    <a asp-page="/Index"
+                       asp-fragment="administracion"
+                       class="erp-nav-link">
+
+                        <i class="bi bi-person-gear"></i>
+                        <span>Usuarios y accesos</span>
+
+                    </a>
+
+                </nav>
+
+            </div>
+
+            <div class="erp-sidebar-bottom">
+
+                <div class="erp-sidebar-profile">
+
+                    <div class="erp-profile-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+
+                    <div class="erp-profile-info">
+                        <strong>
+                            @(User.Identity?.Name ?? "Usuario")
+                        </strong>
+
+                        <small>
+                            <span class="erp-online-dot"></span>
+                            Sesión activa
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="erp-version">
+                    ASEISA ERP · Versión de desarrollo
+                </div>
+
+            </div>
+
         </aside>
+
+        <!-- Fondo del menú móvil -->
+        <div class="erp-sidebar-overlay"
+             id="erpSidebarOverlay"></div>
+
+        <!-- Contenido principal -->
         <div class="erp-main">
+
             <header class="erp-topbar">
-                <div class="d-flex align-items-center gap-3">
-                    <button type="button" class="erp-menu-toggle" id="erpMenuToggle" aria-label="Abrir o cerrar menú" aria-expanded="false"><i class="bi bi-list"></i></button>
-                    <span class="erp-topbar-title">Sistema de gestión empresarial</span>
+
+                <div class="erp-topbar-left">
+
+                    <button type="button"
+                            class="erp-menu-toggle"
+                            id="erpMenuToggle"
+                            aria-label="Abrir o cerrar menú"
+                            aria-controls="erpSidebar"
+                            aria-expanded="false">
+
+                        <i class="bi bi-list"></i>
+
+                    </button>
+
+                    <div class="erp-topbar-heading">
+                        <strong>
+                            @ViewData["Title"]
+                        </strong>
+
+                        <small>
+                            Sistema de gestión empresarial
+                        </small>
+                    </div>
+
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="erp-user"><i class="bi bi-person-circle"></i> @(User.Identity?.Name ?? "Usuario")</span>
-                    <a asp-page="/Seguridad/Logout" class="btn btn-sm btn-outline-secondary" title="Cerrar sesión"><i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Salir</span></a>
+
+                <div class="erp-topbar-right">
+
+                    <div class="erp-topbar-user">
+                        <i class="bi bi-person-circle"></i>
+
+                        <span>
+                            @(User.Identity?.Name ?? "Usuario")
+                        </span>
+                    </div>
+
+                    <a asp-page="/Seguridad/Logout"
+                       class="erp-logout"
+                       title="Cerrar sesión">
+
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Salir</span>
+
+                    </a>
+
                 </div>
+
             </header>
-            <main class="erp-content" role="main">@RenderBody()</main>
-            <footer class="erp-footer">© 2026 ASEISA · Sistema ERP</footer>
+
+            <main class="erp-content" role="main">
+                @RenderBody()
+            </main>
+
+            <footer class="erp-footer">
+                © @DateTime.Now.Year ASEISA · Sistema ERP
+            </footer>
+
         </div>
+
     </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-        const toggle = document.getElementById('erpMenuToggle');
-        toggle?.addEventListener('click', () => {
-            const open = document.body.classList.toggle('erp-menu-open');
-            toggle.setAttribute('aria-expanded', String(open));
-        });
-    </script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    <script src="~/js/aseisa-layout.js"
+            asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>
