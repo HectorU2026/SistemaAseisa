@@ -9,7 +9,7 @@ namespace Web.Pages.Ventas
     public class ventas_canceladasModel : PageModel
     {
         private readonly IConfiguracion _configuracion;
-        public List<CotizacionResponse> Cotizaciones { get; set; } = new();
+        public List<CotizacionResponseDetallada> Cotizaciones { get; set; } = new();
 
         public ventas_canceladasModel(IConfiguracion configuracion)
         {
@@ -18,16 +18,33 @@ namespace Web.Pages.Ventas
 
         public async Task OnGetAsync()
         {
+            var idEmpresaClaim = User.FindFirst("Empresa")?.Value;
+
             string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCanceladasRechazadas");
-            var cliente = new HttpClient();
-            var respuesta = await cliente.GetAsync(endpoint);
+            string url = $"{endpoint}?idEmpresa={idEmpresaClaim}";
+            var cliente = ObtenerClienteConToken();
+            var respuesta = await cliente.GetAsync(url);
 
             if (respuesta.IsSuccessStatusCode)
             {
                 var contenido = await respuesta.Content.ReadAsStringAsync();
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                Cotizaciones = JsonSerializer.Deserialize<List<CotizacionResponse>>(contenido, opciones) ?? new();
+                Cotizaciones = JsonSerializer.Deserialize<List<CotizacionResponseDetallada>>(contenido, opciones) ?? new();
             }
+        }
+
+        private HttpClient ObtenerClienteConToken()
+        {
+            var tokenClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Token");
+            var cliente = new HttpClient();
+
+            if (tokenClaim != null)
+            {
+                cliente.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokenClaim.Value);
+            }
+
+            return cliente;
         }
     }
 }

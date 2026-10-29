@@ -22,7 +22,7 @@ namespace Servicios
                     page.Margin(2, Unit.Centimetre);
                     page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Grey.Darken3));
 
-                    // --- ENCABEZADO ---
+                    // ENCABEZADO
                     page.Header().Column(col =>
                     {
                         col.Item().Row(row =>
@@ -30,7 +30,7 @@ namespace Servicios
                             row.RelativeItem().Column(c =>
                             {
                                 c.Item().Text(cotizacion.Empresa.NombreComercial ?? "ASEISA")
-                                    .FontSize(24).Bold().FontColor("#ff4831"); // Color corporativo
+                                    .FontSize(24).Bold().FontColor("#ff4831"); 
                                 c.Item().Text(cotizacion.Empresa.RazonSocial ?? "").FontSize(9);
                                 c.Item().Text($"Cédula: {cotizacion.Empresa.CedulaJuridica ?? "-"}").FontSize(9);
                                 c.Item().Text($"Tel: {cotizacion.Empresa.Telefono ?? "-"}").FontSize(9);
@@ -104,7 +104,7 @@ namespace Servicios
                             }
                         });
 
-                        // Cuadro de Totales (Grises)
+                        // Cuadro de Totales 
                         col.Item().AlignRight().Width(250).Column(c =>
                         {
                             c.Item().PaddingVertical(5).Row(row =>
@@ -125,7 +125,7 @@ namespace Servicios
                                 row.ConstantItem(100).AlignRight().Text($"{cotizacion.Impuesto:N2} {cotizacion.Moneda}").FontSize(10);
                             });
 
-                            // Total destacado (Gris oscuro)
+                            // Total destacado
                             c.Item().PaddingTop(10).Background(Colors.Grey.Lighten3).Padding(10).Row(row =>
                             {
                                 row.RelativeItem().Text("TOTAL:").FontSize(12).Bold();
@@ -135,7 +135,7 @@ namespace Servicios
                         });
                     });
 
-                    // --- FOOTER ---
+                    // FOOTER 
                     page.Footer().AlignCenter().Column(c =>
                     {
                         c.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);

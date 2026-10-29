@@ -1,5 +1,4 @@
 ﻿
-
 CREATE   PROCEDURE dbo.AvanzarCotizacionAOrdenDeVenta
     @id_cotizacion INT
 AS
@@ -12,12 +11,12 @@ BEGIN
     DECLARE @id_empresa INT;
     DECLARE @id_bodega INT;
 
-    SELECT @id_estado_enviada = id_estado FROM ESTADO WHERE nombre_estado = 'Cotización Enviada';
-    SELECT @id_estado_orden_venta = id_estado FROM ESTADO WHERE nombre_estado = 'Orden de Venta';
+    SELECT @id_estado_enviada = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Cotización Enviada';
+    SELECT @id_estado_orden_venta = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Orden de Venta';
 
     SELECT @id_empresa = id_empresa 
     FROM COTIZACION 
-    WHERE id_cotizacion = @id_cotizacion AND id_estado = @id_estado_enviada;
+    WHERE id_cotizacion = @id_cotizacion AND id_estado_cotizacion = @id_estado_enviada;
 
     IF @id_empresa IS NULL
     BEGIN
@@ -29,7 +28,7 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
-
+        -- Validar la cantidad de stock disponible
         IF EXISTS (
             SELECT 1 
             FROM DETALLE_COTIZACION d
@@ -44,7 +43,7 @@ BEGIN
             SELECT 0 AS Exito, 'No hay suficiente inventario para avanzar a Orden de Venta.' AS Mensaje;
             RETURN;
         END
-
+        -- Actualizar cantidad de producto
         UPDATE e
         SET e.cantidad_disponible = e.cantidad_disponible - d.cantidad,
             e.fecha_actualizacion = SYSDATETIME()
@@ -55,8 +54,9 @@ BEGIN
           AND e.id_bodega = @id_bodega
           AND p.inventariable = 1;
 
+        -- Actualizar el estado usando la nueva columna
         UPDATE COTIZACION
-        SET id_estado = @id_estado_orden_venta
+        SET id_estado_cotizacion = @id_estado_orden_venta
         WHERE id_cotizacion = @id_cotizacion;
 
         COMMIT TRANSACTION;

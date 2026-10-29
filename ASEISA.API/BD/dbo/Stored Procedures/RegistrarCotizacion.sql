@@ -1,4 +1,6 @@
-﻿CREATE PROCEDURE [dbo].[RegistrarCotizacion]
+﻿
+
+CREATE   PROCEDURE [dbo].[RegistrarCotizacion]
     @id_empresa         INT,
     @id_cliente         INT,
     @numero_cotizacion  VARCHAR(50),
@@ -10,7 +12,7 @@
     @impuesto           DECIMAL(18,2),
     @descuento          DECIMAL(18,2),
     @total              DECIMAL(18,2),
-    @id_estado          INT,
+    @id_estado          INT, 
     @id_usuario         INT, 
     @detalles_json      NVARCHAR(MAX) 
 AS
@@ -29,7 +31,7 @@ BEGIN
         (
             id_empresa, id_cliente, numero_cotizacion, fecha_emision, 
             fecha_vencimiento, moneda, tipo_cambio, subtotal, 
-            impuesto, descuento, total, id_estado
+            impuesto, descuento, total, id_estado_cotizacion
         )
         VALUES
         (

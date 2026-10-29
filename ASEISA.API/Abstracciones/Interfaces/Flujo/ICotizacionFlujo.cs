@@ -17,9 +17,10 @@ namespace Abstracciones.Interfaces.Flujo
         Task<int> RetrocederCotizacionEnviada(int idCotizacion);
         Task<ActionResult> AvanzarCotizacionAOrdenDeVenta(int idCotizacion);
         Task<ActionResult> Facturar(int idCotizacion, int idUsuario, FacturarRequest request);
-        Task<ActionResult> ObtenerCanceladasRechazadas();
+        Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa);
         public Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa);
         public Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
         public Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion);
+        Task<int> RetrocederAEnviada(int idCotizacion);
     }
 }

@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[CancelarCotizacion]
+﻿CREATE   PROCEDURE [dbo].[CancelarCotizacion]
     @id_empresa     INT,
     @id_usuario     INT, 
     @id_cotizacion  INT  
@@ -17,22 +17,22 @@ BEGIN
         DECLARE @anterior VARCHAR(MAX), @nuevo VARCHAR(MAX);
 
         -- 1. Verificar que la cotización existe en la empresa
-        SELECT @estado_actual = id_estado
+        SELECT @estado_actual = id_estado_cotizacion
         FROM dbo.COTIZACION WITH (UPDLOCK, HOLDLOCK)
         WHERE id_cotizacion = @id_cotizacion AND id_empresa = @id_empresa;
 
         IF @estado_actual IS NULL
             THROW 51015, 'La cotizacion no existe en la empresa indicada.', 1;
 
-        -- 2. Validar el catálogo de estados necesarios
-        IF (SELECT COUNT(*) FROM dbo.ESTADO WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización') <> 1
-            OR (SELECT COUNT(*) FROM dbo.ESTADO WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada') <> 1
-            OR (SELECT COUNT(*) FROM dbo.ESTADO WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cancelada') <> 1
-            THROW 51020, 'El catalogo ESTADO debe tener definidos los estados requeridos (Cotización, Cotización Enviada, Cancelada).', 1;
+        -- 2. Validar el catálogo de estados necesarios en la nueva tabla
+        IF (SELECT COUNT(*) FROM dbo.ESTADO_COTIZACION WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización') <> 1
+            OR (SELECT COUNT(*) FROM dbo.ESTADO_COTIZACION WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada') <> 1
+            OR (SELECT COUNT(*) FROM dbo.ESTADO_COTIZACION WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cancelada') <> 1
+            THROW 51020, 'El catalogo ESTADO_COTIZACION debe tener definidos los estados requeridos (Cotización, Cotización Enviada, Cancelada).', 1;
 
-        SELECT @id_estado_cotizacion = id_estado FROM dbo.ESTADO WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización';
-        SELECT @id_estado_enviada = id_estado FROM dbo.ESTADO WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada';
-        SELECT @id_estado_cancelada = id_estado FROM dbo.ESTADO WHERE LTRIM(RTRIM(nombre_estado)) = 'Cancelada';
+        SELECT @id_estado_cotizacion = id_estado_cotizacion FROM dbo.ESTADO_COTIZACION WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización';
+        SELECT @id_estado_enviada = id_estado_cotizacion FROM dbo.ESTADO_COTIZACION WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada';
+        SELECT @id_estado_cancelada = id_estado_cotizacion FROM dbo.ESTADO_COTIZACION WHERE LTRIM(RTRIM(nombre_estado)) = 'Cancelada';
 
         -- 3. Validar que la cotización esté obligatoriamente en "Cotización" o "Cotización Enviada"
         IF @estado_actual NOT IN (@id_estado_cotizacion, @id_estado_enviada)
@@ -45,7 +45,7 @@ BEGIN
 
         -- 5. Actualizar el estado a "Cancelada"
         UPDATE dbo.COTIZACION 
-        SET id_estado = @id_estado_cancelada
+        SET id_estado_cotizacion = @id_estado_cancelada
         WHERE id_cotizacion = @id_cotizacion AND id_empresa = @id_empresa;
 
         -- 6. Capturar estado nuevo para la bitácora

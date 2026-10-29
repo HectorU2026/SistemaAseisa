@@ -156,5 +156,8 @@
     <Build Include="dbo\Stored Procedures\EditarCompra.sql" />
     <Build Include="dbo\Stored Procedures\AnularCompra.sql" />
     <Build Include="dbo\Stored Procedures\AgregarCompra.sql" />
+    <Build Include="dbo\Tables\ESTADO_COTIZACION.sql" />
+    <Build Include="dbo\Stored Procedures\RetrocederCotizacionAEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagas.sql" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,216 @@
+﻿@page
+@model Web.Pages.CuentasPorCobrar.CuentasPorPagarModel
+@{
+}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASEISA - Cuentas por Pagar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #F5F7FA;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-4 mb-5">
+        
+        <!-- Título -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <a href="/Menu" class="btn btn-light border shadow-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="bi bi-arrow-left text-secondary"></i>
+                </a>
+                <div>
+                    <h1 class="h3 fw-bold mb-0 text-dark">Cuentas por Pagar</h1>
+                    <p class="text-muted small mb-0">Gestione las deudas y pagos pendientes con sus proveedores.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Buscar Proveedor</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+                            <input type="text" id="filtroProveedor" class="form-control border-start-0" placeholder="Ej. Distribuidora Central...">
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label small fw-semibold text-muted">Estado</label>
+                        <select id="filtroEstado" class="form-select">
+                            <option value="">Todos los estados</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Pagada">Pagada</option>
+                            <option value="Vencida">Vencida</option>
+                            <option value="Abono">Abono</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label small fw-semibold text-muted">Fecha de Vencimiento</label>
+                        <input type="date" id="filtroFecha" class="form-control">
+                    </div>
+                    <div class="col-12 col-md-2 d-flex align-items-end">
+                        <button type="button" onclick="limpiarFiltros()" class="btn btn-outline-secondary w-100 fw-semibold">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaCuentas">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-muted small fw-semibold py-3 ps-4">Factura / Consecutivo</th>
+                            <th class="text-muted small fw-semibold py-3">Proveedor</th>
+                            <th class="text-muted small fw-semibold py-3">Emisión</th>
+                            <th class="text-muted small fw-semibold py-3">Vencimiento</th>
+                            <th class="text-muted small fw-semibold py-3 text-end">Total</th>
+                            <th class="text-muted small fw-semibold py-3 text-end">Pendiente</th>
+                            <th class="text-muted small fw-semibold py-3 text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyCuentas">
+                        <!-- FILA 1: Pendiente -->
+                        <tr class="fila-cuenta" data-proveedor="distribuidora central s.a." data-estado="Pendiente" data-vencimiento="2026-11-15">
+                            <td class="ps-4 fw-semibold text-dark">PROV-001</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    Distribuidora Central S.A.
+                                </div>
+                            </td>
+                            <td class="text-muted">12/10/2026</td>
+                            <td class="text-muted">15/11/2026</td>
+                            <td class="text-end fw-semibold">₡395,500.00</td>
+                            <td class="text-end fw-bold text-danger">₡395,500.00</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-warning bg-opacity-25 text-dark px-3 py-2">Pendiente</span>
+                            </td>
+                        </tr>
+
+                        <!-- FILA 2: Pagada -->
+                        <tr class="fila-cuenta" data-proveedor="grupo vindas hermanos" data-estado="Pagada" data-vencimiento="2026-10-20">
+                            <td class="ps-4 fw-semibold text-dark">PROV-002</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    Grupo Vindas Hermanos
+                                </div>
+                            </td>
+                            <td class="text-muted">05/10/2026</td>
+                            <td class="text-muted">20/10/2026</td>
+                            <td class="text-end fw-semibold">₡141,250.00</td>
+                            <td class="text-end fw-bold text-success">₡0.00</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-success bg-opacity-25 text-success px-3 py-2">Pagada</span>
+                            </td>
+                        </tr>
+
+                        <!-- FILA 3: Vencida -->
+                        <tr class="fila-cuenta" data-proveedor="ferretería san miguel" data-estado="Vencida" data-vencimiento="2026-09-15">
+                            <td class="ps-4 fw-semibold text-dark">PROV-003</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    Ferretería San Miguel
+                                </div>
+                            </td>
+                            <td class="text-muted">10/09/2026</td>
+                            <td class="text-muted">15/09/2026</td>
+                            <td class="text-end fw-semibold">₡90,400.00</td>
+                            <td class="text-end fw-bold text-danger">₡90,400.00</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-danger bg-opacity-25 text-danger px-3 py-2">Vencida</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div id="mensajeSinResultados" class="text-center text-muted py-5 d-none">
+                    <i class="bi bi-search fs-2 d-block mb-2"></i>
+                    No se encontraron resultados que coincidan con los filtros.
+                </div>
+            </div>
+            
+            <div class="card-footer bg-white border-top-0 py-3 px-4 text-muted small d-flex justify-content-between align-items-center">
+                <span id="contadorRegistros">Mostrando 4 registro(s)</span>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputProveedor = document.getElementById("filtroProveedor");
+            const selectEstado = document.getElementById("filtroEstado");
+            const inputFecha = document.getElementById("filtroFecha");
+            const filas = document.querySelectorAll(".fila-cuenta");
+            const mensajeSinResultados = document.getElementById("mensajeSinResultados");
+            const contadorRegistros = document.getElementById("contadorRegistros");
+
+            function filtrarTabla() {
+                const textoProveedor = inputProveedor.value.toLowerCase().trim();
+                const estadoSeleccionado = selectEstado.value;
+                const fechaSeleccionada = inputFecha.value;
+
+                let filasVisibles = 0;
+
+                filas.forEach(fila => {
+                    const dataProveedor = fila.getAttribute("data-proveedor");
+                    const dataEstado = fila.getAttribute("data-estado");
+                    const dataVencimiento = fila.getAttribute("data-vencimiento");
+
+                    const coincideProveedor = dataProveedor.includes(textoProveedor);
+                    const coincideEstado = estadoSeleccionado === "" || dataEstado === estadoSeleccionado;
+                    const coincideFecha = fechaSeleccionada === "" || dataVencimiento === fechaSeleccionada;
+
+                    if (coincideProveedor && coincideEstado && coincideFecha) {
+                        fila.style.display = ""; 
+                        filasVisibles++;
+                    } else {
+                        fila.style.display = "none"; 
+                    }
+                });
+
+                if (filasVisibles === 0 && filas.length > 0) {
+                    mensajeSinResultados.classList.remove("d-none");
+                } else {
+                    mensajeSinResultados.classList.add("d-none");
+                }
+            }
+
+            inputProveedor.addEventListener("input", filtrarTabla);
+            selectEstado.addEventListener("change", filtrarTabla);
+            inputFecha.addEventListener("change", filtrarTabla);
+        });
+
+        function limpiarFiltros() {
+            document.getElementById("filtroProveedor").value = "";
+            document.getElementById("filtroEstado").value = "";
+            document.getElementById("filtroFecha").value = "";
+            document.getElementById("filtroProveedor").dispatchEvent(new Event('input'));
+        }
+    </script>
+</body>
+</html>

@@ -108,6 +108,8 @@ builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
 builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
 builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();
 builder.Services.AddScoped<IIngresoProductoFlujo, IngresoProductoFlujo>();
+builder.Services.AddScoped<ICuentasPorPagarDA, CuentasPorPagarDA>();
+builder.Services.AddScoped<ICuentasPorPagarFlujo, CuentasPorPagarFlujo>();
 
 
 var app = builder.Build();

@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE [dbo].[EditarCotizacion]
+﻿
+CREATE   PROCEDURE [dbo].[EditarCotizacion]
     @id_cotizacion      INT,
     @id_empresa         INT,
     @id_cliente         INT,
@@ -25,7 +26,7 @@ BEGIN
         DECLARE @anterior VARCHAR(MAX), @nuevo VARCHAR(MAX);
 
         -- 1. Verificar que la cotización existe en la empresa
-        SELECT @estado_actual = id_estado
+        SELECT @estado_actual = id_estado_cotizacion
         FROM dbo.COTIZACION WITH (UPDLOCK, HOLDLOCK)
         WHERE id_cotizacion = @id_cotizacion AND id_empresa = @id_empresa;
 
@@ -33,7 +34,7 @@ BEGIN
             THROW 51015, 'La cotizacion no existe en la empresa indicada.', 1;
 
         -- 2. Validar estado 'Cotización'
-        SELECT @id_estado_cotizacion = id_estado FROM dbo.ESTADO WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización';
+        SELECT @id_estado_cotizacion = id_estado_cotizacion FROM dbo.ESTADO_COTIZACION WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización';
         
         IF @estado_actual <> @id_estado_cotizacion
             THROW 51009, 'Solo se pueden editar cotizaciones que se encuentren en estado "Cotización".', 1;
@@ -53,7 +54,7 @@ BEGIN
             total = @total
         WHERE id_cotizacion = @id_cotizacion AND id_empresa = @id_empresa;
 
-        -- 5. sincronizar los detalles: Eliminar los detalles anteriores e insertar los nuevos actualizados
+        -- 5. Sincronizar los detalles: Eliminar los detalles anteriores e insertar los nuevos actualizados
         DELETE FROM dbo.DETALLE_COTIZACION WHERE id_cotizacion = @id_cotizacion;
 
         INSERT INTO dbo.DETALLE_COTIZACION
