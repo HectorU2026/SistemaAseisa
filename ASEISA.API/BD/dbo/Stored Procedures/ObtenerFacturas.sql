@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.ObtenerFacturas
+﻿CREATE PROCEDURE dbo.ObtenerFacturas
     @id_empresa INT,
     @id_estado_factura INT = NULL,
     @nombre_cliente VARCHAR(200) = NULL

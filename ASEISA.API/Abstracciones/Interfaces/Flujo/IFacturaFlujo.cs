@@ -10,5 +10,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> ObtenerFactura(int idUsuario, int idFactura);
         Task<ActionResult> Confirmar(int idUsuario, int idFactura, byte[]? versionFila);
         Task<ActionResult> Restablecer(int idUsuario, int idFactura, byte[]? versionFila);
+        Task<ActionResult> Inactivar(int idUsuario, int idFactura, byte[]? versionFila, string? motivoAnulacion);
+        Task<ActionResult> Reactivar(int idUsuario, int idFactura, byte[]? versionFila);
     }
 }
