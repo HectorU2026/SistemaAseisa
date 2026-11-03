@@ -27,26 +27,63 @@ namespace Web.Views.Home.Inicio_Sesion
         {
         }
 
+
         public async Task<IActionResult> OnPost()
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Page();
+
+            try
             {
-                string endpoint = _configuracion.ObtenerMetodo("ApiEndPointsSeguridad", "RecuperarContrasena");
-                var cliente = new HttpClient();
-                var resultado = await cliente.PostAsJsonAsync<restablecerContraseña>(endpoint,
+                string endpoint = _configuracion.ObtenerMetodo(
+                    "ApiEndPointsSeguridad",
+                    "RecuperarContrasena"
+                );
+
+                using var cliente = new HttpClient();
+
+                var resultado = await cliente.PostAsJsonAsync(
+                    endpoint,
                     new restablecerContraseña
                     {
                         Correo = correoInfo.Correo
-                    });
-                MensajeExito = "Correo enviado con exito";
+                    }
+                );
+
                 if (resultado.IsSuccessStatusCode)
-                    
-                return Page();
+                {
+                    MensajeExito = "Si el correo está asociado a una cuenta activa, recibirá un enlace con las instrucciones para restablecer su contraseña.";
+                    return Page();
+                }
+
+                // No revelamos si el correo existe o no.
+                if (resultado.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    MensajeExito = "Si el correo está asociado a una cuenta activa, recibirá un enlace con las instrucciones para restablecer su contraseña.";
+                    return Page();
+                }
+
+                ModelState.AddModelError(
+                    "",
+                    "No fue posible procesar la solicitud en este momento. Inténtelo nuevamente más tarde."
+                );
+            }
+            catch (HttpRequestException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "No fue posible conectar con el servicio. Inténtelo nuevamente más tarde."
+                );
+            }
+            catch (TaskCanceledException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "La solicitud tardó demasiado en responder. Inténtelo nuevamente."
+                );
             }
 
             return Page();
         }
-
     }
-
 }

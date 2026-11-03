@@ -140,6 +140,26 @@ public class CompraDA : ICompraDA
         };
     }
 
+    public async Task<int> FacturarOrdenCompra(ComprasFacturarRequest request)
+    {
+        using var conexion = new SqlConnection(_connectionString);
+        var sql = "FacturarOrdenCompra";
+
+        var resultado = await conexion.QueryFirstOrDefaultAsync<int>(
+            sql,
+            new
+            {
+                id_orden_compra = request.IdOrdenCompra,
+                id_empresa = request.IdEmpresa,
+                id_proveedor = request.IdProveedor,
+                id_usuario = request.IdUsuario,
+                fecha_factura = request.FechaFactura,
+                id_termino_pago = request.IdTerminoPago
+            });
+
+        return resultado;
+    }
+
     #endregion
 
     #region "Modelos internos"

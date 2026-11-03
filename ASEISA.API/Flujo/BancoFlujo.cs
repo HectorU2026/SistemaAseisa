@@ -1,0 +1,54 @@
+﻿using Abstracciones.Interfaces.DA;
+using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Modelos;
+using DA;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+
+namespace Flujo
+{
+    public class BancoFlujo : IBancoFlujo   
+    {
+        private IBancoDA _bancoDA;
+
+        public BancoFlujo(IBancoDA bancoDA)
+        {
+            _bancoDA = bancoDA;
+        }
+
+        public async Task<string> RegistrarCuentaBancaria(CuentaBancariaRequest cuentaBancaria)
+        {
+            return await _bancoDA.RegistrarCuentaBancaria(cuentaBancaria);
+        }
+
+        public async Task<ActionResult> ObtenerCuentasBancarias(int idEmpresa)
+        {
+            ValidarId(idEmpresa, nameof(idEmpresa));
+            var cuentas = await _bancoDA.ObtenerCuentasBancarias(idEmpresa);
+            return new OkObjectResult(cuentas);
+        }
+
+
+        public async Task<ActionResult> ObtenerTiposCuenta()
+        {
+            var tiposCuenta = await _bancoDA.ObtenerTiposCuenta();
+            return new OkObjectResult(tiposCuenta);
+        }
+
+        public async Task<ActionResult> ObtenerCuentasContables(int idEmpresa)
+        {
+            ValidarId(idEmpresa, nameof(idEmpresa));
+            var cuentasContables = await _bancoDA.ObtenerCuentasContables(idEmpresa);
+            return new OkObjectResult(cuentasContables);
+        }
+
+        private static void ValidarId(int valor, string nombre)
+        {
+            if (valor <= 0)
+                throw new ValidationException($"{nombre} debe ser mayor que cero.");
+        }
+    }
+}

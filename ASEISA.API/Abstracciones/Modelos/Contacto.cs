@@ -11,27 +11,27 @@ public static class RolesContacto
 
 public class ContactoRequest : IValidatableObject
 {
-    [StringLength(50)]
+    [StringLength(12, ErrorMessage = "La cédula no puede superar los 12 dígitos.")]
     public string? Cedula { get; set; }
 
-    [StringLength(50)]
+    [StringLength(30, ErrorMessage = "La identificación fiscal no puede superar los 30 caracteres.")]
     public string? IdentificacionFiscal { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido.")]
-    [StringLength(200)]
+    [StringLength(200, MinimumLength = 2,
+        ErrorMessage = "El nombre debe contener entre 2 y 200 caracteres.")]
     public string Nombre { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El correo es requerido.")]
-    [EmailAddress(ErrorMessage = "Ingrese un correo valido.")]
-    [StringLength(150)]
+    [EmailAddress(ErrorMessage = "Ingrese un correo electrónico válido.")]
+    [StringLength(150, ErrorMessage = "El correo no puede superar los 150 caracteres.")]
     public string Correo { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El telefono es requerido.")]
-    [Phone(ErrorMessage = "Ingrese un telefono valido.")]
-    [StringLength(30)]
+    [Required(ErrorMessage = "El teléfono es requerido.")]
+    [StringLength(16, ErrorMessage = "El teléfono no puede superar los 15 dígitos y un prefijo +.")]
     public string Telefono { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El pais es requerido.")]
+    [Required(ErrorMessage = "El país es requerido.")]
     [StringLength(100)]
     public string Pais { get; set; } = string.Empty;
 
@@ -44,8 +44,9 @@ public class ContactoRequest : IValidatableObject
     [StringLength(100)]
     public string? Distrito { get; set; }
 
-    [Required(ErrorMessage = "El detalle de direccion es requerido.")]
-    [StringLength(300)]
+    [Required(ErrorMessage = "La dirección detallada es requerida.")]
+    [StringLength(300, MinimumLength = 5,
+        ErrorMessage = "La dirección debe contener entre 5 y 300 caracteres.")]
     public string DetalleDireccion { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El rol del contacto es requerido.")]
@@ -159,3 +160,27 @@ public class ContactoFiltro
     [Range(1, int.MaxValue)]
     public int? IdEstado { get; set; }
 }
+
+public class ContactoCatalogosPagoResponse
+{
+    public List<ContactoTerminoPago> TerminosPago { get; set; } = new();
+
+    public List<ContactoMetodoPago> MetodosPago { get; set; } = new();
+}
+
+public class ContactoTerminoPago
+{
+    public int IdTerminoPago { get; set; }
+
+    public string Nombre { get; set; } = string.Empty;
+
+    public int DiasCredito { get; set; }
+}
+
+public class ContactoMetodoPago
+{
+    public int IdMetodoPago { get; set; }
+
+    public string Nombre { get; set; } = string.Empty;
+}
+

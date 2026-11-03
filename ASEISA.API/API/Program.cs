@@ -110,6 +110,8 @@ builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();
 builder.Services.AddScoped<IIngresoProductoFlujo, IngresoProductoFlujo>();
 builder.Services.AddScoped<ICuentasPorPagarDA, CuentasPorPagarDA>();
 builder.Services.AddScoped<ICuentasPorPagarFlujo, CuentasPorPagarFlujo>();
+builder.Services.AddScoped<IBancoDA, BancoDA>();
+builder.Services.AddScoped<IBancoFlujo, BancoFlujo>();
 
 
 var app = builder.Build();
