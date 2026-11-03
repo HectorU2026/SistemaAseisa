@@ -48,6 +48,8 @@ namespace Web.Servicios
                 jwtToken.Claims.First(c => c.Type == ClaimTypes.Email).Value));
             claims.Add(new Claim(ClaimTypes.Role,
                 jwtToken.Claims.First(c => c.Type == ClaimTypes.Role).Value));
+            claims.Add(new Claim("Empresa", 
+                jwtToken.Claims.First(c => c.Type == "Empresa").Value));
             claims.Add(new Claim("Token", accessToken));
             return claims;
         }

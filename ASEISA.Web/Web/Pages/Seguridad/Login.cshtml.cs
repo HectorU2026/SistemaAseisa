@@ -65,11 +65,41 @@ namespace Web.Pages.Seguridad
                     return Page();
                 }
                 var jwt = Autenticacion.leerToken(token.AccessToken);
-                if (jwt == null) throw new JsonException("Token inválido.");
+
+                if (jwt == null)
+                    throw new JsonException("Token inválido.");
+
+                var fechaExpiracion = jwt.ValidTo;
+
+                if (fechaExpiracion <= DateTime.UtcNow)
+                {
+                    MensajeError = "La sesión recibida ya expiró. Intente iniciar sesión nuevamente.";
+                    return Page();
+                }
+
                 var claims = Autenticacion.GenerarClaims(jwt, token.AccessToken);
-                var identidad = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(identidad));
+
+                var identidad = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme
+                );
+
+                var fechaExpiracionCookie = fechaExpiracion < DateTime.UtcNow.AddMinutes(120)
+                    ? fechaExpiracion
+                    : DateTime.UtcNow.AddMinutes(120);
+
+                var propiedadesAutenticacion = new AuthenticationProperties
+                {
+                    IsPersistent = false,
+                    ExpiresUtc = new DateTimeOffset(fechaExpiracionCookie, TimeSpan.Zero),
+                    AllowRefresh = false
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identidad),
+                    propiedadesAutenticacion
+                );
                 await EjecutarSinBloquearLogin(() => ActualizarUltimoAcceso(correo));
                 await EjecutarSinBloquearLogin(() => RegistrarBitacora(correo));
                 var returnUrl = Request.Query["ReturnUrl"].ToString();

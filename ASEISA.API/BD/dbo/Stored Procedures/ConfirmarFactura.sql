@@ -175,7 +175,7 @@ BEGIN
             RETURN;
         END;
 
-        SELECT @id_estado_cotizacion = c.id_estado
+        SELECT @id_estado_cotizacion = c.id_estado_cotizacion
         FROM dbo.COTIZACION c WITH (HOLDLOCK)
         WHERE c.id_cotizacion = @id_cotizacion
           AND c.id_empresa = @id_empresa;

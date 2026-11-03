@@ -11,7 +11,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Administrador,Contador,Auxiliar")]
+    //[Authorize(Roles = "Administrador,Contador,Auxiliar")]
     [FiltroErroresCompra]
 
     public class CompraController : ControllerBase
@@ -111,9 +111,22 @@ namespace API.Controllers
             return Ok(resultado);
         }
 
+        [HttpPost("FacturarOrdenCompra")]
+        //[Authorize(Roles = "Administrador,Contador,Comprador,Auxiliar")]
+        public async Task<IActionResult> FacturarOrdenCompra([FromBody] ComprasFacturarRequest compra)
+        {var contexto = await ObtenerContextoUsuario();
+            if (contexto == null)
+                return Forbid();
+            var (idEmpresa, idUsuario) = contexto.Value;
+            compra.IdEmpresa = idEmpresa;
+            compra.IdUsuario = idUsuario;
+            var resultado = await _compraFlujo.FacturarOrdenCompra(compra);
+            return Ok(resultado);
+        }
+
         #endregion
 
-        #region "Helpers"
+            #region "Helpers"
 
         private async Task<(int IdEmpresa, int IdUsuario)?> ObtenerContextoUsuario()
         {

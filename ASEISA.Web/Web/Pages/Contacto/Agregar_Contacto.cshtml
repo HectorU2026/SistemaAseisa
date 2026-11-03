@@ -1,0 +1,577 @@
+﻿@page
+@model Web.Pages.Contacto.Agregar_ContactoModel
+
+@{
+    ViewData["Title"] = "Registrar contacto";
+}
+
+<link rel="stylesheet"
+      href="~/css/contactos.css"
+      asp-append-version="true" />
+
+<div class="contactos-page">
+
+    <!-- ENCABEZADO -->
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-people"></i>
+                <span>Contactos / Registrar</span>
+            </div>
+
+            <h1>Registrar contacto</h1>
+            <p>
+                Complete la información del nuevo cliente o proveedor.
+            </p>
+        </div>
+
+        <a asp-page="/Contacto/Listado_Contacto"
+           class="btn btn-contacto-outline">
+            <i class="bi bi-arrow-left"></i>
+            Volver al listado
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    <form method="post" id="formCrearContacto">
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <!-- INFORMACIÓN GENERAL -->
+        <section class="contacto-form-section">
+
+            <div class="contacto-form-heading">
+                <i class="bi bi-person-vcard"></i>
+                <div>
+                    <h2>Información general</h2>
+                    <p>Datos principales del contacto.</p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <!-- NOMBRE -->
+                <div class="col-md-8">
+                    <label asp-for="Contacto.Nombre"
+                           class="form-label">
+                        Nombre del contacto *
+                    </label>
+
+                    <input asp-for="Contacto.Nombre"
+                           class="form-control"
+                           minlength="2"
+                           maxlength="200"
+                           placeholder="Nombre o razón social"
+                           required />
+
+                    <span asp-validation-for="Contacto.Nombre"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- ROL -->
+                <div class="col-md-4">
+                    <label asp-for="Contacto.RolContacto"
+                           class="form-label">
+                        Tipo de contacto *
+                    </label>
+
+                    <select asp-for="Contacto.RolContacto"
+                            class="form-select"
+                            id="rolContacto"
+                            required>
+                        <option value="Cliente">Cliente</option>
+                        <option value="Proveedor">Proveedor</option>
+                        <option value="Ambos">Ambos</option>
+                    </select>
+
+                    <span asp-validation-for="Contacto.RolContacto"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- CÉDULA -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Cedula"
+                           class="form-label">
+                        Cédula
+                    </label>
+
+                    <input asp-for="Contacto.Cedula"
+                           class="form-control"
+                           id="cedulaContacto"
+                           type="text"
+                           inputmode="numeric"
+                           maxlength="12"
+                           pattern="[0-9]*"
+                           title="Ingrese únicamente números."
+                           placeholder="Número de identificación" />
+
+                    <span asp-validation-for="Contacto.Cedula"
+                          class="text-danger small"></span>
+
+                    <small class="text-muted"
+                           id="ayudaCedula">
+                        Para Costa Rica, ingrese 9, 10 o 12 dígitos,
+                        según el tipo de identificación.
+                    </small>
+                </div>
+
+                <!-- IDENTIFICACIÓN FISCAL -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.IdentificacionFiscal"
+                           class="form-label">
+                        Identificación fiscal
+                    </label>
+
+                    <input asp-for="Contacto.IdentificacionFiscal"
+                           class="form-control"
+                           type="text"
+                           maxlength="30"
+                           placeholder="Identificación tributaria" />
+
+                    <span asp-validation-for="Contacto.IdentificacionFiscal"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- CORREO -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Correo"
+                           class="form-label">
+                        Correo electrónico *
+                    </label>
+
+                    <input asp-for="Contacto.Correo"
+                           type="email"
+                           class="form-control"
+                           maxlength="150"
+                           autocomplete="email"
+                           placeholder="contacto@empresa.com"
+                           required />
+
+                    <span asp-validation-for="Contacto.Correo"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- TELÉFONO -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Telefono"
+                           class="form-label">
+                        Teléfono *
+                    </label>
+
+                    <input asp-for="Contacto.Telefono"
+                           type="tel"
+                           class="form-control"
+                           id="telefonoContacto"
+                           maxlength="16"
+                           inputmode="tel"
+                           autocomplete="tel"
+                           placeholder="Número telefónico"
+                           required />
+
+                    <span asp-validation-for="Contacto.Telefono"
+                          class="text-danger small"></span>
+
+                    <small class="text-muted"
+                           id="ayudaTelefono">
+                        Ingrese los 8 dígitos del teléfono nacional.
+                    </small>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- UBICACIÓN -->
+        <section class="contacto-form-section">
+
+            <div class="contacto-form-heading">
+                <i class="bi bi-geo-alt"></i>
+                <div>
+                    <h2>Ubicación y dirección</h2>
+                    <p>Información geográfica del contacto.</p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <!-- PAÍS -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Pais"
+                           class="form-label">
+                        País *
+                    </label>
+
+                    <input asp-for="Contacto.Pais"
+                           class="form-control"
+                           id="paisContacto"
+                           maxlength="100"
+                           required />
+
+                    <span asp-validation-for="Contacto.Pais"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- PROVINCIA -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Provincia"
+                           class="form-label">
+                        Provincia
+                    </label>
+
+                    <input asp-for="Contacto.Provincia"
+                           class="form-control"
+                           id="provinciaContacto"
+                           maxlength="100"
+                           placeholder="Provincia" />
+
+                    <span asp-validation-for="Contacto.Provincia"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- CANTÓN -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Canton"
+                           class="form-label">
+                        Cantón
+                    </label>
+
+                    <input asp-for="Contacto.Canton"
+                           class="form-control"
+                           id="cantonContacto"
+                           maxlength="100"
+                           placeholder="Cantón" />
+
+                    <span asp-validation-for="Contacto.Canton"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- DISTRITO -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.Distrito"
+                           class="form-label">
+                        Distrito
+                    </label>
+
+                    <input asp-for="Contacto.Distrito"
+                           class="form-control"
+                           id="distritoContacto"
+                           maxlength="100"
+                           placeholder="Distrito" />
+
+                    <span asp-validation-for="Contacto.Distrito"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- DIRECCIÓN DETALLADA -->
+                <div class="col-12">
+                    <label asp-for="Contacto.DetalleDireccion"
+                           class="form-label">
+                        Dirección detallada *
+                    </label>
+
+                    <textarea asp-for="Contacto.DetalleDireccion"
+                              class="form-control"
+                              rows="3"
+                              minlength="5"
+                              maxlength="300"
+                              placeholder="Señas adicionales de la dirección"
+                              required></textarea>
+
+                    <span asp-validation-for="Contacto.DetalleDireccion"
+                          class="text-danger small"></span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CONFIGURACIÓN DE VENTAS -->
+        <section class="contacto-form-section"
+                 id="seccionVentas">
+
+            <div class="contacto-form-heading">
+                <i class="bi bi-cart-check"></i>
+                <div>
+                    <h2>Configuración de ventas</h2>
+                    <p>
+                        Condiciones comerciales cuando el contacto es cliente.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <!-- TÉRMINO DE PAGO VENTAS -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.IdTerminoPagoVentas"
+                           class="form-label">
+                        Término de pago de ventas
+                    </label>
+
+                    <select asp-for="Contacto.IdTerminoPagoVentas"
+                            class="form-select">
+                        <option value="">Sin asignar</option>
+
+                        @foreach (var termino in Model.Catalogos.TerminosPago)
+                        {
+                            <option value="@termino.IdTerminoPago">
+                                @termino.Nombre
+                            </option>
+                        }
+                    </select>
+
+                    <span asp-validation-for="Contacto.IdTerminoPagoVentas"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- MÉTODO DE PAGO VENTAS -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.IdMetodoPagoVentas"
+                           class="form-label">
+                        Método de pago de ventas
+                    </label>
+
+                    <select asp-for="Contacto.IdMetodoPagoVentas"
+                            class="form-select"
+                            disabled="@(!Model.Catalogos.MetodosPago.Any())">
+
+                        <option value="">
+                            @(Model.Catalogos.MetodosPago.Any()
+                                ? "Sin asignar"
+                                : "No hay métodos disponibles")
+                        </option>
+
+                        @foreach (var metodo in Model.Catalogos.MetodosPago)
+                        {
+                            <option value="@metodo.IdMetodoPago">
+                                @metodo.Nombre
+                            </option>
+                        }
+                    </select>
+
+                    <span asp-validation-for="Contacto.IdMetodoPagoVentas"
+                          class="text-danger small"></span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CONFIGURACIÓN DE COMPRAS -->
+        <section class="contacto-form-section"
+                 id="seccionCompras">
+
+            <div class="contacto-form-heading">
+                <i class="bi bi-truck"></i>
+                <div>
+                    <h2>Configuración de compras</h2>
+                    <p>
+                        Condiciones comerciales cuando el contacto es proveedor.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <!-- TÉRMINO DE PAGO COMPRAS -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.IdTerminoPagoCompras"
+                           class="form-label">
+                        Término de pago de compras
+                    </label>
+
+                    <select asp-for="Contacto.IdTerminoPagoCompras"
+                            class="form-select">
+                        <option value="">Sin asignar</option>
+
+                        @foreach (var termino in Model.Catalogos.TerminosPago)
+                        {
+                            <option value="@termino.IdTerminoPago">
+                                @termino.Nombre
+                            </option>
+                        }
+                    </select>
+
+                    <span asp-validation-for="Contacto.IdTerminoPagoCompras"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- MÉTODO DE PAGO COMPRAS -->
+                <div class="col-md-6">
+                    <label asp-for="Contacto.IdMetodoPagoCompras"
+                           class="form-label">
+                        Método de pago de compras
+                    </label>
+
+                    <select asp-for="Contacto.IdMetodoPagoCompras"
+                            class="form-select"
+                            disabled="@(!Model.Catalogos.MetodosPago.Any())">
+
+                        <option value="">
+                            @(Model.Catalogos.MetodosPago.Any()
+                                ? "Sin asignar"
+                                : "No hay métodos disponibles")
+                        </option>
+
+                        @foreach (var metodo in Model.Catalogos.MetodosPago)
+                        {
+                            <option value="@metodo.IdMetodoPago">
+                                @metodo.Nombre
+                            </option>
+                        }
+                    </select>
+
+                    <span asp-validation-for="Contacto.IdMetodoPagoCompras"
+                          class="text-danger small"></span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ESTADO -->
+        <input type="hidden"
+               asp-for="Contacto.IdEstado" />
+
+        <!-- ACCIONES -->
+        <div class="contacto-form-actions">
+
+            <a asp-page="/Contacto/Listado_Contacto"
+               class="btn btn-contacto-outline">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="btn btn-contacto-primary"
+                    disabled="@(!Model.CatalogosCargados)">
+                <i class="bi bi-check-lg"></i>
+                Guardar contacto
+            </button>
+
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const rol = document.getElementById("rolContacto");
+            const ventas = document.getElementById("seccionVentas");
+            const compras = document.getElementById("seccionCompras");
+
+            const pais = document.getElementById("paisContacto");
+            const cedula = document.getElementById("cedulaContacto");
+            const telefono = document.getElementById("telefonoContacto");
+
+            const provincia = document.getElementById("provinciaContacto");
+            const canton = document.getElementById("cantonContacto");
+            const distrito = document.getElementById("distritoContacto");
+
+            const ayudaCedula = document.getElementById("ayudaCedula");
+            const ayudaTelefono = document.getElementById("ayudaTelefono");
+
+            function esCostaRica() {
+                return pais.value.trim().toLowerCase() === "costa rica";
+            }
+
+            function actualizarSecciones() {
+
+                const valor = rol.value;
+
+                const mostrarVentas =
+                    valor === "Cliente" || valor === "Ambos";
+
+                const mostrarCompras =
+                    valor === "Proveedor" || valor === "Ambos";
+
+                ventas.hidden = !mostrarVentas;
+                compras.hidden = !mostrarCompras;
+
+                ventas.querySelectorAll("select").forEach(select => {
+                    if (!mostrarVentas) {
+                        select.value = "";
+                        select.disabled = true;
+                    } else {
+                        select.disabled = select.options.length <= 1;
+                    }
+                });
+
+                compras.querySelectorAll("select").forEach(select => {
+                    if (!mostrarCompras) {
+                        select.value = "";
+                        select.disabled = true;
+                    } else {
+                        select.disabled = select.options.length <= 1;
+                    }
+                });
+            }
+
+            function actualizarValidacionesPais() {
+
+                const nacional = esCostaRica();
+
+                provincia.required = nacional;
+                canton.required = nacional;
+                distrito.required = nacional;
+                cedula.required = nacional;
+
+                if (nacional) {
+
+                    cedula.setAttribute("pattern", "(?:[0-9]{9}|[0-9]{10}|[0-9]{12})");
+                    cedula.setAttribute(
+                        "title",
+                        "La cédula debe contener 9, 10 o 12 dígitos."
+                    );
+
+                    telefono.maxLength = 8;
+                    telefono.setAttribute("pattern", "[0-9]{8}");
+                    telefono.setAttribute(
+                        "title",
+                        "Ingrese exactamente 8 dígitos."
+                    );
+
+                    ayudaCedula.textContent =
+                        "Ingrese 9, 10 o 12 dígitos, según el tipo de identificación.";
+
+                    ayudaTelefono.textContent =
+                        "Ingrese exactamente 8 dígitos, sin espacios ni guiones.";
+
+                } else {
+
+                    cedula.setAttribute("pattern", "[0-9]*");
+                    cedula.setAttribute(
+                        "title",
+                        "Ingrese únicamente números."
+                    );
+
+                    telefono.maxLength = 16;
+                    telefono.setAttribute("pattern", "\\+?[0-9]{7,15}");
+                    telefono.setAttribute(
+                        "title",
+                        "Ingrese entre 7 y 15 dígitos, con prefijo + opcional."
+                    );
+
+                    ayudaCedula.textContent =
+                        "La identificación fiscal es obligatoria para contactos extranjeros.";
+
+                    ayudaTelefono.textContent =
+                        "Ingrese entre 7 y 15 dígitos, con prefijo + opcional.";
+                }
+            }
+
+            rol.addEventListener("change", actualizarSecciones);
+            pais.addEventListener("input", actualizarValidacionesPais);
+
+            actualizarSecciones();
+            actualizarValidacionesPais();
+        });
+    </script>
+}

@@ -1,4 +1,6 @@
-﻿CREATE PROCEDURE dbo.FacturarOrdenDeVenta
+﻿
+
+CREATE   PROCEDURE dbo.FacturarOrdenDeVenta
     @id_cotizacion   INT,
     @id_empresa      INT,
     @id_cliente      INT,
@@ -147,29 +149,15 @@ BEGIN
         ELSE
             SET @fecha_vencimiento = DATEADD(DAY, @dias_credito, @fecha_factura);
 
-        SELECT @id_estado_orden_venta = id_estado
-        FROM ESTADO
-        WHERE nombre_estado = 'Orden de Venta';
-
-        SELECT @id_estado_facturado = id_estado
-        FROM ESTADO
-        WHERE nombre_estado = 'Facturado';
-
-        SELECT @id_estado_emitida = id_estado
-        FROM ESTADO
-        WHERE nombre_estado = 'Emitida';
-
-        SELECT @id_estado_borrador = id_estado
-        FROM ESTADO
-        WHERE nombre_estado = 'Borrador';
-
-        SELECT @id_estado_factura_borrador = id_estado_factura
-        FROM ESTADO_FACTURA
-        WHERE nombre_estado = 'Borrador';
-
-        SELECT @id_estado_activo = id_estado
-        FROM ESTADO
-        WHERE nombre_estado = 'Activo';
+        -- --- INICIO DE CAMBIOS DE ESTADO ---
+        SELECT @id_estado_orden_venta = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Orden de Venta';
+        SELECT @id_estado_facturado = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Facturado';
+        
+        SELECT @id_estado_emitida = id_estado FROM ESTADO WHERE nombre_estado = 'Emitida';
+        SELECT @id_estado_borrador = id_estado FROM ESTADO WHERE nombre_estado = 'Borrador';
+        SELECT @id_estado_activo = id_estado FROM ESTADO WHERE nombre_estado = 'Activo';
+        
+        SELECT @id_estado_factura_borrador = id_estado_factura FROM ESTADO_FACTURA WHERE nombre_estado = 'Borrador';
 
         IF @id_estado_orden_venta IS NULL
            OR @id_estado_facturado IS NULL
@@ -177,6 +165,8 @@ BEGIN
            OR @id_estado_borrador IS NULL
            OR @id_estado_factura_borrador IS NULL
            OR @id_estado_activo IS NULL
+           OR (SELECT COUNT(*) FROM ESTADO_COTIZACION WHERE nombre_estado = 'Orden de Venta') <> 1
+           OR (SELECT COUNT(*) FROM ESTADO_COTIZACION WHERE nombre_estado = 'Facturado') <> 1
            OR (SELECT COUNT(*) FROM ESTADO WHERE nombre_estado = 'Borrador') <> 1
            OR (SELECT COUNT(*) FROM ESTADO WHERE nombre_estado = 'Activo') <> 1
            OR (SELECT COUNT(*) FROM ESTADO_FACTURA WHERE nombre_estado = 'Borrador') <> 1
@@ -190,6 +180,7 @@ BEGIN
 
             RETURN;
         END;
+        -- --- FIN DE CAMBIOS DE ESTADO ---
 
         IF @subtotal < 0
            OR @impuesto < 0
@@ -242,7 +233,6 @@ BEGIN
             RETURN;
         END;
 
-        -- FAC-001: Validar usuario activo y pertenencia a la empresa
         IF NOT EXISTS
         (
             SELECT 1
@@ -262,13 +252,14 @@ BEGIN
             RETURN;
         END;
 
+        -- --- CAMBIO EN LA VALIDACIÓN DE LA COTIZACIÓN ---
         IF NOT EXISTS
         (
             SELECT 1
             FROM COTIZACION WITH (UPDLOCK, HOLDLOCK)
             WHERE id_cotizacion = @id_cotizacion
               AND id_empresa = @id_empresa
-              AND id_estado = @id_estado_orden_venta
+              AND id_estado_cotizacion = @id_estado_orden_venta
         )
         BEGIN
             ROLLBACK TRANSACTION;
@@ -818,7 +809,7 @@ BEGIN
         END;
 
         UPDATE COTIZACION
-        SET id_estado = @id_estado_facturado
+        SET id_estado_cotizacion = @id_estado_facturado
         WHERE id_cotizacion = @id_cotizacion;
 
         COMMIT TRANSACTION;
