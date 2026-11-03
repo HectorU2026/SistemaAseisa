@@ -69,6 +69,10 @@ namespace Reglas
                     ClaimTypes.Role,
                     jwtToken.Claims.First(
                         c => c.Type == ClaimTypes.Role).Value),
+                new Claim(
+                    "Empresa",
+                    jwtToken.Claims.First(c => c.Type == "Empresa").Value),
+
 
                 new Claim("Token", accessToken)
             };

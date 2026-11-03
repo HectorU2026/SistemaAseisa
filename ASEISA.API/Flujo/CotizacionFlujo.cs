@@ -51,7 +51,6 @@ namespace Flujo
 
         public async Task<IActionResult> EnviarCotizacionPorCorreo(int idCotizacion, string correo)
         {
-            var cotizacion = await _cotizacionDA.ObtenerCotizacionPorId(idCotizacion);
             var resultado = await _enviarCotizacion.EnviarCotizacionPorGmail(idCotizacion, correo);
             return resultado;
         }
@@ -133,9 +132,9 @@ namespace Flujo
             return new OkObjectResult(resultado);
         }
 
-        public async Task<ActionResult> ObtenerCanceladasRechazadas()
+        public async Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa)
         {
-            var cotizaciones = await _cotizacionDA.ObtenerCanceladasRechazadas();
+            var cotizaciones = await _cotizacionDA.ObtenerCanceladasRechazadas(idEmpresa);
             return new OkObjectResult(cotizaciones);
         }
 
@@ -154,6 +153,11 @@ namespace Flujo
         public async Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
         {
             return await _cotizacionDA.CancelarCotizacion(idEmpresa, idUsuario, idCotizacion);
+        }
+
+        public async Task<int> RetrocederAEnviada(int idCotizacion)
+        {
+            return await _cotizacionDA.RetrocederCotizacionAEnviada(idCotizacion);
         }
     }
 }

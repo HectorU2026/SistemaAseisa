@@ -93,7 +93,8 @@ namespace BC
 
                 new Claim(
                     ClaimTypes.Email,
-                    usuario.Correo)
+                    usuario.Correo),
+                new Claim("Empresa", usuario.IdEmpresa.ToString(), ClaimValueTypes.String)
             };
 
             var rolesActivos = filasUsuario
