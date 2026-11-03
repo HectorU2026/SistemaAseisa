@@ -136,17 +136,19 @@ namespace DA
                     total = factura.Total,
                     fecha_factura = factura.FechaFactura,
                     id_termino_pago = factura.IdTerminoPago
-                },
-                commandType: CommandType.StoredProcedure);
+                });
 
             return resultado;
         }
 
-        public async Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas()
+        public async Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas(int idEmpresa)
         {
             var sql = "ObtenerCotizacionesCanceladasRechazadas";
 
-            using var multi = await _sqlConnection.QueryMultipleAsync(sql);
+            using var multi = await _sqlConnection.QueryMultipleAsync(sql, 
+            new { 
+                id_empresa = idEmpresa
+            });
 
             var cotizaciones = (await multi.ReadAsync<CotizacionResponseDetallada>()).ToList();
             var detalles = (await multi.ReadAsync<CotizacionResponseDetallada.DetalleCotizacion>()).ToList();
@@ -211,6 +213,19 @@ namespace DA
                     id_usuario = idUsuario,
                     id_cotizacion = idCotizacion
                 }, commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<int> RetrocederCotizacionAEnviada(int idCotizacion)
+        {
+            var sql = @"RetrocederCotizacionAEnviada";
+
+            var resultado = await _sqlConnection.ExecuteScalarAsync<int>(
+                sql,
+                new { 
+                    id_cotizacion = idCotizacion
+                });
+
+            return resultado;
         }
     }
 }

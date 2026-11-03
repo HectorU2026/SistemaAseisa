@@ -189,3 +189,13 @@ public class CompraEstadoCatalogoResponse
     public int IdEstado { get; set; }
     public string Nombre { get; set; } = string.Empty;
 }
+
+public class ComprasFacturarRequest
+{
+    public int IdOrdenCompra { get; set; }
+    public int IdEmpresa { get; set; }
+    public int IdProveedor { get; set; }
+    public int IdUsuario { get; set; }
+    public DateTime FechaFactura { get; set; }
+    public int IdTerminoPago { get; set; }
+}
