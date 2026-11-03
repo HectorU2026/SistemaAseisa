@@ -72,18 +72,43 @@ namespace DA
             return EjecutarCambioEstado("RestablecerFactura", idEmpresa, idUsuario, idFactura, versionFila);
         }
 
+        public Task<FacturaCambioEstadoResultado> Inactivar(
+            int idEmpresa,
+            int idUsuario,
+            int idFactura,
+            byte[] versionFila,
+            string motivoAnulacion)
+        {
+            return EjecutarCambioEstado(
+                "InactivarFactura",
+                idEmpresa,
+                idUsuario,
+                idFactura,
+                versionFila,
+                motivoAnulacion);
+        }
+
+        public Task<FacturaCambioEstadoResultado> Reactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila)
+        {
+            return EjecutarCambioEstado("ReactivarFactura", idEmpresa, idUsuario, idFactura, versionFila);
+        }
+
         private async Task<FacturaCambioEstadoResultado> EjecutarCambioEstado(
             string procedimiento,
             int idEmpresa,
             int idUsuario,
             int idFactura,
-            byte[] versionFila)
+            byte[] versionFila,
+            string? motivoAnulacion = null)
         {
             var parametros = new DynamicParameters();
             parametros.Add("id_factura", idFactura);
             parametros.Add("id_empresa", idEmpresa);
             parametros.Add("id_usuario", idUsuario);
             parametros.Add("version_fila", versionFila, DbType.Binary, size: 8);
+
+            if (motivoAnulacion != null)
+                parametros.Add("motivo_anulacion", motivoAnulacion);
 
             var resultado = await _sqlConnection.QuerySingleAsync<FacturaCambioEstadoResultado>(
                 procedimiento,

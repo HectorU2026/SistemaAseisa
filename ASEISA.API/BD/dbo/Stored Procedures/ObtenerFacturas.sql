@@ -31,6 +31,10 @@ BEGIN
         ON ef.id_estado_factura = f.id_estado_factura
     WHERE f.id_empresa = @id_empresa
       AND (@id_estado_factura IS NULL OR f.id_estado_factura = @id_estado_factura)
+      AND (
+            @id_estado_factura IS NOT NULL
+            OR ef.nombre_estado <> 'Inactiva'
+          )
       AND (@nombre_cliente IS NULL OR CHARINDEX(@nombre_cliente, cl.nombre_razon_social) > 0)
     ORDER BY f.fecha_emision DESC;
 END;

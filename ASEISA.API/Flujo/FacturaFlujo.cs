@@ -52,6 +52,40 @@ namespace Flujo
             return await EjecutarCambioEstado(idUsuario, idFactura, versionFila, _facturaDA.Restablecer);
         }
 
+        public async Task<ActionResult> Inactivar(
+            int idUsuario,
+            int idFactura,
+            byte[]? versionFila,
+            string? motivoAnulacion)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            if (versionFila == null || versionFila.Length != 8)
+                return new BadRequestObjectResult("La versión de la factura es obligatoria");
+
+            var motivo = motivoAnulacion?.Trim();
+
+            if (string.IsNullOrWhiteSpace(motivo) || motivo.Length > 500)
+                return new BadRequestObjectResult("El motivo de anulación es obligatorio");
+
+            var resultado = await _facturaDA.Inactivar(
+                idEmpresaUsuario.Value,
+                idUsuario,
+                idFactura,
+                versionFila,
+                motivo);
+
+            return MapearCambioEstado(resultado);
+        }
+
+        public async Task<ActionResult> Reactivar(int idUsuario, int idFactura, byte[]? versionFila)
+        {
+            return await EjecutarCambioEstado(idUsuario, idFactura, versionFila, _facturaDA.Reactivar);
+        }
+
         private async Task<ActionResult> EjecutarCambioEstado(
             int idUsuario,
             int idFactura,
@@ -68,6 +102,11 @@ namespace Flujo
 
             var resultado = await operacion(idEmpresaUsuario.Value, idUsuario, idFactura, versionFila);
 
+            return MapearCambioEstado(resultado);
+        }
+
+        private static ActionResult MapearCambioEstado(FacturaCambioEstadoResultado resultado)
+        {
             return resultado.Codigo switch
             {
                 1 => new OkObjectResult(new
