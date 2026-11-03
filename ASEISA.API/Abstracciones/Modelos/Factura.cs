@@ -105,6 +105,17 @@ namespace Abstracciones.Modelos
         public byte[] VersionFila { get; set; }
     }
 
+    public class FacturaInactivarRequest
+    {
+        [Required]
+        public byte[] VersionFila { get; set; }
+
+        [Required(ErrorMessage = "El motivo de anulación es obligatorio")]
+        [MinLength(1, ErrorMessage = "El motivo de anulación es obligatorio")]
+        [StringLength(500, ErrorMessage = "El motivo de anulación no puede superar 500 caracteres")]
+        public string MotivoAnulacion { get; set; }
+    }
+
     public class FacturaCambioEstadoResultado
     {
         public int Codigo { get; set; }

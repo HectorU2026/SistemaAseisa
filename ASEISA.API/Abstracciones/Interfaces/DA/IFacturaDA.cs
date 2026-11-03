@@ -9,5 +9,7 @@ namespace Abstracciones.Interfaces.DA
         Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura);
         Task<FacturaCambioEstadoResultado> Confirmar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
         Task<FacturaCambioEstadoResultado> Restablecer(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
+        Task<FacturaCambioEstadoResultado> Inactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila, string motivoAnulacion);
+        Task<FacturaCambioEstadoResultado> Reactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
     }
 }
