@@ -1,4 +1,5 @@
-﻿CREATE PROCEDURE [dbo].[AvanzarCotizacionEnviada]
+﻿
+CREATE   PROCEDURE [dbo].[AvanzarCotizacionEnviada]
     @id_empresa     INT,
     @id_usuario     INT, 
     @id_cotizacion  INT  
@@ -18,7 +19,7 @@ BEGIN
 
         -- 1. Verificar que la cotización existe en la empresa
         SELECT 
-            @estado_actual = id_estado,
+            @estado_actual = id_estado_cotizacion,
             @cliente = id_cliente,
             @subtotal = subtotal,
             @total = total
@@ -28,13 +29,13 @@ BEGIN
         IF @estado_actual IS NULL
             THROW 51015, 'La cotizacion no existe en la empresa indicada.', 1;
 
-        -- 2. Validar el catálogo de estados para obtener los IDs correctos de 'Cotización' y 'Cotización Enviada'
-        IF (SELECT COUNT(*) FROM dbo.ESTADO WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización') <> 1
-            OR (SELECT COUNT(*) FROM dbo.ESTADO WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada') <> 1
-            THROW 51020, 'El catalogo ESTADO debe tener definidos los estados requeridos.', 1;
+        -- 2. Validar el catálogo de estados en la nueva tabla
+        IF (SELECT COUNT(*) FROM dbo.ESTADO_COTIZACION WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización') <> 1
+            OR (SELECT COUNT(*) FROM dbo.ESTADO_COTIZACION WITH (HOLDLOCK) WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada') <> 1
+            THROW 51020, 'El catalogo ESTADO_COTIZACION debe tener definidos los estados requeridos.', 1;
 
-        SELECT @id_estado_cotizacion = id_estado FROM dbo.ESTADO WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización';
-        SELECT @id_estado_enviada = id_estado FROM dbo.ESTADO WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada';
+        SELECT @id_estado_cotizacion = id_estado_cotizacion FROM dbo.ESTADO_COTIZACION WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización';
+        SELECT @id_estado_enviada = id_estado_cotizacion FROM dbo.ESTADO_COTIZACION WHERE LTRIM(RTRIM(nombre_estado)) = 'Cotización Enviada';
 
         -- 3. Validar que la cotización se encuentre obligatoriamente en estado "Cotización"
         IF @estado_actual <> @id_estado_cotizacion
@@ -56,9 +57,9 @@ BEGIN
             WHERE id_cotizacion = @id_cotizacion AND id_empresa = @id_empresa
             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER);
 
-        -- 6. Actualizar el estado de la cotización a "Cotización Envidada" y la fecha de modificación si aplica
+        -- 6. Actualizar el estado de la cotización a "Cotización Enviada"
         UPDATE dbo.COTIZACION 
-        SET id_estado = @id_estado_enviada
+        SET id_estado_cotizacion = @id_estado_enviada
         WHERE id_cotizacion = @id_cotizacion AND id_empresa = @id_empresa;
 
         -- 7. Capturar estado nuevo para la bitácora

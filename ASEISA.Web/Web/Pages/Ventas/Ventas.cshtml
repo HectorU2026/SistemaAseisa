@@ -1,0 +1,312 @@
+﻿@page
+@model Web.Pages.Ventas.VentasModel
+@{
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="/Menu" class="btn btn-light border shadow-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-arrow-left text-secondary"></i>
+            </a>
+            <div>
+                <h1 class="h3 fw-bold mb-0 text-dark">Ventas</h1>
+                <p class="text-muted small mb-0">Gestione sus cotizaciones y órdenes de venta.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-12 col-md-5">
+                    <label class="form-label small fw-semibold text-muted">Buscar Cliente</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0" placeholder="Ej. Grupo Vindas...">
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <label class="form-label small fw-semibold text-muted">Estado</label>
+                    <select class="form-select">
+                        <option>Todos los estados</option>
+                        <option>Cotización</option>
+                        <option>Cotización Enviada</option>
+                        <option>Orden de Venta</option>
+                        <option>Cancelada</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label small fw-semibold text-muted">Vencimiento</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3 d-flex flex-wrap gap-2">
+        <a href="/Ventas/Crear" class="btn text-white fw-semibold" style="background-color: #F2382F;">
+            <i class="bi bi-plus-lg me-1"></i> Nueva cotización
+        </a>
+        <a href="/Ventas/Canceladas" class="btn btn-outline-secondary fw-semibold">
+            <i class="bi bi-x-circle me-1"></i> Cotizaciones canceladas
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-muted small fw-semibold py-3 ps-4">Número Cotización</th>
+                        <th class="text-muted small fw-semibold py-3">Cliente</th>
+                        <th class="text-muted small fw-semibold py-3">Vencimiento</th>
+                        <th class="text-muted small fw-semibold py-3 text-end">Total</th>
+                        <th class="text-muted small fw-semibold py-3 text-center">Estado</th>
+                        <th class="text-muted small fw-semibold py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Cotizaciones != null && Model.Cotizaciones.Any())
+                    {
+                        foreach (var item in Model.Cotizaciones)
+                        {
+                            string badgeClass = "bg-secondary bg-opacity-25 text-secondary";
+                            if (item.Estado == "Cotización") badgeClass = "bg-warning bg-opacity-25 text-dark";
+                            else if (item.Estado == "Cotización Enviada") badgeClass = "bg-primary bg-opacity-25 text-primary";
+                            else if (item.Estado == "Orden de Venta") badgeClass = "bg-success bg-opacity-25 text-success";
+                            else if (item.Estado == "Cancelada") badgeClass = "bg-danger bg-opacity-25 text-danger";
+
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">@item.NumeroCotizacion</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary" style="width: 32px; height: 32px;">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        @item.NombreCliente
+                                    </div>
+                                </td>
+                                <td class="text-muted">@(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                <td class="text-end fw-semibold">@item.Total.ToString("C")</td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill @badgeClass px-3 py-2">
+                                        @item.Estado
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+
+                                        @if (item.Estado == "Cotización")
+                                        {
+                                            <a href="/Ventas/Editar/@item.IdCotizacion" class="btn btn-sm btn-outline-secondary" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalEnviar-@item.IdCotizacion" title="Enviar">
+                                                <i class="bi bi-send"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalCancelar-@item.IdCotizacion" title="Cancelar">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        }
+
+                                        @if (item.Estado == "Cotización Enviada")
+                                        {
+                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalRechazar-@item.IdCotizacion" title="Rechazar / Cambios">
+                                                <i class="bi bi-arrow-return-left"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalAceptar-@item.IdCotizacion" title="Aceptar (Orden de Venta)">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        }
+
+                                        @if (item.Estado == "Orden de Venta")
+                                        {
+                                            <button type="button" class="btn btn-sm text-white" style="background-color: #F2382F;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalFacturar-@item.IdCotizacion"
+                                                    title="Facturar">
+                                                <i class="bi bi-receipt"></i>
+                                            </button>
+                                        }
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No hay cotizaciones registradas para mostrar.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white border-top-0 py-3 px-4 text-muted small">
+            Mostrando @(Model.Cotizaciones?.Count ?? 0) registro(s)
+        </div>
+    </div>
+</div>
+
+@if (Model.Cotizaciones != null)
+{
+    foreach (var item in Model.Cotizaciones)
+    {
+        <!-- MODAL ENVIAR -->
+        <div class="modal fade" id="modalEnviar-@item.IdCotizacion" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <form method="post" asp-page-handler="Enviar">
+                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+
+                        <div class="modal-header bg-light border-0">
+                            <h6 class="modal-title fw-bold">Enviar cotización @item.NumeroCotizacion</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Correo destino</label>
+                                <input type="email" name="correoDestino" class="form-control" placeholder="Ej. cliente@correo.com" required />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn text-white" style="background-color: #F2382F;">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL CANCELAR -->
+        <div class="modal fade" id="modalCancelar-@item.IdCotizacion" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow text-center p-3">
+                    <form method="post" asp-page-handler="Cancelar">
+                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+
+                        <div class="modal-body">
+                            <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
+                            <h5 class="mt-3 fw-bold">¿Cancelar la cotización?</h5>
+                            <p class="text-muted small">Esta acción no se puede deshacer.</p>
+                        </div>
+                        <div class="modal-footer border-0 justify-content-center">
+                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">No, volver</button>
+                            <button type="submit" class="btn text-white" style="background-color: #F2382F;">Sí, cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL RECHAZAR -->
+        <div class="modal fade" id="modalRechazar-@item.IdCotizacion" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow text-center p-3">
+                    <form method="post" asp-page-handler="Rechazar">
+                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+
+                        <div class="modal-body">
+                            <i class="bi bi-arrow-return-left fs-1 text-warning"></i>
+                            <h5 class="mt-3 fw-bold">¿Regresar a "Cotización"?</h5>
+                            <p class="text-muted small">El cliente ha solicitado cambios.</p>
+                        </div>
+                        <div class="modal-footer border-0 justify-content-center">
+                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn text-white" style="background-color: #F2382F;">Confirmar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ACEPTAR -->
+        <div class="modal fade" id="modalAceptar-@item.IdCotizacion" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow text-center p-3">
+                    <form method="post" asp-page-handler="Aceptar">
+                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+
+                        <div class="modal-body">
+                            <i class="bi bi-check-circle fs-1 text-success"></i>
+                            <h5 class="mt-3 fw-bold">¿Aceptar la cotización?</h5>
+                            <p class="text-muted small">Se convertirá en una Orden de Venta.</p>
+                        </div>
+                        <div class="modal-footer border-0 justify-content-center">
+                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Aceptar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL FACTURAR -->
+        <div class="modal fade" id="modalFacturar-@item.IdCotizacion" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+
+                    <form method="post" asp-page-handler="Facturar">
+                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+
+                        <div class="modal-header bg-light border-0">
+                            <h6 class="modal-title fw-bold">Crear Factura - @item.NumeroCotizacion</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Cliente</label>
+                                <input type="text" class="form-control" value="@item.NombreCliente" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Total a Facturar</label>
+                                <input type="text" class="form-control" value="@item.Total.ToString("C")" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Tipo de Factura</label>
+                                <select name="request.TipoFactura" class="form-select" required>
+                                    <option value="Contado">Contado</option>
+                                    <option value="Crédito">Crédito</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Condición de Venta</label>
+                                <select name="request.CondicionVenta" class="form-select" required>
+                                    <option value="Contado">Contado</option>
+                                    <option value="Crédito">Crédito</option>
+                                </select>
+                            </div>
+
+                            <input type="hidden" name="request.FechaFactura" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")" />
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Término de Pago</label>
+                                <select name="request.IdTerminoPago" class="form-select" required>
+                                    <option value="">Seleccione un término</option>
+                                    <option value="1">Contado</option>
+                                    <option value="2">Crédito 15 días</option>
+                                    <option value="3">Crédito 30 días</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn text-white" style="background-color: #F2382F;">Confirmar Factura</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+}

@@ -31,4 +31,3 @@
     CONSTRAINT [FK_FACTURA_VENTAS] FOREIGN KEY ([id_venta]) REFERENCES [dbo].[VENTAS] ([id_venta]),
     CONSTRAINT [UQ_FACTURA_EMPRESA_NUMERO] UNIQUE NONCLUSTERED ([id_empresa] ASC, [numero_factura] ASC)
 );
-

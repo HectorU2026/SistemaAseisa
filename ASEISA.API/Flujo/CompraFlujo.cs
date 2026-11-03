@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Abstracciones.Interfaces.DA;
+﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.ComponentModel.DataAnnotations;
 
 namespace Flujo;
 
@@ -79,6 +80,12 @@ public class CompraFlujo : ICompraFlujo
         return await _compraDA.ObtenerCatalogos(idEmpresa, idUsuario);
     }
 
+    public async Task<int> FacturarOrdenCompra(ComprasFacturarRequest compra)
+    {
+        ValidarFacturacion(compra);
+        return await _compraDA.FacturarOrdenCompra(compra);
+    }
+
     #endregion
 
     #region "Helpers"
@@ -111,6 +118,19 @@ public class CompraFlujo : ICompraFlujo
 
             ValidarModelo(producto);
         }
+    }
+
+    private static void ValidarFacturacion(ComprasFacturarRequest compra)
+    {
+        ArgumentNullException.ThrowIfNull(compra);
+
+        ValidarId(compra.IdOrdenCompra, nameof(compra.IdOrdenCompra));
+        ValidarId(compra.IdEmpresa, nameof(compra.IdEmpresa));
+        ValidarId(compra.IdUsuario, nameof(compra.IdUsuario));
+        ValidarId(compra.IdProveedor, nameof(compra.IdProveedor));
+        ValidarId(compra.IdTerminoPago, nameof(compra.IdTerminoPago));
+
+        if (compra.FechaFactura == default) throw new ValidationException("La fecha de factura es obligatoria.");
     }
 
     #endregion

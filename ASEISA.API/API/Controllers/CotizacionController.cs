@@ -17,7 +17,7 @@ namespace API.Controllers
         {
             _cotizacionFlujo = cotizacionFlujo;
         }
-
+       
         [HttpPost("RegistrarCotizacionFlujo")]
         public async Task<IActionResult> RegistrarCotizacionFlujo(int idEmpresa, int idUsuario, [FromBody] CotizacionRequest cotizacion)
         {
@@ -82,11 +82,12 @@ namespace API.Controllers
             return resultado;
         }
 
-        [HttpGet("ObtenerCanceladasRechazadas")]
-        public async Task<IActionResult> ObtenerCanceladasRechazadas()
+        [HttpGet("ObtenerCanceladasRechazadas/{idEmpresa}")]
+        public async Task<IActionResult> ObtenerCanceladasRechazadas(int idEmpresa)
         {
-            return await _cotizacionFlujo.ObtenerCanceladasRechazadas();
+            return await _cotizacionFlujo.ObtenerCanceladasRechazadas(idEmpresa);
         }
+
 
         // Obtener cotizaciones
         [HttpGet("ObtenerCotizacionesFlujo")]
@@ -95,6 +96,7 @@ namespace API.Controllers
             var result = await _cotizacionFlujo.ObtenerCotizacionesFlujo(idEmpresa);
             return Ok(result);
         }
+
 
         // Editar cotizacion
         [HttpPut("EditarCotizacionFlujo")]
@@ -109,6 +111,13 @@ namespace API.Controllers
         public async Task<IActionResult> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion)
         {
             var result = await _cotizacionFlujo.CancelarCotizacionFlujo(idEmpresa, idUsuario, idCotizacion);
+            return Ok(result);
+        }
+
+        [HttpPut("RetrocederAEnviada")]
+        public async Task<IActionResult> RetrocederAEnviada(int idCotizacion)
+        {
+            var result = await _cotizacionFlujo.RetrocederAEnviada(idCotizacion);
             return Ok(result);
         }
     }
