@@ -45,6 +45,59 @@ namespace Flujo
             return new OkObjectResult(cuentasContables);
         }
 
+        public async Task<int> RegistrarPagoCliente(PagoClienteRequest pago)
+        {
+            if (pago == null
+                || !pago.IdEmpresa.HasValue || pago.IdEmpresa <= 0
+                || !pago.IdUsuario.HasValue || pago.IdUsuario <= 0
+                || !pago.IdCuentaCobrar.HasValue || pago.IdCuentaCobrar <= 0
+                || !pago.IdCuentaBancaria.HasValue || pago.IdCuentaBancaria <= 0
+                || !pago.FechaPago.HasValue
+                || !pago.Monto.HasValue
+                || string.IsNullOrWhiteSpace(pago.MetodoPago)
+                || !pago.IdEstado.HasValue || pago.IdEstado <= 0)
+            {
+                return 0; // Campos incompletos
+            }
+
+            if (pago.Monto <= 0)
+            {
+                return 2; // El pago debe ser mayor a cero
+            }
+
+            return await _bancoDA.RegistrarPagoCliente(pago);
+        }
+
+        public async Task<MovimientoBancarioRespuesta> ObtenerMovimientosBancarios(MovimientoBancarioFiltro filtro)
+        {
+            var pagina = 1;
+            var tamanoPagina = 10;
+
+            if (filtro != null)
+            {
+                if (filtro.Pagina.HasValue && filtro.Pagina.Value >= 1) pagina = filtro.Pagina.Value;
+                if (filtro.TamanoPagina.HasValue && filtro.TamanoPagina.Value >= 1) tamanoPagina = filtro.TamanoPagina.Value;
+            }
+
+            if (tamanoPagina > 100) tamanoPagina = 100;
+
+            if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
+            {
+                return new MovimientoBancarioRespuesta
+                {
+                    Pagina = pagina,
+                    TamanoPagina = tamanoPagina,
+                    Total = 0,
+                    Items = Enumerable.Empty<MovimientoBancarioItem>()
+                };
+            }
+
+            filtro.Pagina = pagina;
+            filtro.TamanoPagina = tamanoPagina;
+
+            return await _bancoDA.ObtenerMovimientosBancarios(filtro);
+        }
+
         private static void ValidarId(int valor, string nombre)
         {
             if (valor <= 0)

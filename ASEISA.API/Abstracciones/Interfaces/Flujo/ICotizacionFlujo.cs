@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static Abstracciones.Modelos.CotizacionResponseDetallada;
 using static Abstracciones.Modelos.Facturacion;
 
 namespace Abstracciones.Interfaces.Flujo
@@ -18,7 +19,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> AvanzarCotizacionAOrdenDeVenta(int idCotizacion);
         Task<ActionResult> Facturar(int idCotizacion, int idUsuario, FacturarRequest request);
         Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa);
-        public Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa);
+        Task<CotizacionCatalogoRespuesta> ObtenerCotizacionesFlujo(CotizacionFiltro filtro);
         public Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
         public Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion);
         Task<int> RetrocederAEnviada(int idCotizacion);

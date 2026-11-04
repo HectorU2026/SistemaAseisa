@@ -18,3 +18,8 @@
     CONSTRAINT [FK_COTIZACION_ESTADO_COTIZACION] FOREIGN KEY ([id_estado_cotizacion]) REFERENCES [dbo].[ESTADO_COTIZACION] ([id_estado_cotizacion])
 );
 
+
+GO
+CREATE NONCLUSTERED INDEX [IX_COTIZACION_Empresa_Fecha]
+    ON [dbo].[COTIZACION]([id_empresa] ASC, [fecha_emision] DESC);
+

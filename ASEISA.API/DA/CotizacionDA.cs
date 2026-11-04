@@ -10,6 +10,7 @@ using System.Data;
 using System.Text;
 using System.Text.Json;
 using static Abstracciones.Modelos.CotizacionResponse;
+using static Abstracciones.Modelos.CotizacionResponseDetallada;
 using static Abstracciones.Modelos.Facturacion;
 
 namespace DA
@@ -169,15 +170,28 @@ namespace DA
             return resultado;
         }
 
-        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizaciones(int idEmpresa)
+        public async Task<CotizacionCatalogoRespuesta> ObtenerCotizaciones(CotizacionFiltro filtro)
         {
-            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
-            var resultado = await conexion.QueryAsync<CotizacionResponse>(
-                @"ObtenerCotizaciones",
-                new { id_empresa = idEmpresa },
-                commandType: System.Data.CommandType.StoredProcedure);
+            var sql = @"ObtenerCotizaciones";
 
-            return resultado;
+            using var resultado = await _sqlConnection.QueryMultipleAsync(sql,
+                new
+                {
+                    id_empresa = filtro.IdEmpresa,
+                    pagina = filtro.Pagina,
+                    tamano_pagina = filtro.TamanoPagina
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            var total = await resultado.ReadFirstOrDefaultAsync<int>();
+            var items = (await resultado.ReadAsync<CotizacionResponse>()).ToList();
+
+            return new CotizacionCatalogoRespuesta
+            {
+                Pagina = filtro.Pagina ?? 1,
+                TamanoPagina = filtro.TamanoPagina ?? 10,
+                Total = total,
+                Items = items
+            };
         }
 
         public async Task<int> EditarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion)
