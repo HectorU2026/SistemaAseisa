@@ -134,5 +134,29 @@ namespace DA
                 },
                 commandType: System.Data.CommandType.StoredProcedure);
         }
+
+        public async Task<IEnumerable<UsuarioResponse>> ObtenerUsuarios(int idEmpresa)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+
+            return await conexion.QueryAsync<UsuarioResponse>(
+                "dbo.ObtenerUsuarios",
+                new { id_empresa = idEmpresa },
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<UsuarioResponse?> ObtenerUsuarioPorId(int idEmpresa,int idUsuario)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+
+            return await conexion.QuerySingleOrDefaultAsync<UsuarioResponse>(
+                "dbo.ObtenerUsuarioPorId",
+                new
+                {
+                    id_empresa = idEmpresa,
+                    id_usuario = idUsuario
+                },
+                commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }
