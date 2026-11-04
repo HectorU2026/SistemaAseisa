@@ -99,5 +99,32 @@ namespace DA
             return resultado.FirstOrDefault();
         }
 
+
+
+        public async Task<MovimientoBancarioRespuesta> ObtenerMovimientosBancarios(MovimientoBancarioFiltro filtro)
+        {
+            var sql = @"ObtenerMovimientosBancarios";
+
+            using var resultado = await _sqlConnection.QueryMultipleAsync(sql,
+                new
+                {
+                    id_empresa = filtro.IdEmpresa,
+                    id_cuenta_bancaria = filtro.IdCuentaBancaria,
+                    pagina = filtro.Pagina,
+                    tamano_pagina = filtro.TamanoPagina
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            var total = await resultado.ReadFirstOrDefaultAsync<int>();
+            var items = (await resultado.ReadAsync<MovimientoBancarioItem>()).ToList();
+
+            return new MovimientoBancarioRespuesta
+            {
+                Pagina = filtro.Pagina ?? 1,
+                TamanoPagina = filtro.TamanoPagina ?? 10,
+                Total = total,
+                Items = items
+            };
+        }
+
     }
 }

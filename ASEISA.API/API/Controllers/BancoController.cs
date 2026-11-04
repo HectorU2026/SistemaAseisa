@@ -55,5 +55,17 @@ namespace API.Controllers
 
             return Ok("Pago de factura registrado con éxito.");
         }
+
+        [HttpGet("ObtenerMovimientos")]
+        public async Task<ActionResult<MovimientoBancarioRespuesta>> ObtenerMovimientosBancarios([FromQuery] MovimientoBancarioFiltro filtro)
+        {
+            if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
+            {
+                return BadRequest("El identificador de la empresa es obligatorio.");
+            }
+
+            var resultado = await _bancoFlujo.ObtenerMovimientosBancarios(filtro);
+            return Ok(resultado);
+        }
     }
 }

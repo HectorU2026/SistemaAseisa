@@ -68,6 +68,36 @@ namespace Flujo
             return await _bancoDA.RegistrarPagoCliente(pago);
         }
 
+        public async Task<MovimientoBancarioRespuesta> ObtenerMovimientosBancarios(MovimientoBancarioFiltro filtro)
+        {
+            var pagina = 1;
+            var tamanoPagina = 10;
+
+            if (filtro != null)
+            {
+                if (filtro.Pagina.HasValue && filtro.Pagina.Value >= 1) pagina = filtro.Pagina.Value;
+                if (filtro.TamanoPagina.HasValue && filtro.TamanoPagina.Value >= 1) tamanoPagina = filtro.TamanoPagina.Value;
+            }
+
+            if (tamanoPagina > 100) tamanoPagina = 100;
+
+            if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
+            {
+                return new MovimientoBancarioRespuesta
+                {
+                    Pagina = pagina,
+                    TamanoPagina = tamanoPagina,
+                    Total = 0,
+                    Items = Enumerable.Empty<MovimientoBancarioItem>()
+                };
+            }
+
+            filtro.Pagina = pagina;
+            filtro.TamanoPagina = tamanoPagina;
+
+            return await _bancoDA.ObtenerMovimientosBancarios(filtro);
+        }
+
         private static void ValidarId(int valor, string nombre)
         {
             if (valor <= 0)

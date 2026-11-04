@@ -172,6 +172,7 @@
     <Build Include="dbo\Stored Procedures\ObtenerHistorialDepreciacion.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
