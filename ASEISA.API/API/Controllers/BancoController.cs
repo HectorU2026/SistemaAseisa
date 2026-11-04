@@ -1,5 +1,6 @@
 ﻿using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using Flujo;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +39,33 @@ namespace API.Controllers
         public async Task<ActionResult> ObtenerCuentasContables(int idEmpresa)
         {
             return await _bancoFlujo.ObtenerCuentasContables(idEmpresa);
+        }
+
+        [HttpPost("RegistrarPagoCliente")]
+        public async Task<ActionResult> RegistrarPagoCliente(PagoClienteRequest pago)
+        {
+            var resultado = await _bancoFlujo.RegistrarPagoCliente(pago);
+
+            if (resultado == 0) return BadRequest("Complete todos los campos obligatorios primero.");
+            if (resultado == 2) return BadRequest("El monto del pago debe ser mayor a cero.");
+            if (resultado == 4) return BadRequest("La cuenta bancaria seleccionada no existe o no pertenece a la empresa.");
+            if (resultado == 5) return BadRequest("La cuenta por cobrar no fue encontrada.");
+            if (resultado == 6) return BadRequest("El monto a pagar no puede superar el saldo pendiente de la factura.");
+            if (resultado != 1) return BadRequest("Ocurrió un error al registrar el pago.");
+
+            return Ok("Pago de factura registrado con éxito.");
+        }
+
+        [HttpGet("ObtenerMovimientos")]
+        public async Task<ActionResult<MovimientoBancarioRespuesta>> ObtenerMovimientosBancarios([FromQuery] MovimientoBancarioFiltro filtro)
+        {
+            if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
+            {
+                return BadRequest("El identificador de la empresa es obligatorio.");
+            }
+
+            var resultado = await _bancoFlujo.ObtenerMovimientosBancarios(filtro);
+            return Ok(resultado);
         }
     }
 }
