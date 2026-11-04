@@ -59,5 +59,15 @@ namespace Flujo
 
             return await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
         }
+
+        public async Task<IEnumerable<UsuarioResponse>> ObtenerUsuarios(int idEmpresa)
+        {
+            return await _usuarioDA.ObtenerUsuarios(idEmpresa);
+        }
+
+        public async Task<UsuarioResponse?> ObtenerUsuarioPorId(int idEmpresa, int idUsuario)
+        {
+            return await _usuarioDA.ObtenerUsuarioPorId(idEmpresa, idUsuario);
+        }
     }
 }

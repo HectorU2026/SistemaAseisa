@@ -1,0 +1,147 @@
+﻿@page
+@model Web.Pages.MetodoPago.Editar_MetodoPagoModel
+
+@{
+    ViewData["Title"] = "Editar método de pago";
+}
+
+<link rel="stylesheet"
+      href="~/css/contactos.css"
+      asp-append-version="true" />
+
+<div class="contactos-page">
+
+    <!-- Encabezado -->
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-credit-card"></i>
+                <span>Configuración / Métodos de pago / Editar</span>
+            </div>
+
+            <h1>Editar método de pago</h1>
+
+            <p>
+                Actualice la información del método
+                de pago seleccionado.
+            </p>
+        </div>
+
+        <a asp-page="/MetodoPago/Listado_MetodoPago"
+           class="btn btn-contacto-outline">
+            <i class="bi bi-arrow-left"></i>
+            Volver al listado
+        </a>
+    </div>
+
+    <!-- Mensaje de error -->
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    <!-- Formulario -->
+    <section class="contactos-panel">
+
+        <div class="contactos-panel-header">
+            <div>
+                <h2>Información del método</h2>
+
+                <p>
+                    Modifique los datos que desea actualizar.
+                </p>
+            </div>
+        </div>
+
+        <form method="post" class="p-4" id="formMetodoPago">
+
+            <!-- Identificador del registro -->
+            <input type="hidden" asp-for="IdMetodoPago" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="row g-4">
+
+                <div class="col-md-12">
+                    <label asp-for="Metodo.Nombre"
+                           class="form-label fw-semibold">
+                        Nombre del método de pago
+                        <span class="text-danger">*</span>
+                    </label>
+
+                    <input asp-for="Metodo.Nombre"
+                           class="form-control"
+                           maxlength="100"
+                           placeholder="Ejemplo: Transferencia bancaria" />
+
+                    <span asp-validation-for="Metodo.Nombre"
+                          class="text-danger small"></span>
+
+                    <div class="form-text">
+                        Ingrese un nombre que permita identificar
+                        fácilmente el método de pago.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="alert alert-info mt-4 mb-0">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Los cambios realizados en este método de pago
+                se reflejarán en las operaciones que lo utilicen.
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+
+                <a asp-page="/MetodoPago/Listado_MetodoPago"
+                   class="btn btn-contacto-outline">
+                    Cancelar
+                </a>
+
+                <button type="submit"
+                        class="btn btn-contacto-primary"
+                        id="btnGuardar">
+                    <i class="bi bi-check-lg"></i>
+                    Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const formulario = document.getElementById("formMetodoPago");
+            const boton = document.getElementById("btnGuardar");
+
+            if (!formulario || !boton) return;
+
+            formulario.addEventListener("submit", function () {
+
+                if (typeof $ !== "undefined" &&
+                    $.validator &&
+                    !$(formulario).valid()) {
+                    return;
+                }
+
+                boton.disabled = true;
+                boton.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+            });
+
+        });
+    </script>
+}
