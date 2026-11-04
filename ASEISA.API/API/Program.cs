@@ -112,6 +112,10 @@ builder.Services.AddScoped<ICuentasPorPagarDA, CuentasPorPagarDA>();
 builder.Services.AddScoped<ICuentasPorPagarFlujo, CuentasPorPagarFlujo>();
 builder.Services.AddScoped<IBancoDA, BancoDA>();
 builder.Services.AddScoped<IBancoFlujo, BancoFlujo>();
+builder.Services.AddScoped<ITerminoPagoFlujo, TerminoPagoFlujo>();
+builder.Services.AddScoped<ITerminoPagoDA, TerminoPagoDA>();
+builder.Services.AddScoped<IMetodoPagoFlujo, MetodoPagoFlujo>();
+builder.Services.AddScoped<IMetodoPagoDA, MetodoPagoDA>();
 
 
 var app = builder.Build();
