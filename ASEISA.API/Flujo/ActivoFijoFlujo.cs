@@ -43,5 +43,21 @@ namespace Flujo
 
             return await _activoFijoDA.RegistrarActivoFijo(activo);
         }
+
+        public async Task<int> CalcularDepreciacionActivo(CalcularDepreciacionRequest request)
+        {
+            // Validaciones básicas de campos obligatorios
+            if (request == null
+                || !request.IdEmpresa.HasValue || request.IdEmpresa <= 0
+                || !request.IdActivoFijo.HasValue || request.IdActivoFijo <= 0
+                || string.IsNullOrWhiteSpace(request.Periodo)
+                || !request.IdEstado.HasValue || request.IdEstado <= 0
+                || !request.IdUsuario.HasValue || request.IdUsuario <= 0)
+            {
+                return 0; // Campos incompletos
+            }
+
+            return await _activoFijoDA.CalcularDepreciacionActivo(request);
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace Abstracciones.Interfaces.Flujo
     public interface IActivoFijoFlujo
     {
         Task<int> RegistrarActivoFijo(ActivoFijoRequest activo);
+        Task<int> CalcularDepreciacionActivo(CalcularDepreciacionRequest request);
     }
 }

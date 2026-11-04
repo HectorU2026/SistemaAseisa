@@ -168,6 +168,7 @@
     <Build Include="dbo\Stored Procedures\ObtenerCuentasBancarias.sql" />
     <Build Include="dbo\Stored Procedures\FacturarOrdenCompra.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarActivoFijo.sql" />
+    <Build Include="dbo\Stored Procedures\CalcularDepreciacionActivo.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

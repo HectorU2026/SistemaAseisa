@@ -42,5 +42,22 @@ namespace DA
 
             return resultado.FirstOrDefault();
         }
+
+        public async Task<int> CalcularDepreciacionActivo(CalcularDepreciacionRequest request)
+        {
+            var sql = @"CalcularDepreciacionActivo";
+
+            var resultado = await _sqlConnection.QueryAsync<int>(sql,
+                new
+                {
+                    id_empresa = request.IdEmpresa,
+                    id_activo_fijo = request.IdActivoFijo,
+                    periodo = request.Periodo,
+                    id_estado = request.IdEstado,
+                    id_usuario = request.IdUsuario
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado.FirstOrDefault();
+        }
     }
 }
