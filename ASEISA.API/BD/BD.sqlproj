@@ -168,6 +168,16 @@
     <Build Include="dbo\Stored Procedures\ObtenerCuentasBancarias.sql" />
     <Build Include="dbo\Stored Procedures\FacturarOrdenCompra.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarActivoFijo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuarioPorId.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerTerminosPago.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMetodosPago.sql" />
+    <Build Include="dbo\Stored Procedures\EditarTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\EditarMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarMetodoPago.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

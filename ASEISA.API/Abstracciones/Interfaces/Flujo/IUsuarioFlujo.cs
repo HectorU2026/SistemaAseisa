@@ -15,5 +15,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<int> RestablecerContrasenaUsuario(int idEmpresa, int idUsuario, string contrasenaHash);
         Task<int> AsignarRolUsuario(int idEmpresa, int idUsuario, int idRol);
         Task<int?> ObtenerEmpresaUsuarioActivo(int idUsuario);
+        Task<IEnumerable<UsuarioResponse>> ObtenerUsuarios(int idEmpresa);
+        Task<UsuarioResponse?> ObtenerUsuarioPorId(int idEmpresa, int idUsuario);
     }
 }
