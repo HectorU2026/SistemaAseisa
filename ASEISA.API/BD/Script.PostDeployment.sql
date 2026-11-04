@@ -30,3 +30,12 @@ IF NOT EXISTS
 )
     INSERT dbo.ESTADO_FACTURA (nombre_estado)
     VALUES (N'Inactiva');
+
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM dbo.ESTADO_FACTURA
+    WHERE nombre_estado = N'Pagada'
+)
+    INSERT dbo.ESTADO_FACTURA (nombre_estado)
+    VALUES (N'Pagada');
