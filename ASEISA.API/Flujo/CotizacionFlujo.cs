@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
+using static Abstracciones.Modelos.CotizacionResponseDetallada;
 using static Abstracciones.Modelos.Facturacion;
 
 namespace Flujo
@@ -138,9 +139,34 @@ namespace Flujo
             return new OkObjectResult(cotizaciones);
         }
 
-        public async Task<IEnumerable<CotizacionResponse>> ObtenerCotizacionesFlujo(int idEmpresa)
+        public async Task<CotizacionCatalogoRespuesta> ObtenerCotizacionesFlujo(CotizacionFiltro filtro)
         {
-            return await _cotizacionDA.ObtenerCotizaciones(idEmpresa);
+            var pagina = 1;
+            var tamanoPagina = 10;
+
+            if (filtro != null)
+            {
+                if (filtro.Pagina.HasValue && filtro.Pagina.Value >= 1) pagina = filtro.Pagina.Value;
+                if (filtro.TamanoPagina.HasValue && filtro.TamanoPagina.Value >= 1) tamanoPagina = filtro.TamanoPagina.Value;
+            }
+
+            if (tamanoPagina > 100) tamanoPagina = 100;
+
+            if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
+            {
+                return new CotizacionCatalogoRespuesta
+                {
+                    Pagina = pagina,
+                    TamanoPagina = tamanoPagina,
+                    Total = 0,
+                    Items = Enumerable.Empty<CotizacionResponse>()
+                };
+            }
+
+            filtro.Pagina = pagina;
+            filtro.TamanoPagina = tamanoPagina;
+
+            return await _cotizacionDA.ObtenerCotizaciones(filtro);
         }
 
         //editar cotizacion
