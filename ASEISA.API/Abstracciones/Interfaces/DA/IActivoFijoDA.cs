@@ -9,5 +9,6 @@ namespace Abstracciones.Interfaces.DA
     {
         Task<int> RegistrarActivoFijo(ActivoFijoRequest activo);
         Task<int> CalcularDepreciacionActivo(CalcularDepreciacionRequest request);
+        Task<IEnumerable<DepreciacionHistorialResponse>> ObtenerHistorialDepreciacion(int idEmpresa, int idActivoFijo);
     }
 }

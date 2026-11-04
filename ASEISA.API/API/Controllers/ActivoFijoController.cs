@@ -76,5 +76,18 @@ namespace API.Controllers
 
             return Ok("Depreciación calculada con éxito.");
         }
+
+        [HttpGet("ObtenerHistorialDepreciacion/empresa/{idEmpresa}/activo/{idActivoFijo}")]
+        public async Task<ActionResult<IEnumerable<DepreciacionHistorialResponse>>> ObtenerHistorialDepreciacion(int idEmpresa, int idActivoFijo)
+        {
+            if (idEmpresa <= 0 || idActivoFijo <= 0)
+            {
+                return BadRequest("Los identificadores de empresa y activo fijo son inválidos.");
+            }
+
+            var resultado = await _activoFijoFlujo.ObtenerHistorialDepreciacion(idEmpresa, idActivoFijo);
+
+            return Ok(resultado);
+        }
     }
 }

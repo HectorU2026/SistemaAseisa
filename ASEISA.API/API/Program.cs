@@ -112,6 +112,8 @@ builder.Services.AddScoped<ICuentasPorPagarDA, CuentasPorPagarDA>();
 builder.Services.AddScoped<ICuentasPorPagarFlujo, CuentasPorPagarFlujo>();
 builder.Services.AddScoped<IBancoDA, BancoDA>();
 builder.Services.AddScoped<IBancoFlujo, BancoFlujo>();
+builder.Services.AddScoped<IActivoFijoDA, ActivoFijoDA>();
+builder.Services.AddScoped<IActivoFijoFlujo, ActivoFijoFlujo>();
 
 
 var app = builder.Build();

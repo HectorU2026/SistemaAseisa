@@ -59,5 +59,15 @@ namespace Flujo
 
             return await _activoFijoDA.CalcularDepreciacionActivo(request);
         }
+
+        public async Task<IEnumerable<DepreciacionHistorialResponse>> ObtenerHistorialDepreciacion(int idEmpresa, int idActivoFijo)
+        {
+            if (idEmpresa <= 0 || idActivoFijo <= 0)
+            {
+                return Enumerable.Empty<DepreciacionHistorialResponse>();
+            }
+
+            return await _activoFijoDA.ObtenerHistorialDepreciacion(idEmpresa, idActivoFijo);
+        }
     }
 }

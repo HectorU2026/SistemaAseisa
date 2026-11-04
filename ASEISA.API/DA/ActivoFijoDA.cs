@@ -59,5 +59,19 @@ namespace DA
 
             return resultado.FirstOrDefault();
         }
+
+        public async Task<IEnumerable<DepreciacionHistorialResponse>> ObtenerHistorialDepreciacion(int idEmpresa, int idActivoFijo)
+        {
+            var sql = @"ObtenerHistorialDepreciacion";
+
+            var resultado = await _sqlConnection.QueryAsync<DepreciacionHistorialResponse>(sql,
+                new
+                {
+                    id_empresa = idEmpresa,
+                    id_activo_fijo = idActivoFijo
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado;
+        }
     }
 }

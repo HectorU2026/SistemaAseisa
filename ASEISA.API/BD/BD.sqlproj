@@ -169,6 +169,7 @@
     <Build Include="dbo\Stored Procedures\FacturarOrdenCompra.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarActivoFijo.sql" />
     <Build Include="dbo\Stored Procedures\CalcularDepreciacionActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerHistorialDepreciacion.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
