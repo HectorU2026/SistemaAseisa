@@ -45,6 +45,29 @@ namespace Flujo
             return new OkObjectResult(cuentasContables);
         }
 
+        public async Task<int> RegistrarPagoCliente(PagoClienteRequest pago)
+        {
+            if (pago == null
+                || !pago.IdEmpresa.HasValue || pago.IdEmpresa <= 0
+                || !pago.IdUsuario.HasValue || pago.IdUsuario <= 0
+                || !pago.IdCuentaCobrar.HasValue || pago.IdCuentaCobrar <= 0
+                || !pago.IdCuentaBancaria.HasValue || pago.IdCuentaBancaria <= 0
+                || !pago.FechaPago.HasValue
+                || !pago.Monto.HasValue
+                || string.IsNullOrWhiteSpace(pago.MetodoPago)
+                || !pago.IdEstado.HasValue || pago.IdEstado <= 0)
+            {
+                return 0; // Campos incompletos
+            }
+
+            if (pago.Monto <= 0)
+            {
+                return 2; // El pago debe ser mayor a cero
+            }
+
+            return await _bancoDA.RegistrarPagoCliente(pago);
+        }
+
         private static void ValidarId(int valor, string nombre)
         {
             if (valor <= 0)

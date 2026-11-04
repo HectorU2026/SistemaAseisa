@@ -77,5 +77,27 @@ namespace DA
         #endregion
 
 
+
+        public async Task<int> RegistrarPagoCliente(PagoClienteRequest pago)
+        {
+            var sql = @"RegistrarPagoCliente";
+
+            var resultado = await _sqlConnection.QueryAsync<int>(sql,
+                new
+                {
+                    id_empresa = pago.IdEmpresa,
+                    id_usuario = pago.IdUsuario,
+                    id_cuenta_cobrar = pago.IdCuentaCobrar,
+                    id_cuenta_bancaria = pago.IdCuentaBancaria,
+                    fecha_pago = pago.FechaPago,
+                    monto = pago.Monto,
+                    metodo_pago = pago.MetodoPago,
+                    referencia = pago.Referencia,
+                    id_estado = pago.IdEstado
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado.FirstOrDefault();
+        }
+
     }
 }

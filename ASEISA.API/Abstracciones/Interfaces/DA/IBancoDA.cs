@@ -11,5 +11,6 @@ namespace Abstracciones.Interfaces.DA
         Task<IEnumerable<CuentaBancariaResponse>> ObtenerCuentasBancarias(int idEmpresa);
         Task<IEnumerable<TipoCuentaResponse>> ObtenerTiposCuenta();
         Task<IEnumerable<CuentaContableResponse>> ObtenerCuentasContables(int idEmpresa);
+        Task<int> RegistrarPagoCliente(PagoClienteRequest pago);
     }
 }
