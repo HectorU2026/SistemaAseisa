@@ -74,16 +74,48 @@ public class ContactoDA : IContactoDA
         return resultado;
     }
 
-    public async Task<IEnumerable<ContactoResponse>> Obtener(int idEmpresa, ContactoFiltro filtro)
+    public async Task<IEnumerable<ContactoResponse>> Obtener(
+    int idEmpresa, ContactoFiltro filtro)
     {
         using var conexion = new SqlConnection(_connectionString);
-        return await conexion.QueryAsync<ContactoResponse>("dbo.ObtenerContactos", new
-        {
-            id_empresa = idEmpresa,
-            busqueda = filtro.Busqueda,
-            rol_contacto = filtro.RolContacto,
-            id_estado = filtro.IdEstado
-        }, commandType: CommandType.StoredProcedure);
+
+        var cronometro = System.Diagnostics.Stopwatch.StartNew();
+
+        // Medir apertura de conexión
+        await conexion.OpenAsync();
+
+        cronometro.Stop();
+
+        System.Diagnostics.Debug.WriteLine(
+    $"[CONTACTOS] Apertura de conexión: {cronometro.ElapsedMilliseconds} ms"
+);
+
+        // Medir ejecución del procedimiento almacenado
+        cronometro.Restart();
+
+        var contactos = (await conexion.QueryAsync<ContactoResponse>(
+            "dbo.ObtenerContactos",
+            new
+            {
+                id_empresa = idEmpresa,
+                busqueda = filtro.Busqueda,
+                rol_contacto = filtro.RolContacto,
+                id_estado = filtro.IdEstado
+            },
+            commandType: CommandType.StoredProcedure
+        )).ToList();
+
+        cronometro.Stop();
+
+        System.Diagnostics.Debug.WriteLine(
+    $"[CONTACTOS] Ejecución SQL: {cronometro.ElapsedMilliseconds} ms"
+);
+
+        System.Diagnostics.Debug.WriteLine(
+            $"[CONTACTOS] Registros obtenidos: {contactos.Count}"
+        );
+
+        return contactos;
     }
 
     public async Task<ContactoResponse?> Obtener(int idEmpresa, int idContacto, int idUsuario)

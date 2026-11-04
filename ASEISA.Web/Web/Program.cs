@@ -12,6 +12,7 @@ builder.Services.AddRazorPages(options =>
 
     options.Conventions.AllowAnonymousToPage("/Seguridad/Login");
     options.Conventions.AllowAnonymousToPage("/Seguridad/Registro_aseisa");
+    options.Conventions.AllowAnonymousToPage("/Seguridad/Cambiar_Contrasena");
     options.Conventions.AllowAnonymousToPage("/Seguridad/Restablecer_Contrasena");
     options.Conventions.AllowAnonymousToPage("/Error");
 });
@@ -20,6 +21,8 @@ builder.Services.AddScoped<IConfiguracion, Configuracion>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<ContactoApiService>();
+builder.Services.AddHttpClient<TerminoPagoApiService>();
+builder.Services.AddHttpClient<MetodoPagoApiService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
