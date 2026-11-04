@@ -114,6 +114,8 @@ builder.Services.AddScoped<IBancoDA, BancoDA>();
 builder.Services.AddScoped<IBancoFlujo, BancoFlujo>();
 builder.Services.AddScoped<IActivoFijoDA, ActivoFijoDA>();
 builder.Services.AddScoped<IActivoFijoFlujo, ActivoFijoFlujo>();
+builder.Services.AddScoped<ICuentaPorCobrarDA, CuentaPorCobrarDA>();
+builder.Services.AddScoped<ICuentaPorCobrarFlujo, CuentaPorCobrarFlujo>();
 
 
 var app = builder.Build();
