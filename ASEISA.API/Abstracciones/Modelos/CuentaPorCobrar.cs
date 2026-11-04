@@ -13,7 +13,8 @@ namespace Abstracciones.Modelos
         public DateTime FechaVencimiento { get; set; }
         public decimal MontoOriginal { get; set; }
         public decimal SaldoPendiente { get; set; }
-        public string EstadoMorosidad { get; set; } // 'Al día' o 'Atrasado'
+        public string EstadoMorosidad { get; set; }
+        public int DiasAtraso { get; set; } 
         public string EstadoRegistro { get; set; }
     }
 }
