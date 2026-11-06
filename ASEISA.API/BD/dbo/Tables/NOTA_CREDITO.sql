@@ -8,6 +8,7 @@
     [monto]               DECIMAL (18, 2) NOT NULL,
     [fecha_creacion]      DATETIME2 (7)   DEFAULT (sysdatetime()) NOT NULL,
     [id_estado]           INT             NOT NULL,
+    [descripcion_adicional] VARCHAR (500) NULL,
     CONSTRAINT [PK_NOTA_CREDITO] PRIMARY KEY CLUSTERED ([id_nota_credito] ASC),
     CONSTRAINT [FK_NOTA_CREDITO_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
     CONSTRAINT [FK_NOTA_CREDITO_FACTURA] FOREIGN KEY ([id_factura]) REFERENCES [dbo].[FACTURA] ([id_factura]),
