@@ -149,6 +149,7 @@
     <Build Include="dbo\Stored Procedures\InactivarFactura.sql" />
     <Build Include="dbo\Stored Procedures\ReactivarFactura.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarNotaCredito.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
@@ -179,5 +180,8 @@
     <Build Include="dbo\Stored Procedures\CambiarEstadoMetodoPago.sql" />
     <Build Include="dbo\Stored Procedures\AgregarTerminoPago.sql" />
     <Build Include="dbo\Stored Procedures\AgregarMetodoPago.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>

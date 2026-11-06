@@ -138,5 +138,27 @@ namespace API.Controllers
                 request.Monto,
                 request.MetodoPago);
         }
+
+        [HttpPost("{idFactura:int}/notas-credito")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> RegistrarNotaCredito(
+            [FromRoute] int idFactura,
+            [FromBody] FacturaNotaCreditoRequest request)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.RegistrarNotaCredito(
+                idUsuario,
+                idFactura,
+                request.Motivo,
+                request.Monto,
+                request.DescripcionAdicional);
+        }
     }
 }
