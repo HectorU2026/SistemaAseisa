@@ -11,6 +11,7 @@ using Servicios;
 using Servicios.Correo;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using static Abstracciones.Modelos.Facturacion;
@@ -105,6 +106,8 @@ namespace Flujo
             if (!request.FechaFactura.HasValue || request.FechaFactura.Value == DateTime.MinValue)
                 return new BadRequestObjectResult("La fecha de factura es obligatoria");
 
+            ValidarTerminoPago(request);
+
             var factura = new FacturarCotizacion
             {
                 IdCotizacion = cotizacion.IdCotizacion,
@@ -115,7 +118,7 @@ namespace Flujo
                 TipoFactura = request.TipoFactura,
                 CondicionVenta = request.CondicionVenta,
                 FechaFactura = request.FechaFactura.Value,
-                IdTerminoPago = request.IdTerminoPago,
+                IdTerminoPago = request.IdTerminoPago ?? 0,
                 Moneda = cotizacion.Moneda,
                 TipoCambio = cotizacion.TipoCambio,
                 Subtotal = cotizacion.Subtotal,
@@ -159,5 +162,27 @@ namespace Flujo
         {
             return await _cotizacionDA.RetrocederCotizacionAEnviada(idCotizacion);
         }
+
+        #region "Helpers"
+
+        private static void ValidarTerminoPago(FacturarRequest request)
+        {
+            bool esContado = request.CondicionVenta == "01";
+            bool esCredito = request.CondicionVenta == "02";
+
+            // Si es Contado, el término de pago debe ser nulo o cero.
+            if (esContado && request.IdTerminoPago.HasValue && request.IdTerminoPago > 0)
+            {
+                throw new ValidationException("Para ventas de contado no se debe especificar un término de pago.");
+            }
+
+            // Si es Crédito, el término de pago es obligatorio.
+            if (esCredito && (!request.IdTerminoPago.HasValue || request.IdTerminoPago <= 0))
+            {
+                throw new ValidationException("Para ventas a crédito es obligatorio seleccionar un término de pago válido.");
+            }
+        }
+
+        #endregion
     }
 }

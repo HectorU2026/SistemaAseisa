@@ -1,126 +1,159 @@
 ﻿@page
 @model Web.Pages.Ventas.ventas_canceladasModel
 @{
+    ViewData["Title"] = "Cotizaciones Canceladas";
 }
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cotizaciones canceladas</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="~/css/estilos.css">
-</head>
-<body>
 
-    <div id="menu-container"></div>
+<link rel="stylesheet" href="~/css/ventas.css" asp-append-version="true" />
 
-    <div class="container mt-4">
+<div class="container mt-4 mb-5 ventas-page">
 
-        <div class="mb-4">
-            <a asp-page="/Ventas/Index" class="text-secondary me-2">
-                <i class="bi bi-arrow-left"></i>
-            </a>
-            <h1 class="d-inline-block h4 fw-bold">Cotizaciones canceladas y rechazadas</h1>
-        </div>
-
-        <div class="card p-3 mb-3">
-            <div class="row g-2">
-                <div class="col-12 col-md-6">
-                    <input type="text" class="form-control form-control-sm" placeholder="Buscar cliente">
-                </div>
-                <div class="col-6 col-md-4">
-                    <input type="date" class="form-control form-control-sm">
-                </div>
-                <div class="col-12 col-md-2">
-                    <button class="btn btn-rojo btn-sm w-100">Filtrar</button>
-                </div>
+    <!-- ENCABEZADO -->
+    <div class="ventas-header">
+        <div>
+            <div class="ventas-breadcrumb">
+                <i class="bi bi-x-circle"></i>
+                <span>Gestión comercial / Ventas / Canceladas</span>
             </div>
+            <h1>Cotizaciones Canceladas</h1>
+            <p>Historial de negociaciones que no prosperaron.</p>
         </div>
+        <a href="/Ventas/Ventas" class="btn-venta-outline shadow-sm">
+            <i class="bi bi-arrow-left"></i> Volver a Ventas
+        </a>
+    </div>
 
-        <div class="card">
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Numero Cotización</th>
-                            <th>Cliente</th>
-                            <th>Vencimiento</th>
-                            <th class="text-end">Total</th>
-                            <th>Fecha cancelación</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.Cotizaciones != null && Model.Cotizaciones.Any())
+    <!-- FILTROS -->
+    <div class="ventas-filtros">
+        <div class="ventas-search">
+            <i class="bi bi-search"></i>
+            <input type="text" id="filtroBusqueda" placeholder="Buscar por cliente o número de cotización..." />
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="filtroFecha" class="form-control input-panel" style="background: white;" title="Fecha de cancelación" />
+        </div>
+        <button type="button" class="btn-venta-outline" onclick="limpiarFiltros()">
+            <i class="bi bi-eraser"></i> Limpiar
+        </button>
+    </div>
+
+    <!-- TABLA -->
+    <div class="ventas-panel">
+        <div class="table-responsive">
+            <table class="table ventas-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Cotización</th>
+                        <th>Cliente</th>
+                        <th>Vencimiento</th>
+                        <th class="text-end">Total</th>
+                        <th>Fecha Cancelación</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyCanceladas">
+                    @if (Model.Cotizaciones != null && Model.Cotizaciones.Any())
+                    {
+                        foreach (var item in Model.Cotizaciones)
                         {
-                            foreach (var item in Model.Cotizaciones)
-                            {
-                                <tr>
-                                    <td>@item.NumeroCotizacion</td>
-                                    <td>@item.NombreRazonSocial</td>
-                                    <td>@(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</td>
-                                    <td class="text-end">@item.Total.ToString("C")</td>
-                                    <td>@item.FechaEmision.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalDetalle-@item.IdCotizacion">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
-                                    No hay cotizaciones canceladas o rechazadas por el momento.
+                            string badgeClass = item.NombreEstado == "Cancelada" ? "bg-cancelada" : "bg-enviada";
+
+                            <tr class="fila-principal"
+                                data-cliente="@item.NombreRazonSocial.ToLower()"
+                                data-numero="@item.NumeroCotizacion.ToLower()"
+                                data-fecha="@item.FechaEmision.ToString("yyyy-MM-dd")">
+                                
+                                <td class="fw-bold text-dark">@item.NumeroCotizacion</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: #fff0ef; color: #F2382F; font-weight: bold;">
+                                            @item.NombreRazonSocial.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <span class="fw-semibold text-secondary">@item.NombreRazonSocial</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted small">@(item.FechaVencimiento?.ToString("dd MMM, yyyy") ?? "-")</td>
+                                <td class="text-end fw-bold text-dark">@item.Total.ToString("C")</td>
+                                <td class="text-muted small">@item.FechaEmision.ToString("dd MMM, yyyy")</td>
+                                <td class="text-center">
+                                    <span class="badge-venta @badgeClass">@item.NombreEstado</span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn-venta-outline px-2 py-1" data-bs-toggle="modal" data-bs-target="#modalDetalle-@item.IdCotizacion" title="Ver detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </td>
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer bg-white small text-secondary">
-                Mostrando @Model.Cotizaciones.Count registro(s).
-            </div>
+                    }
+                    else
+                    {
+                        <tr id="filaVacia">
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-3" style="color: #b5bdc8;"></i>
+                                <strong class="d-block mb-1">No hay cotizaciones canceladas</strong>
+                                <span class="small">No existen registros que coincidan con los filtros.</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 
+    <!-- MODALES -->
     @if (Model.Cotizaciones != null)
     {
         foreach (var item in Model.Cotizaciones)
         {
             <div class="modal fade" id="modalDetalle-@item.IdCotizacion" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h6 class="modal-title">Detalle de cotización</h6>
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content border-0 shadow" style="border-radius: 16px; overflow: hidden;">
+                        
+                        <div class="modal-header bg-light border-0 py-3">
+                            <h6 class="modal-title fw-bold text-dark">
+                                <i class="bi bi-receipt me-2 text-secondary"></i> Detalle @item.NumeroCotizacion
+                            </h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="modal-body">
-                            <p><strong>Numero Cotización:</strong> @item.NumeroCotizacion</p>
-                            <p><strong>Cliente:</strong> @item.NombreRazonSocial</p>
-                            <p><strong>Vencimiento:</strong> @(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</p>
-                            <p><strong>Total:</strong> @item.Total.ToString("C")</p>
-                            <p><strong>Fecha cancelación:</strong> @item.FechaEmision.ToString("dd/MM/yyyy")</p>
+                        
+                        <div class="modal-body p-4">
+                            <!-- Info General -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted small">Cliente</p>
+                                    <p class="fw-bold mb-0">@item.NombreRazonSocial</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p class="mb-1 text-muted small">Vencimiento</p>
+                                    <p class="fw-bold mb-0">@(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p class="mb-1 text-muted small">Estado</p>
+                                    <span class="badge-venta @(item.NombreEstado == "Cancelada" ? "bg-cancelada" : "bg-enviada")">
+                                        @item.NombreEstado
+                                    </span>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted small">Fecha de Cancelación</p>
+                                    <p class="fw-bold mb-0 text-danger">@item.FechaEmision.ToString("dd/MM/yyyy")</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <p class="mb-1 text-muted small">Monto Total</p>
+                                    <h4 class="fw-bold mb-0">@item.Total.ToString("C")</h4>
+                                </div>
+                            </div>
                             
-                            <p><strong>Estado:</strong> 
-                                <span class="badge @(item.NombreEstado == "Cancelada" ? "bg-danger" : "bg-warning text-dark")">
-                                    @item.NombreEstado
-                                </span>
-                            </p>
-                            
-                            <hr>
-                            <h6 class="fw-bold small">Productos</h6>
+                            <!-- Tabla de Productos -->
+                            <h6 class="fw-bold small text-secondary border-bottom pb-2 mb-3">Productos</h6>
                             <div class="table-responsive">
-                                <table class="table table-sm table-bordered">
+                                <table class="table table-sm align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Producto</th>
-                                            <th class="text-end">Cantidad</th>
-                                            <th class="text-end">Total</th>
+                                            <th class="text-muted small fw-semibold">Producto</th>
+                                            <th class="text-muted small fw-semibold text-end">Cantidad</th>
+                                            <th class="text-muted small fw-semibold text-end">Subtotal</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -129,31 +162,72 @@
                                             foreach (var detalle in item.Detalles)
                                             {
                                                 <tr>
-                                                    <td>@detalle.NombreProducto</td>
-                                                    <td class="text-end">@detalle.Cantidad</td>
-                                                    <td class="text-end">@detalle.Subtotal.ToString("C")</td>
+                                                    <td class="fw-semibold text-dark">@detalle.NombreProducto</td>
+                                                    <td class="text-end text-muted">@detalle.Cantidad</td>
+                                                    <td class="text-end fw-bold">@detalle.Subtotal.ToString("C")</td>
                                                 </tr>
                                             }
                                         }
                                         else
                                         {
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted">No hay productos registrados.</td>
+                                                <td colspan="3" class="text-center text-muted py-3">No hay productos registrados.</td>
                                             </tr>
                                         }
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cerrar</button>
+
+                        <div class="modal-footer border-0 bg-light py-2">
+                            <button class="btn-venta-outline" data-bs-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
                 </div>
             </div>
         }
     }
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<script>
+    // --- Lógica de Filtrado ---
+    function filtrarTabla() {
+        const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
+        const fecha = document.getElementById('filtroFecha').value;
+        const filas = document.querySelectorAll('#tbodyCanceladas .fila-principal');
+        let visibles = 0;
+
+        filas.forEach(fila => {
+            const cliente = fila.getAttribute('data-cliente');
+            const numero = fila.getAttribute('data-numero');
+            const fechaFila = fila.getAttribute('data-fecha');
+
+            const coincideBusqueda = cliente.includes(busqueda) || numero.includes(busqueda);
+            const coincideFecha = fecha === "" || fechaFila === fecha;
+
+            if (coincideBusqueda && coincideFecha) {
+                fila.style.display = '';
+                visibles++;
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+
+        // Mostrar/Ocultar mensaje de vacío
+        const filaVacia = document.getElementById('filaVacia');
+        if (filaVacia) {
+            filaVacia.style.display = visibles === 0 ? '' : 'none';
+        }
+    }
+
+    // --- Lógica de Limpiar Filtros ---
+    function limpiarFiltros() {
+        document.getElementById('filtroBusqueda').value = '';
+        document.getElementById('filtroFecha').value = '';
+        filtrarTabla();
+    }
+
+    // --- Escuchar el input de búsqueda y fecha ---
+    document.getElementById('filtroBusqueda').addEventListener('input', filtrarTabla);
+    document.getElementById('filtroFecha').addEventListener('change', filtrarTabla);
+</script>
