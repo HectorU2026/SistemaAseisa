@@ -12,5 +12,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> ObtenerCuentasBancarias(int idEmpresa);
         Task<ActionResult> ObtenerTiposCuenta();
         Task<ActionResult> ObtenerCuentasContables(int idEmpresa);
+        Task<int> RegistrarPagoCliente(PagoClienteRequest pago);
+        Task<MovimientoBancarioRespuesta> ObtenerMovimientosBancarios(MovimientoBancarioFiltro filtro);
     }
 }

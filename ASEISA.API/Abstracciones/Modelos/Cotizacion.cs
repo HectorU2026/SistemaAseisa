@@ -106,5 +106,20 @@
             public decimal? PorcentajeImpuesto { get; set; }
             public decimal Subtotal { get; set; }
         }
+
+        public class CotizacionFiltro
+        {
+            public int? IdEmpresa { get; set; }
+            public int? Pagina { get; set; }
+            public int? TamanoPagina { get; set; }
+        }
+
+        public class CotizacionCatalogoRespuesta
+        {
+            public int Pagina { get; set; }
+            public int TamanoPagina { get; set; }
+            public int Total { get; set; }
+            public IEnumerable<CotizacionResponse> Items { get; set; }
+        }
     }
 }
