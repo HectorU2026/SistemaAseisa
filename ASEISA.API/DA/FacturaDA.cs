@@ -93,6 +93,42 @@ namespace DA
             return EjecutarCambioEstado("ReactivarFactura", idEmpresa, idUsuario, idFactura, versionFila);
         }
 
+        public async Task<FacturaPagoResultado> RegistrarPago(int idEmpresa, int idFactura, decimal monto, string metodoPago)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("id_factura", idFactura);
+            parametros.Add("id_empresa", idEmpresa);
+            parametros.Add("monto", monto);
+            parametros.Add("metodo_pago", metodoPago);
+
+            return await _sqlConnection.QuerySingleAsync<FacturaPagoResultado>(
+                "RegistrarPagoFactura",
+                parametros,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<FacturaNotaCreditoResultado> RegistrarNotaCredito(
+            int idEmpresa,
+            int idUsuario,
+            int idFactura,
+            string motivo,
+            decimal monto,
+            string? descripcionAdicional)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("id_factura", idFactura);
+            parametros.Add("id_empresa", idEmpresa);
+            parametros.Add("id_usuario", idUsuario);
+            parametros.Add("motivo", motivo);
+            parametros.Add("monto", monto);
+            parametros.Add("descripcion_adicional", descripcionAdicional);
+
+            return await _sqlConnection.QuerySingleAsync<FacturaNotaCreditoResultado>(
+                "RegistrarNotaCredito",
+                parametros,
+                commandType: CommandType.StoredProcedure);
+        }
+
         private async Task<FacturaCambioEstadoResultado> EjecutarCambioEstado(
             string procedimiento,
             int idEmpresa,

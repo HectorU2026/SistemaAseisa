@@ -58,16 +58,53 @@ namespace Abstracciones.Modelos
     {
         public int IdUsuario { get; set; }
         public int IdEmpresa { get; set; }
+
         public string? TipoCliente { get; set; }
+
         public string Nombre { get; set; } = string.Empty;
         public string PrimerApellido { get; set; } = string.Empty;
         public string? SegundoApellido { get; set; }
+
         public string Correo { get; set; } = string.Empty;
         public string NombreUsuario { get; set; } = string.Empty;
-        public string ContrasenaHash { get; set; } = string.Empty;
+
         public DateTime? UltimoAcceso { get; set; }
+
         public int IdEstado { get; set; }
+
         public DateTime FechaCreacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
+
+        public int? IdRol { get; set; }
+        public string? NombreRol { get; set; }
+    }
+
+    public class UsuarioEditarRequest
+    {
+        [Required]
+        [StringLength(100)]
+        public string Nombre { get; set; } = "";
+
+        [Required]
+        [StringLength(100)]
+        public string PrimerApellido { get; set; } = "";
+
+        [StringLength(100)]
+        public string? SegundoApellido { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [StringLength(150)]
+        public string Correo { get; set; } = "";
+
+        [Required]
+        [StringLength(100)]
+        public string NombreUsuario { get; set; } = "";
+
+        [Range(1, 2)]
+        public int IdEstado { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int IdRol { get; set; }
     }
 }

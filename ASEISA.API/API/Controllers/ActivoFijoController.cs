@@ -43,5 +43,51 @@ namespace API.Controllers
 
             return Ok("Activo registrado con éxito.");
         }
+
+        [HttpPost("CalcularDepreciacion")]
+        public async Task<ActionResult> CalcularDepreciacion(CalcularDepreciacionRequest request)
+        {
+            var resultado = await _activoFijoFlujo.CalcularDepreciacionActivo(request);
+
+            if (resultado == 0)
+            {
+                return BadRequest("Complete todos los campos obligatorios primero.");
+            }
+            if (resultado == 3)
+            {
+                return NotFound("El activo no existe o no pertenece a la empresa.");
+            }
+            if (resultado == 4)
+            {
+                return BadRequest("El activo tiene una vida útil inválida para ser depreciado.");
+            }
+            if (resultado == 5)
+            {
+                return BadRequest("La depreciación de este activo para este periodo ya fue calculada previamente.");
+            }
+            if (resultado == 6)
+            {
+                return BadRequest("El activo ya se encuentra totalmente depreciado hasta su valor residual.");
+            }
+            if (resultado != 1)
+            {
+                return BadRequest("Ocurrió un error al calcular la depreciación.");
+            }
+
+            return Ok("Depreciación calculada con éxito.");
+        }
+
+        [HttpGet("ObtenerHistorialDepreciacion/empresa/{idEmpresa}/activo/{idActivoFijo}")]
+        public async Task<ActionResult<IEnumerable<DepreciacionHistorialResponse>>> ObtenerHistorialDepreciacion(int idEmpresa, int idActivoFijo)
+        {
+            if (idEmpresa <= 0 || idActivoFijo <= 0)
+            {
+                return BadRequest("Los identificadores de empresa y activo fijo son inválidos.");
+            }
+
+            var resultado = await _activoFijoFlujo.ObtenerHistorialDepreciacion(idEmpresa, idActivoFijo);
+
+            return Ok(resultado);
+        }
     }
 }

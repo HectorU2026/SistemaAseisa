@@ -117,5 +117,48 @@ namespace API.Controllers
 
             return await _facturaFlujo.Reactivar(idUsuario, idFactura, request.VersionFila);
         }
+
+        [HttpPost("{idFactura:int}/pagos")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> RegistrarPago(
+            [FromRoute] int idFactura,
+            [FromBody] FacturaPagoRequest request)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.RegistrarPago(
+                idUsuario,
+                idFactura,
+                request.Monto,
+                request.MetodoPago);
+        }
+
+        [HttpPost("{idFactura:int}/notas-credito")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> RegistrarNotaCredito(
+            [FromRoute] int idFactura,
+            [FromBody] FacturaNotaCreditoRequest request)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.RegistrarNotaCredito(
+                idUsuario,
+                idFactura,
+                request.Motivo,
+                request.Monto,
+                request.DescripcionAdicional);
+        }
     }
 }

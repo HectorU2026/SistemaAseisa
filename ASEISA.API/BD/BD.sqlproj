@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -148,6 +148,8 @@
     <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
     <Build Include="dbo\Stored Procedures\InactivarFactura.sql" />
     <Build Include="dbo\Stored Procedures\ReactivarFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarPagoFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarNotaCredito.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
@@ -168,6 +170,21 @@
     <Build Include="dbo\Stored Procedures\ObtenerCuentasBancarias.sql" />
     <Build Include="dbo\Stored Procedures\FacturarOrdenCompra.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarActivoFijo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuarioPorId.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerTerminosPago.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMetodosPago.sql" />
+    <Build Include="dbo\Stored Procedures\EditarTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\EditarMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CalcularDepreciacionActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerHistorialDepreciacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

@@ -86,6 +86,73 @@ namespace Flujo
             return await EjecutarCambioEstado(idUsuario, idFactura, versionFila, _facturaDA.Reactivar);
         }
 
+        public async Task<ActionResult> RegistrarPago(
+            int idUsuario,
+            int idFactura,
+            decimal? monto,
+            string? metodoPago)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var metodo = metodoPago?.Trim();
+
+            if (!monto.HasValue
+                || monto.Value <= 0
+                || string.IsNullOrWhiteSpace(metodo)
+                || metodo.Length > 50)
+            {
+                return new BadRequestObjectResult("Por favor, rellene los campos obligatorios");
+            }
+
+            var resultado = await _facturaDA.RegistrarPago(
+                idEmpresaUsuario.Value,
+                idFactura,
+                monto.Value,
+                metodo);
+
+            return MapearPagoFactura(resultado);
+        }
+
+        public async Task<ActionResult> RegistrarNotaCredito(
+            int idUsuario,
+            int idFactura,
+            string? motivo,
+            decimal? monto,
+            string? descripcionAdicional)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var motivoNormalizado = motivo?.Trim();
+            var descripcion = string.IsNullOrWhiteSpace(descripcionAdicional)
+                ? null
+                : descripcionAdicional.Trim();
+
+            if (string.IsNullOrWhiteSpace(motivoNormalizado)
+                || motivoNormalizado.Length > 500
+                || !monto.HasValue
+                || monto.Value <= 0
+                || (descripcion != null && descripcion.Length > 500))
+            {
+                return new BadRequestObjectResult("Por favor, rellene los campos obligatorios");
+            }
+
+            var resultado = await _facturaDA.RegistrarNotaCredito(
+                idEmpresaUsuario.Value,
+                idUsuario,
+                idFactura,
+                motivoNormalizado,
+                monto.Value,
+                descripcion);
+
+            return MapearNotaCredito(resultado);
+        }
+
         private async Task<ActionResult> EjecutarCambioEstado(
             int idUsuario,
             int idFactura,
@@ -119,6 +186,45 @@ namespace Flujo
                 }),
                 0 => new NotFoundObjectResult(resultado.Mensaje),
                 2 => new ConflictObjectResult(resultado.Mensaje),
+                _ => new BadRequestObjectResult(resultado.Mensaje)
+            };
+        }
+
+        private static ActionResult MapearPagoFactura(FacturaPagoResultado resultado)
+        {
+            return resultado.Codigo switch
+            {
+                1 => new OkObjectResult(new
+                {
+                    resultado.Mensaje,
+                    resultado.IdFactura,
+                    resultado.NumeroFactura,
+                    resultado.Estado,
+                    resultado.SaldoPendiente,
+                    resultado.IdPagoCliente,
+                    resultado.VersionFila
+                }),
+                0 => new NotFoundObjectResult(resultado.Mensaje),
+                4 or 5 or 6 or 7 or 8 or 9 or 10 or 11 => new BadRequestObjectResult(resultado.Mensaje),
+                _ => new BadRequestObjectResult(resultado.Mensaje)
+            };
+        }
+
+        private static ActionResult MapearNotaCredito(FacturaNotaCreditoResultado resultado)
+        {
+            return resultado.Codigo switch
+            {
+                1 => new OkObjectResult(new
+                {
+                    resultado.Mensaje,
+                    resultado.IdNotaCredito,
+                    resultado.NumeroNotaCredito,
+                    resultado.IdFactura,
+                    resultado.NumeroFactura,
+                    resultado.Monto
+                }),
+                0 => new NotFoundObjectResult(resultado.Mensaje),
+                5 or 7 or 9 or 10 or 11 or 12 or 13 => new BadRequestObjectResult(resultado.Mensaje),
                 _ => new BadRequestObjectResult(resultado.Mensaje)
             };
         }

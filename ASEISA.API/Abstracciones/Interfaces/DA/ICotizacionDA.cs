@@ -3,6 +3,7 @@ using Abstracciones.Modelos.Servicios;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static Abstracciones.Modelos.CotizacionResponseDetallada;
 using static Abstracciones.Modelos.Facturacion;
 
 namespace Abstracciones.Interfaces.DA
@@ -17,7 +18,7 @@ namespace Abstracciones.Interfaces.DA
         Task<FacturacionResponse?> FacturarOrdenDeVenta(FacturarCotizacion factura);
         Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas(int idEmpresa);
         Task<IEnumerable<FaltanteInventarioResponse>> ValidarInventarioCotizacion(int idCotizacion);
-        public Task<IEnumerable<CotizacionResponse>> ObtenerCotizaciones(int idEmpresa);
+        Task<CotizacionCatalogoRespuesta> ObtenerCotizaciones(CotizacionFiltro filtro);
         public Task<int> EditarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
         public Task<int> CancelarCotizacion(int idEmpresa, int idUsuario, int idCotizacion);
         Task<int> RetrocederCotizacionAEnviada(int idCotizacion);
