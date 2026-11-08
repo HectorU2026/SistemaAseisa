@@ -77,5 +77,54 @@ namespace DA
         #endregion
 
 
+
+        public async Task<int> RegistrarPagoCliente(PagoClienteRequest pago)
+        {
+            var sql = @"RegistrarPagoCliente";
+
+            var resultado = await _sqlConnection.QueryAsync<int>(sql,
+                new
+                {
+                    id_empresa = pago.IdEmpresa,
+                    id_usuario = pago.IdUsuario,
+                    id_cuenta_cobrar = pago.IdCuentaCobrar,
+                    id_cuenta_bancaria = pago.IdCuentaBancaria,
+                    fecha_pago = pago.FechaPago,
+                    monto = pago.Monto,
+                    metodo_pago = pago.MetodoPago,
+                    referencia = pago.Referencia,
+                    id_estado = pago.IdEstado
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            return resultado.FirstOrDefault();
+        }
+
+
+
+        public async Task<MovimientoBancarioRespuesta> ObtenerMovimientosBancarios(MovimientoBancarioFiltro filtro)
+        {
+            var sql = @"ObtenerMovimientosBancarios";
+
+            using var resultado = await _sqlConnection.QueryMultipleAsync(sql,
+                new
+                {
+                    id_empresa = filtro.IdEmpresa,
+                    id_cuenta_bancaria = filtro.IdCuentaBancaria,
+                    pagina = filtro.Pagina,
+                    tamano_pagina = filtro.TamanoPagina
+                }, commandType: System.Data.CommandType.StoredProcedure);
+
+            var total = await resultado.ReadFirstOrDefaultAsync<int>();
+            var items = (await resultado.ReadAsync<MovimientoBancarioItem>()).ToList();
+
+            return new MovimientoBancarioRespuesta
+            {
+                Pagina = filtro.Pagina ?? 1,
+                TamanoPagina = filtro.TamanoPagina ?? 10,
+                Total = total,
+                Items = items
+            };
+        }
+
     }
 }

@@ -12,5 +12,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> Restablecer(int idUsuario, int idFactura, byte[]? versionFila);
         Task<ActionResult> Inactivar(int idUsuario, int idFactura, byte[]? versionFila, string? motivoAnulacion);
         Task<ActionResult> Reactivar(int idUsuario, int idFactura, byte[]? versionFila);
+        Task<ActionResult> RegistrarPago(int idUsuario, int idFactura, decimal? monto, string? metodoPago);
+        Task<ActionResult> RegistrarNotaCredito(int idUsuario, int idFactura, string? motivo, decimal? monto, string? descripcionAdicional);
     }
 }

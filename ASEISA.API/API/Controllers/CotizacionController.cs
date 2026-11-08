@@ -3,6 +3,7 @@ using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static Abstracciones.Modelos.CotizacionResponseDetallada;
 using static Abstracciones.Modelos.Facturacion;
 
 namespace API.Controllers
@@ -91,10 +92,15 @@ namespace API.Controllers
 
         // Obtener cotizaciones
         [HttpGet("ObtenerCotizacionesFlujo")]
-        public async Task<IActionResult> ObtenerCotizacionesFlujo(int idEmpresa)
+        public async Task<ActionResult<CotizacionCatalogoRespuesta>> ObtenerCotizaciones([FromQuery] CotizacionFiltro filtro)
         {
-            var result = await _cotizacionFlujo.ObtenerCotizacionesFlujo(idEmpresa);
-            return Ok(result);
+            if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
+            {
+                return BadRequest("El identificador de la empresa es obligatorio.");
+            }
+
+            var resultado = await _cotizacionFlujo.ObtenerCotizacionesFlujo(filtro);
+            return Ok(resultado);
         }
 
 
