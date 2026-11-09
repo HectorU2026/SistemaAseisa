@@ -16,11 +16,11 @@
                 <span>Gestión comercial / Ventas</span>
             </div>
             <h1>Ventas</h1>
-            <p>Administre sus cotizaciones y órdenes de venta.</p>
+            <p>Administre sus cotizaciones y órdenes de venta activas.</p>
         </div>
         <div class="d-flex gap-2">
             <a href="/Ventas/ventas_canceladas" class="btn-venta-outline shadow-sm">
-                <i class="bi bi-x-circle"></i> Ventas Canceladas
+                <i class="bi bi-x-circle"></i> Canceladas
             </a>
             <a href="/Ventas/Crear" class="btn-venta-primary shadow-sm">
                 <i class="bi bi-plus-lg"></i> Nueva Cotización
@@ -44,25 +44,28 @@
     }
 
     <!-- FILTROS -->
-    <div class="ventas-filtros">
+        <!-- FILTROS -->
+    <form method="get" class="ventas-filtros">
         <div class="ventas-search">
             <i class="bi bi-search"></i>
-            <input type="text" id="filtroBusqueda" placeholder="Buscar por número o cliente..." />
+            <!-- Mantenemos el valor si ya se buscó algo -->
+            <input type="text" name="busqueda" value="@Request.Query["busqueda"]" placeholder="Buscar por número o cliente..." />
         </div>
-        <select id="filtroEstado" class="form-select">
-            <option value="">Todos los estados</option>
-            <option value="Cotización">Cotización</option>
-            <option value="Cotización Enviada">Cotización Enviada</option>
-            <option value="Orden de Venta">Orden de Venta</option>
-            <option value="Cancelada">Cancelada</option>
+        
+        <select name="idEstado" class="form-select">
+            <option value="">Todos los estados activos</option>
+            <option value="1" selected="@(Request.Query["idEstado"] == "1")">Cotización</option>
+            <option value="2" selected="@(Request.Query["idEstado"] == "2")">Cotización Enviada</option>
+            <option value="3" selected="@(Request.Query["idEstado"] == "3")">Orden de Venta</option>
         </select>
-        <button type="button" class="btn-venta-primary" onclick="filtrarTabla()">
+
+        <!-- Botón que envía el formulario al servidor -->
+        <button type="submit" class="btn-venta-primary">
             <i class="bi bi-funnel"></i> Filtrar
         </button>
-        <button type="button" class="btn-venta-outline" onclick="limpiarFiltros()">
-            Limpiar
-        </button>
-    </div>
+        
+        <a href="/Ventas/Ventas" class="btn-venta-outline">Limpiar</a>
+    </form>
 
     <!-- TABLA -->
     <div class="ventas-panel">
@@ -85,7 +88,6 @@
                             string badgeClass = "bg-cotizacion";
                             if (item.Estado == "Cotización Enviada") badgeClass = "bg-enviada";
                             else if (item.Estado == "Orden de Venta") badgeClass = "bg-orden";
-                            else if (item.Estado == "Cancelada") badgeClass = "bg-cancelada";
 
                             <!-- FILA CLICKEABLE -->
                             <tr class="fila-principal"
@@ -228,8 +230,8 @@
                         <tr id="filaVacia">
                             <td colspan="5" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-3" style="color: #b5bdc8;"></i>
-                                <strong class="d-block mb-1">No se encontraron cotizaciones</strong>
-                                <span class="small">No hay registros que coincidan con los filtros.</span>
+                                <strong class="d-block mb-1">No hay cotizaciones activas</strong>
+                                <span class="small">No existen registros pendientes por gestionar.</span>
                             </td>
                         </tr>
                     }
@@ -240,51 +242,6 @@
 </div>
 
 <script>
-    // --- Lógica de Filtrado ---
-    function filtrarTabla() {
-        const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
-        const estado = document.getElementById('filtroEstado').value;
-        const filas = document.querySelectorAll('#tbodyVentas .fila-principal');
-        let visibles = 0;
-
-        filas.forEach(fila => {
-            // Obtenemos los datos guardados en los data-attributes de la fila principal
-            const numero = fila.getAttribute('data-numero');
-            const cliente = fila.getAttribute('data-cliente');
-            const estadoFila = fila.getAttribute('data-estado');
-
-            // Validamos las condiciones
-            const coincideBusqueda = numero.includes(busqueda) || cliente.includes(busqueda);
-            const coincideEstado = estado === "" || estadoFila === estado;
-
-            // Obtenemos el panel colapsable asociado a esta fila para ocultarlo también
-            const targetId = fila.getAttribute('data-bs-target');
-            const panel = document.querySelector(targetId);
-
-            if (coincideBusqueda && coincideEstado) {
-                fila.style.display = '';
-                if (panel) panel.style.display = '';
-                visibles++;
-            } else {
-                fila.style.display = 'none';
-                if (panel) panel.style.display = 'none';
-            }
-        });
-
-        // Si no hay resultados, mostramos el mensaje de vacío
-        const filaVacia = document.getElementById('filaVacia');
-        if (filaVacia) {
-            filaVacia.style.display = visibles === 0 ? '' : 'none';
-        }
-    }
-
-    // --- Lógica de Limpiar Filtros ---
-    function limpiarFiltros() {
-        document.getElementById('filtroBusqueda').value = '';
-        document.getElementById('filtroEstado').value = '';
-        filtrarTabla();
-    }
-
     // --- Lógica del Toggle de Término de Pago (Facturación) ---
     function toggleTermino(selectCondicion, id) {
         var cond = selectCondicion.value;
@@ -296,8 +253,4 @@
             termSelect.disabled = false;
         }
     }
-
-    // --- Escuchar el input de búsqueda para filtrar en tiempo real ---
-    document.getElementById('filtroBusqueda').addEventListener('input', filtrarTabla);
-    document.getElementById('filtroEstado').addEventListener('change', filtrarTabla);
 </script>

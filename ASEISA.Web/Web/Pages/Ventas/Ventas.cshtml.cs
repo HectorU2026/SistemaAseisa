@@ -8,6 +8,17 @@ using static Abstracciones.Modelos.Facturacion;
 
 namespace Web.Pages.Ventas
 {
+
+    // Leer las cotizaciones
+
+    public class RespuestaPaginadaCotizacion
+    {
+        public int Pagina { get; set; }
+        public int TamanoPagina { get; set; }
+        public int Total { get; set; }
+        public List<CotizacionResponse> items { get; set; } = new();
+    }
+
     public class VentasModel : PageModel
     {
         private readonly IConfiguracion _configuracion;
@@ -19,7 +30,7 @@ namespace Web.Pages.Ventas
             _configuracion = configuracion;
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? busqueda, int? idEstado)
         {
             var idEmpresaClaim = User.FindFirst("Empresa")?.Value;
 
@@ -29,21 +40,31 @@ namespace Web.Pages.Ventas
                 return;
             }
 
-            // Cargar Cotizaciones
+            var cliente = ObtenerClienteConToken();
+
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCotizacionesFlujo");
+
+            // Construimos la URL con los parámetros de filtro
             string url = $"{endpointBase}?idEmpresa={idEmpresaClaim}";
 
-            var cliente = ObtenerClienteConToken();
+            if (!string.IsNullOrWhiteSpace(busqueda))
+                url += $"&busqueda={Uri.EscapeDataString(busqueda)}";
+
+            if (idEstado.HasValue)
+                url += $"&idEstado={idEstado}";
+
             var respuesta = await cliente.GetAsync(url);
 
             if (respuesta.IsSuccessStatusCode)
             {
                 var contenido = await respuesta.Content.ReadAsStringAsync();
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                Cotizaciones = JsonSerializer.Deserialize<List<CotizacionResponse>>(contenido, opciones) ?? new();
+
+                var resultado = JsonSerializer.Deserialize<RespuestaPaginadaCotizacion>(contenido, opciones);
+                Cotizaciones = resultado?.items ?? new();
             }
 
-            // Cargar Términos de Pago
+            // Cargar términos de pago
             string endpointTerminos = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerTerminosPago");
             var respTerminos = await cliente.GetAsync(endpointTerminos);
 

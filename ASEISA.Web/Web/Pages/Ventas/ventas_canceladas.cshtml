@@ -24,18 +24,19 @@
     </div>
 
     <!-- FILTROS -->
-    <div class="ventas-filtros">
+    <form method="get" class="ventas-filtros">
         <div class="ventas-search">
             <i class="bi bi-search"></i>
-            <input type="text" id="filtroBusqueda" placeholder="Buscar por cliente o número de cotización..." />
+            <input type="text" name="busqueda" value="@Request.Query["busqueda"]" placeholder="Buscar por cliente o número..." />
         </div>
         <div class="col-md-3">
-            <input type="date" id="filtroFecha" class="form-control input-panel" style="background: white;" title="Fecha de cancelación" />
+            <input type="date" name="fecha" value="@Request.Query["fecha"]" class="form-control input-panel" style="background: white;" title="Fecha de cancelación" />
         </div>
-        <button type="button" class="btn-venta-outline" onclick="limpiarFiltros()">
-            <i class="bi bi-eraser"></i> Limpiar
+        <button type="submit" class="btn-venta-primary">
+            <i class="bi bi-funnel"></i> Filtrar
         </button>
-    </div>
+        <a href="/Ventas/ventas_canceladas" class="btn-venta-outline">Limpiar</a>
+    </form>
 
     <!-- TABLA -->
     <div class="ventas-panel">
@@ -49,7 +50,6 @@
                         <th class="text-end">Total</th>
                         <th>Fecha Cancelación</th>
                         <th class="text-center">Estado</th>
-                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tbodyCanceladas">
@@ -59,11 +59,12 @@
                         {
                             string badgeClass = item.NombreEstado == "Cancelada" ? "bg-cancelada" : "bg-enviada";
 
+                            <!-- FILA PRINCIPAL -->
                             <tr class="fila-principal"
-                                data-cliente="@item.NombreRazonSocial.ToLower()"
-                                data-numero="@item.NumeroCotizacion.ToLower()"
-                                data-fecha="@item.FechaEmision.ToString("yyyy-MM-dd")">
-                                
+                                data-bs-toggle="collapse"
+                                data-bs-target="#panel-@item.IdCotizacion"
+                                aria-expanded="false">
+
                                 <td class="fw-bold text-dark">@item.NumeroCotizacion</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
@@ -79,10 +80,69 @@
                                 <td class="text-center">
                                     <span class="badge-venta @badgeClass">@item.NombreEstado</span>
                                 </td>
-                                <td class="text-end">
-                                    <button class="btn-venta-outline px-2 py-1" data-bs-toggle="modal" data-bs-target="#modalDetalle-@item.IdCotizacion" title="Ver detalle">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                            </tr>
+
+                            <!-- PANEL DESPLEGABLE -->
+                            <tr class="collapse fila-panel" id="panel-@item.IdCotizacion">
+                                <td colspan="6">
+                                    <div class="panel-contenido">
+
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-6">
+                                                <p class="panel-label mb-1">Cliente</p>
+                                                <p class="fw-bold mb-0">@item.NombreRazonSocial</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <p class="panel-label mb-1">Vencimiento</p>
+                                                <p class="fw-bold mb-0">@(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <p class="panel-label mb-1">Fecha Cancelación</p>
+                                                <p class="fw-bold mb-0 text-danger">@item.FechaEmision.ToString("dd/MM/yyyy")</p>
+                                            </div>
+                                        </div>
+
+                                        <h6 class="panel-titulo border-bottom pb-2 mb-3">
+                                            <i class="bi bi-box-seam"></i> Productos
+                                        </h6>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-sm align-middle mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="text-muted small fw-semibold">Producto</th>
+                                                        <th class="text-muted small fw-semibold text-end">Cantidad</th>
+                                                        <th class="text-muted small fw-semibold text-end">Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (item.Detalles != null && item.Detalles.Any())
+                                                    {
+                                                        foreach (var detalle in item.Detalles)
+                                                        {
+                                                            <tr>
+                                                                <td class="fw-semibold text-dark">@detalle.NombreProducto</td>
+                                                                <td class="text-end text-muted">@detalle.Cantidad</td>
+                                                                <td class="text-end fw-bold">@detalle.Subtotal.ToString("C")</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr>
+                                                            <td colspan="3" class="text-center text-muted py-3">No hay productos registrados.</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="mt-4 text-end">
+                                            <p class="panel-label mb-1">Monto Total</p>
+                                            <h4 class="fw-bold mb-0">@item.Total.ToString("C")</h4>
+                                        </div>
+
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -90,7 +150,7 @@
                     else
                     {
                         <tr id="filaVacia">
-                            <td colspan="7" class="text-center text-muted py-5">
+                            <td colspan="6" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-3" style="color: #b5bdc8;"></i>
                                 <strong class="d-block mb-1">No hay cotizaciones canceladas</strong>
                                 <span class="small">No existen registros que coincidan con los filtros.</span>
@@ -101,133 +161,4 @@
             </table>
         </div>
     </div>
-
-    <!-- MODALES -->
-    @if (Model.Cotizaciones != null)
-    {
-        foreach (var item in Model.Cotizaciones)
-        {
-            <div class="modal fade" id="modalDetalle-@item.IdCotizacion" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content border-0 shadow" style="border-radius: 16px; overflow: hidden;">
-                        
-                        <div class="modal-header bg-light border-0 py-3">
-                            <h6 class="modal-title fw-bold text-dark">
-                                <i class="bi bi-receipt me-2 text-secondary"></i> Detalle @item.NumeroCotizacion
-                            </h6>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        
-                        <div class="modal-body p-4">
-                            <!-- Info General -->
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <p class="mb-1 text-muted small">Cliente</p>
-                                    <p class="fw-bold mb-0">@item.NombreRazonSocial</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <p class="mb-1 text-muted small">Vencimiento</p>
-                                    <p class="fw-bold mb-0">@(item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "-")</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <p class="mb-1 text-muted small">Estado</p>
-                                    <span class="badge-venta @(item.NombreEstado == "Cancelada" ? "bg-cancelada" : "bg-enviada")">
-                                        @item.NombreEstado
-                                    </span>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1 text-muted small">Fecha de Cancelación</p>
-                                    <p class="fw-bold mb-0 text-danger">@item.FechaEmision.ToString("dd/MM/yyyy")</p>
-                                </div>
-                                <div class="col-md-6 text-md-end">
-                                    <p class="mb-1 text-muted small">Monto Total</p>
-                                    <h4 class="fw-bold mb-0">@item.Total.ToString("C")</h4>
-                                </div>
-                            </div>
-                            
-                            <!-- Tabla de Productos -->
-                            <h6 class="fw-bold small text-secondary border-bottom pb-2 mb-3">Productos</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="text-muted small fw-semibold">Producto</th>
-                                            <th class="text-muted small fw-semibold text-end">Cantidad</th>
-                                            <th class="text-muted small fw-semibold text-end">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if (item.Detalles != null && item.Detalles.Any())
-                                        {
-                                            foreach (var detalle in item.Detalles)
-                                            {
-                                                <tr>
-                                                    <td class="fw-semibold text-dark">@detalle.NombreProducto</td>
-                                                    <td class="text-end text-muted">@detalle.Cantidad</td>
-                                                    <td class="text-end fw-bold">@detalle.Subtotal.ToString("C")</td>
-                                                </tr>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted py-3">No hay productos registrados.</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="modal-footer border-0 bg-light py-2">
-                            <button class="btn-venta-outline" data-bs-dismiss="modal">Cerrar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    }
 </div>
-
-<script>
-    // --- Lógica de Filtrado ---
-    function filtrarTabla() {
-        const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
-        const fecha = document.getElementById('filtroFecha').value;
-        const filas = document.querySelectorAll('#tbodyCanceladas .fila-principal');
-        let visibles = 0;
-
-        filas.forEach(fila => {
-            const cliente = fila.getAttribute('data-cliente');
-            const numero = fila.getAttribute('data-numero');
-            const fechaFila = fila.getAttribute('data-fecha');
-
-            const coincideBusqueda = cliente.includes(busqueda) || numero.includes(busqueda);
-            const coincideFecha = fecha === "" || fechaFila === fecha;
-
-            if (coincideBusqueda && coincideFecha) {
-                fila.style.display = '';
-                visibles++;
-            } else {
-                fila.style.display = 'none';
-            }
-        });
-
-        // Mostrar/Ocultar mensaje de vacío
-        const filaVacia = document.getElementById('filaVacia');
-        if (filaVacia) {
-            filaVacia.style.display = visibles === 0 ? '' : 'none';
-        }
-    }
-
-    // --- Lógica de Limpiar Filtros ---
-    function limpiarFiltros() {
-        document.getElementById('filtroBusqueda').value = '';
-        document.getElementById('filtroFecha').value = '';
-        filtrarTabla();
-    }
-
-    // --- Escuchar el input de búsqueda y fecha ---
-    document.getElementById('filtroBusqueda').addEventListener('input', filtrarTabla);
-    document.getElementById('filtroFecha').addEventListener('change', filtrarTabla);
-</script>

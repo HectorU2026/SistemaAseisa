@@ -84,15 +84,15 @@ namespace API.Controllers
         }
 
         [HttpGet("ObtenerCanceladasRechazadas/{idEmpresa}")]
-        public async Task<IActionResult> ObtenerCanceladasRechazadas(int idEmpresa)
+        public async Task<IActionResult> ObtenerCanceladasRechazadas(int idEmpresa, [FromQuery] string? busqueda = null, [FromQuery] DateTime? fecha = null)
         {
-            return await _cotizacionFlujo.ObtenerCanceladasRechazadas(idEmpresa);
+            return await _cotizacionFlujo.ObtenerCanceladasRechazadas(idEmpresa, busqueda, fecha);
         }
 
 
         // Obtener cotizaciones
         [HttpGet("ObtenerCotizacionesFlujo")]
-        public async Task<ActionResult<CotizacionCatalogoRespuesta>> ObtenerCotizaciones([FromQuery] CotizacionFiltro filtro)
+        public async Task<ActionResult> ObtenerCotizaciones([FromQuery] CotizacionFiltro filtro)
         {
             if (filtro == null || !filtro.IdEmpresa.HasValue || filtro.IdEmpresa <= 0)
             {
@@ -102,6 +102,7 @@ namespace API.Controllers
             var resultado = await _cotizacionFlujo.ObtenerCotizacionesFlujo(filtro);
             return Ok(resultado);
         }
+
 
 
         // Editar cotizacion

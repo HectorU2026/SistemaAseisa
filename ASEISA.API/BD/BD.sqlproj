@@ -185,6 +185,7 @@
     <Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagar.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

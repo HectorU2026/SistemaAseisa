@@ -85,8 +85,6 @@ namespace Flujo
 
         public async Task<ActionResult> Facturar(int idCotizacion, int idUsuario, FacturarRequest request)
         {
-            // FAC-001: Verificar que el usuario esté activo
-            // y obtener la empresa a la que pertenece.
             var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
 
             if (!idEmpresaUsuario.HasValue)
@@ -96,8 +94,6 @@ namespace Flujo
 
             if (cotizacion == null)
                 return new NotFoundObjectResult("Cotización no encontrada.");
-
-            // FAC-001: Impedir facturar cotizaciones de otra empresa.
             if (cotizacion.IdEmpresa != idEmpresaUsuario.Value)
                 return new ForbidResult();
 
@@ -136,9 +132,9 @@ namespace Flujo
             return new OkObjectResult(resultado);
         }
 
-        public async Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa)
+        public async Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa, string? busqueda, DateTime? fecha)
         {
-            var cotizaciones = await _cotizacionDA.ObtenerCanceladasRechazadas(idEmpresa);
+            var cotizaciones = await _cotizacionDA.ObtenerCanceladasRechazadas(idEmpresa, busqueda, fecha);
             return new OkObjectResult(cotizaciones);
         }
 
