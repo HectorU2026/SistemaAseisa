@@ -43,8 +43,7 @@ namespace API.Controllers
         [HttpPut("EnviarCotizacionPorCorreo")]
         public async Task<IActionResult> EnviarCotizacionPorCorreo(int idCotizacion, string correo)
         {
-            var result = await _cotizacionFlujo.EnviarCotizacionPorCorreo(idCotizacion, correo);
-            return Ok(result);
+            return await _cotizacionFlujo.EnviarCotizacionPorCorreo(idCotizacion, correo);
         }
 
         [HttpPut("RetrocederCotizacionEnviada")]

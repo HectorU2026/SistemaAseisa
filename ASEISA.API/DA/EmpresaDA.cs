@@ -4,6 +4,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace DA
@@ -26,5 +27,12 @@ namespace DA
             return resultado;
         }
 
+        public async Task<Empresa?> ObtenerEmpresaPorId(int idEmpresa)
+        {
+            return await _sqlConnection.QuerySingleOrDefaultAsync<Empresa>(
+                "ObtenerEmpresaPorId",
+                new { id_empresa = idEmpresa },
+                commandType: CommandType.StoredProcedure);
+        }
     }
 }

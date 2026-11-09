@@ -104,6 +104,8 @@ builder.Services.AddScoped<IEnviarCorreo, EnviarCorreo>();
 builder.Services.AddScoped<IConstructorCorreo, ConstructorCorreo>();
 builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
 builder.Services.AddScoped<IEnviarCotizacion, EnviarCotizacion>();
+builder.Services.AddScoped<IGeneradorPdfFactura, GeneradorPdfFactura>();
+builder.Services.AddScoped<IEnviarFactura, EnviarFactura>();
 builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
 builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
 builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();

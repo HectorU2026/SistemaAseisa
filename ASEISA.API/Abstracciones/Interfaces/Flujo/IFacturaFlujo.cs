@@ -14,5 +14,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> Reactivar(int idUsuario, int idFactura, byte[]? versionFila);
         Task<ActionResult> RegistrarPago(int idUsuario, int idFactura, decimal? monto, string? metodoPago);
         Task<ActionResult> RegistrarNotaCredito(int idUsuario, int idFactura, string? motivo, decimal? monto, string? descripcionAdicional);
+        Task<ActionResult> Enviar(int idUsuario, int idFactura);
     }
 }
