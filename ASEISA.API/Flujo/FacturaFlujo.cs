@@ -1,5 +1,6 @@
 using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
+using Abstracciones.Interfaces.Servicio;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,13 @@ namespace Flujo
     {
         private readonly IFacturaDA _facturaDA;
         private readonly IUsuarioDA _usuarioDA;
+        private readonly IEnviarFactura _enviarFactura;
 
-        public FacturaFlujo(IFacturaDA facturaDA, IUsuarioDA usuarioDA)
+        public FacturaFlujo(IFacturaDA facturaDA, IUsuarioDA usuarioDA, IEnviarFactura enviarFactura)
         {
             _facturaDA = facturaDA;
             _usuarioDA = usuarioDA;
+            _enviarFactura = enviarFactura;
         }
 
         public async Task<ActionResult> ObtenerFacturas(int idUsuario, FacturaFiltro? filtro)
@@ -151,6 +154,16 @@ namespace Flujo
                 descripcion);
 
             return MapearNotaCredito(resultado);
+        }
+
+        public async Task<ActionResult> Enviar(int idUsuario, int idFactura)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            return await _enviarFactura.Enviar(idUsuario, idEmpresaUsuario.Value, idFactura);
         }
 
         private async Task<ActionResult> EjecutarCambioEstado(

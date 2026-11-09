@@ -8,5 +8,6 @@ namespace Abstracciones.Interfaces.DA
     public interface IEmpresaDA
     {
         Task<IEnumerable<EmpresaResponseNombres>> ObtenerNombreEmpresa();
+        Task<Empresa?> ObtenerEmpresaPorId(int idEmpresa);
     }
 }
