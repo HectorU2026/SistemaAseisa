@@ -24,5 +24,22 @@ namespace DA
             var sql = @"ObtenerCuentasPorPagas";
             return await _sqlConnection.QueryAsync<CuentaPorPagar>(sql);
         }
+
+        public async Task<IEnumerable<CuentaPorPagar>> ObtenerCuentasPorPagar(int idEmpresa, string? busqueda, int? idEstado, DateTime? fechaVencimiento)
+        {
+            var sql = "ObtenerCuentasPorPagar";
+
+            var resultado = await _sqlConnection.QueryAsync<CuentaPorPagar>(
+                sql,
+                new
+                {
+                    id_empresa = idEmpresa,
+                    busqueda = string.IsNullOrWhiteSpace(busqueda) ? null : busqueda,
+                    id_estado = idEstado,
+                    fecha_vencimiento = fechaVencimiento
+                });
+
+            return resultado;
+        }
     }
 }
