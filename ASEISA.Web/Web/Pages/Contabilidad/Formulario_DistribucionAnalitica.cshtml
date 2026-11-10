@@ -1,0 +1,71 @@
+﻿@page "{id:int:min(1)?}"
+@model Web.Pages.Contabilidad.Formulario_DistribucionAnaliticaModel
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "Editar distribución analítica" : "Registrar distribución analítica";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb"><i class="bi bi-calculator"></i><span>Contabilidad / Distribución analítica</span></div>
+            <h1>@ViewData["Title"]</h1>
+            <p>Complete la información de la distribución.</p>
+        </div>
+    </div>
+    <form method="post" asp-route-id="@Model.Id">
+        <section class="contacto-form-section">
+            <div class="contacto-form-heading">
+                <i class="bi bi-diagram-3"></i>
+                <div><h2>Información general</h2><p>Los campos con * son obligatorios.</p></div>
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Datos.IdProveedor" class="form-label">Proveedor *</label>
+                    <select asp-for="Datos.IdProveedor" asp-items="Model.Proveedores" class="form-select">
+                        <option value="">Seleccione un proveedor</option>
+                    </select>
+                    <span asp-validation-for="Datos.IdProveedor" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Datos.IdProducto" class="form-label">Producto *</label>
+                    <select asp-for="Datos.IdProducto" asp-items="Model.Productos" class="form-select">
+                        <option value="">Seleccione un producto</option>
+                    </select>
+                    <span asp-validation-for="Datos.IdProducto" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Datos.Importe" class="form-label">Importe *</label>
+                    <input asp-for="Datos.Importe" class="form-control" inputmode="decimal" />
+                    <span asp-validation-for="Datos.Importe" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Datos.Referencia" class="form-label">Referencia</label>
+                    <input asp-for="Datos.Referencia" class="form-control" />
+                    <span asp-validation-for="Datos.Referencia" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Datos.Unidad" class="form-label">Unidad</label>
+                    <input asp-for="Datos.Unidad" class="form-control" />
+                    <span asp-validation-for="Datos.Unidad" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Datos.Descripcion" class="form-label">Descripción</label>
+                    <textarea asp-for="Datos.Descripcion" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Datos.Descripcion" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <div class="contacto-form-actions">
+            <a asp-page="./Listado_DistribucionAnalitica" class="btn btn-contacto-outline">Cancelar</a>
+            <button type="submit" class="btn btn-contacto-primary" disabled="@(!Model.PuedeGuardar)">
+                <i class="bi bi-check-lg"></i> Guardar
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
