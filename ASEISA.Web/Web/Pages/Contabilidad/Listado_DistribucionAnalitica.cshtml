@@ -1,0 +1,169 @@
+﻿@page
+@model Web.Pages.Contabilidad.Listado_DistribucionAnaliticaModel
+@{
+    ViewData["Title"] = "Distribuciones analíticas";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-calculator"></i>
+                <span>Contabilidad / Distribución analítica</span>
+            </div>
+            <h1>Distribuciones analíticas</h1>
+            <p>Consulte y administre las distribuciones de su empresa.</p>
+        </div>
+        <a asp-page="./Formulario_DistribucionAnalitica" class="btn btn-contacto-primary">
+            <i class="bi bi-plus-lg"></i> Nueva distribución
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] is string exito)
+    {
+        <div class="alert alert-success" role="alert">@exito</div>
+    }
+    @if ((Model.MensajeError ?? TempData["MensajeError"] as string) is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    <section class="contactos-panel">
+        <div class="contactos-panel-header">
+            <div>
+                <h2>Listado de distribuciones</h2>
+                <p>Busque por descripción, referencia, proveedor o producto.</p>
+            </div>
+            <span class="contactos-count">@Model.Distribuciones.Count registros</span>
+        </div>
+
+        <form method="get" class="contactos-filtros">
+            <div class="contactos-search">
+                <i class="bi bi-search"></i>
+                <input asp-for="Busqueda" placeholder="Buscar distribución..." aria-label="Buscar distribución" />
+            </div>
+            <select asp-for="Estado" class="form-select" aria-label="Filtrar por estado">
+                <option value="">Todos los estados</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select>
+            <button type="submit" class="btn btn-contacto-primary">
+                <i class="bi bi-funnel"></i> Filtrar
+            </button>
+            <a asp-page="./Listado_DistribucionAnalitica" class="btn btn-contacto-outline">Limpiar</a>
+        </form>
+
+        @if (Model.MensajeError is null)
+        {
+            <div class="table-responsive">
+                <table class="table contactos-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Distribución</th><th>Proveedor</th><th>Producto</th>
+                            <th class="text-end">Importe</th><th>Estado</th><th>Registro</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Distribuciones.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="contactos-empty text-center">
+                                    <i class="bi bi-inbox"></i>
+                                    <strong>No se encontraron distribuciones</strong>
+                                    <span>No hay registros que coincidan con los filtros.</span>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var d in Model.Distribuciones)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="contacto-info">
+                                        <div class="contacto-avatar"><i class="bi bi-diagram-3"></i></div>
+                                        <div>
+                                            <strong>@(d.Descripcion ?? $"Distribución #{d.IdDistribucion}")</strong>
+                                            <small>@(d.Referencia ?? $"#{d.IdDistribucion}")</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@d.Proveedor</td><td>@d.Producto</td>
+                                <td class="text-end">@d.Importe.ToString("N2")</td>
+                                <td>
+                                    <span class="contacto-estado @(d.Activo ? "activo" : "inactivo")">
+                                        <span class="estado-punto"></span>
+                                        @(d.Activo ? "Activo" : "Inactivo")
+                                    </span>
+                                </td>
+                                <td>@d.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">
+                                    @if (d.Activo)
+                                    {
+                                        <div class="d-inline-flex align-items-center gap-1">
+                                            <a asp-page="./Formulario_DistribucionAnalitica"
+                                               asp-route-id="@d.IdDistribucion" class="btn btn-contacto-action"
+                                               title="Editar distribución" aria-label="Editar distribución @d.IdDistribucion">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            @if (Model.PuedeInhabilitar)
+                                            {
+                                                <button type="button" class="btn btn-contacto-estado btn-contacto-desactivar"
+                                                        data-bs-toggle="modal" data-bs-target="#modalInhabilitar"
+                                                        data-id="@d.IdDistribucion" data-descripcion="@(d.Descripcion ?? $"#{d.IdDistribucion}")">
+                                                    <i class="bi bi-slash-circle"></i> Inhabilitar
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@if (Model.PuedeInhabilitar)
+{
+    <div class="modal fade" id="modalInhabilitar" tabindex="-1"
+         aria-labelledby="tituloInhabilitar" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content contacto-modal">
+                <div class="modal-body text-center">
+                    <div class="contacto-modal-icono desactivar"><i class="bi bi-slash-circle"></i></div>
+                    <h3 id="tituloInhabilitar">¿Inhabilitar distribución?</h3>
+                    <p class="contacto-modal-descripcion">
+                        La distribución <strong id="distribucionSeleccionada"></strong> quedará inactiva.
+                    </p>
+                    <p class="contacto-modal-ayuda">El registro se conservará para consulta.</p>
+                    <form method="post" asp-page-handler="Inhabilitar"
+                          asp-route-Busqueda="@Model.Busqueda" asp-route-Estado="@Model.Estado">
+                        <input type="hidden" name="idDistribucion" id="idDistribucionSeleccionada" />
+                        <div class="contacto-modal-acciones">
+                            <button type="button" class="btn btn-contacto-outline" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-contacto-estado btn-contacto-desactivar">Inhabilitar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('modalInhabilitar')?.addEventListener('show.bs.modal', event => {
+            const boton = event.relatedTarget;
+            document.getElementById('idDistribucionSeleccionada').value = boton?.dataset.id ?? '';
+            document.getElementById('distribucionSeleccionada').textContent = boton?.dataset.descripcion ?? '';
+        });
+    </script>
+}
