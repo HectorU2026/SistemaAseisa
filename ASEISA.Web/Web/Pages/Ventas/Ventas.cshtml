@@ -19,9 +19,6 @@
             <p>Administre sus cotizaciones y órdenes de venta activas.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="/Ventas/ventas_canceladas" class="btn-venta-outline shadow-sm">
-                <i class="bi bi-x-circle"></i> Canceladas
-            </a>
             <a href="/Ventas/Crear" class="btn-venta-primary shadow-sm">
                 <i class="bi bi-plus-lg"></i> Nueva Cotización
             </a>
@@ -59,12 +56,15 @@
             <option value="3" selected="@(Request.Query["idEstado"] == "3")">Orden de Venta</option>
         </select>
 
-        <!-- Botón que envía el formulario al servidor -->
         <button type="submit" class="btn-venta-primary">
             <i class="bi bi-funnel"></i> Filtrar
         </button>
         
         <a href="/Ventas/Ventas" class="btn-venta-outline">Limpiar</a>
+
+        <a href="/Ventas/ventas_canceladas" class="btn-venta-outline ms-auto text-danger" style="border-color: #dc3545;">
+            <i class="bi bi-x-circle"></i> Canceladas
+        </a>
     </form>
 
     <!-- TABLA -->

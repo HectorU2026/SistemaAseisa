@@ -184,12 +184,10 @@
                     @if (!Model.Contactos.Any())
                     {
                         <tr>
-                            <td colspan="7" class="contactos-empty">
-                                <i class="bi bi-inbox"></i>
+                            <td colspan="7" class="contactos-empty text-center">
+                                <i class="bi bi-inbox" aria-hidden="true"></i>
                                 <strong>No se encontraron contactos</strong>
-                                <span>
-                                    No hay registros que coincidan con los filtros.
-                                </span>
+                                <span>No hay registros que coincidan con los filtros.</span>
                             </td>
                         </tr>
                     }

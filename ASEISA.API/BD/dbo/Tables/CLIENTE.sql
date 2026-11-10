@@ -13,14 +13,19 @@
     [fecha_creacion]      DATETIME2 (7)   DEFAULT (sysdatetime()) NOT NULL,
     [fecha_modificacion]  DATETIME2 (7)   NULL,
     [id_contacto]         INT             NULL,
+    [id_usuario]          INT             NULL,
     CONSTRAINT [PK_CLIENTE] PRIMARY KEY CLUSTERED ([id_cliente] ASC),
     CONSTRAINT [FK_CLIENTE_CONTACTO] FOREIGN KEY ([id_contacto], [id_empresa]) REFERENCES [dbo].[CONTACTO] ([id_contacto], [id_empresa]),
     CONSTRAINT [FK_CLIENTE_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
-    CONSTRAINT [FK_CLIENTE_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado])
+    CONSTRAINT [FK_CLIENTE_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
+    CONSTRAINT [FK_CLIENTE_USUARIO] FOREIGN KEY ([id_usuario]) REFERENCES [dbo].[USUARIO] ([id_usuario])
 );
-
 
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [UX_CLIENTE_CONTACTO]
     ON [dbo].[CLIENTE]([id_contacto] ASC) WHERE ([id_contacto] IS NOT NULL);
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [UX_CLIENTE_ID_USUARIO]
+    ON [dbo].[CLIENTE] ([id_usuario] ASC) WHERE ([id_usuario] IS NOT NULL);
 

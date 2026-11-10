@@ -160,5 +160,20 @@ namespace API.Controllers
                 request.Monto,
                 request.DescripcionAdicional);
         }
+
+        [HttpPost("{idFactura:int}/enviar")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> Enviar([FromRoute] int idFactura)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.Enviar(idUsuario, idFactura);
+        }
     }
 }
