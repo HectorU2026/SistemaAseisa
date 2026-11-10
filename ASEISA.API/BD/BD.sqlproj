@@ -150,6 +150,8 @@
     <Build Include="dbo\Stored Procedures\ReactivarFactura.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoFactura.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarNotaCredito.sql" />
+    <Build Include="dbo\Stored Procedures\ContarEnviosFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEmpresaPorId.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
