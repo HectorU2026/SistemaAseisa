@@ -112,6 +112,8 @@
             public int? IdEmpresa { get; set; }
             public int? Pagina { get; set; }
             public int? TamanoPagina { get; set; }
+            public string? Busqueda { get; set; }
+            public int? IdEstado { get; set; }
         }
 
         public class CotizacionCatalogoRespuesta

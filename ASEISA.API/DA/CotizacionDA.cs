@@ -142,22 +142,26 @@ namespace DA
             return resultado;
         }
 
-        public async Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas(int idEmpresa)
+        public async Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas(int idEmpresa, string? busqueda, DateTime? fecha)
         {
             var sql = "ObtenerCotizacionesCanceladasRechazadas";
 
-            using var multi = await _sqlConnection.QueryMultipleAsync(sql, 
-            new { 
-                id_empresa = idEmpresa
-            });
+            using var multi = await _sqlConnection.QueryMultipleAsync(sql, new
+            {
+                id_empresa = idEmpresa,
+                busqueda = string.IsNullOrWhiteSpace(busqueda) ? null : busqueda,
+                fecha_cancelacion = fecha
+            }, commandType: CommandType.StoredProcedure);
 
             var cotizaciones = (await multi.ReadAsync<CotizacionResponseDetallada>()).ToList();
             var detalles = (await multi.ReadAsync<CotizacionResponseDetallada.DetalleCotizacion>()).ToList();
 
-            return cotizaciones.Select(c => {
-                c.Detalles = detalles.Where(d => d.IdCotizacion == c.IdCotizacion).ToList();
-                return c;
-            }).ToList();
+            foreach (var cot in cotizaciones)
+            {
+                cot.Detalles = detalles.Where(d => d.IdCotizacion == cot.IdCotizacion).ToList();
+            }
+
+            return cotizaciones;
         }
 
         public async Task<IEnumerable<FaltanteInventarioResponse>> ValidarInventarioCotizacion(int idCotizacion)
@@ -179,8 +183,10 @@ namespace DA
                 {
                     id_empresa = filtro.IdEmpresa,
                     pagina = filtro.Pagina,
-                    tamano_pagina = filtro.TamanoPagina
-                }, commandType: System.Data.CommandType.StoredProcedure);
+                    tamano_pagina = filtro.TamanoPagina,
+                    busqueda = filtro.Busqueda,
+                    id_estado_cotizacion = filtro.IdEstado
+                });
 
             var total = await resultado.ReadFirstOrDefaultAsync<int>();
             var items = (await resultado.ReadAsync<CotizacionResponse>()).ToList();
