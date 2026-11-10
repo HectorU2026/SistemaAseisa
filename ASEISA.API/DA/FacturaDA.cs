@@ -129,6 +129,18 @@ namespace DA
                 commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<int> ContarEnvios(int idEmpresa, int idFactura)
+        {
+            return await _sqlConnection.ExecuteScalarAsync<int>(
+                "ContarEnviosFactura",
+                new
+                {
+                    id_factura = idFactura,
+                    id_empresa = idEmpresa
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
         private async Task<FacturaCambioEstadoResultado> EjecutarCambioEstado(
             string procedimiento,
             int idEmpresa,
