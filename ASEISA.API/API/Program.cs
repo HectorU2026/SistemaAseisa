@@ -96,6 +96,8 @@ builder.Services.AddScoped<IProductoDA, ProductoDA>();
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();
 builder.Services.AddScoped<ICompraDA, CompraDA>();
 builder.Services.AddScoped<ICompraFlujo, CompraFlujo>();
+builder.Services.AddScoped<IDistribucionAnaliticaDA, DistribucionAnaliticaDA>();
+builder.Services.AddScoped<IDistribucionAnaliticaFlujo, DistribucionAnaliticaFlujo>();
 builder.Services.AddScoped<ICotizacionDA, CotizacionDA>();
 builder.Services.AddScoped<ICotizacionFlujo, CotizacionFlujo>();
 builder.Services.AddScoped<IFacturaDA, FacturaDA>();
@@ -116,11 +118,6 @@ builder.Services.AddScoped<ITerminoPagoFlujo, TerminoPagoFlujo>();
 builder.Services.AddScoped<ITerminoPagoDA, TerminoPagoDA>();
 builder.Services.AddScoped<IMetodoPagoFlujo, MetodoPagoFlujo>();
 builder.Services.AddScoped<IMetodoPagoDA, MetodoPagoDA>();
-builder.Services.AddScoped<IActivoFijoDA, ActivoFijoDA>();
-builder.Services.AddScoped<IActivoFijoFlujo, ActivoFijoFlujo>();
-builder.Services.AddScoped<ICuentaPorCobrarDA, CuentaPorCobrarDA>();
-builder.Services.AddScoped<ICuentaPorCobrarFlujo, CuentaPorCobrarFlujo>();
-
 
 var app = builder.Build();
 
