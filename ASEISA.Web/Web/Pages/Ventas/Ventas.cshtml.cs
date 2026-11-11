@@ -8,9 +8,6 @@ using static Abstracciones.Modelos.Facturacion;
 
 namespace Web.Pages.Ventas
 {
-
-    // Leer las cotizaciones
-
     public class RespuestaPaginadaCotizacion
     {
         public int Pagina { get; set; }
@@ -44,7 +41,6 @@ namespace Web.Pages.Ventas
 
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCotizacionesFlujo");
 
-            // Construimos la URL con los parámetros de filtro
             string url = $"{endpointBase}?idEmpresa={idEmpresaClaim}";
 
             if (!string.IsNullOrWhiteSpace(busqueda))
@@ -64,7 +60,6 @@ namespace Web.Pages.Ventas
                 Cotizaciones = resultado?.items ?? new();
             }
 
-            // Cargar términos de pago
             string endpointTerminos = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerTerminosPago");
             var respTerminos = await cliente.GetAsync(endpointTerminos);
 
@@ -75,7 +70,6 @@ namespace Web.Pages.Ventas
             }
         }
 
-        // 1. ACCIÓN: CANCELAR
         public async Task<IActionResult> OnPostCancelarAsync(int idCotizacion)
         {
             var idEmpresa = User.FindFirst("Empresa")?.Value;
@@ -95,7 +89,6 @@ namespace Web.Pages.Ventas
             return RedirectToPage();
         }
 
-        // 2. ACCIÓN: ACEPTAR (Convertir a Orden de Venta)
         public async Task<IActionResult> OnPostAceptarAsync(int idCotizacion)
         {
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "AvanzarCotizacionAOrdenDeVenta");
@@ -112,7 +105,6 @@ namespace Web.Pages.Ventas
             return RedirectToPage();
         }
 
-        // 3. ACCIÓN: RECHAZAR (Volver a Cotización)
         public async Task<IActionResult> OnPostRechazarAsync(int idCotizacion)
         {
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "RetrocederCotizacionEnviada");
@@ -129,7 +121,6 @@ namespace Web.Pages.Ventas
             return RedirectToPage();
         }
 
-        // 4. ACCIÓN: ENVIAR POR CORREO
         public async Task<IActionResult> OnPostEnviarAsync(int idCotizacion, string correoDestino)
         {
             var idEmpresa = User.FindFirst("Empresa")?.Value;
@@ -137,14 +128,12 @@ namespace Web.Pages.Ventas
 
             var cliente = ObtenerClienteConToken();
 
-            // Paso A: Enviar correo
             string endpointEnviar = _configuracion.ObtenerMetodo("ApiEndPoints", "EnviarCotizacionPorCorreo");
             string urlEnviar = $"{endpointEnviar}?idCotizacion={idCotizacion}&correo={correoDestino}";
             var respEnviar = await cliente.PutAsync(urlEnviar, null);
 
             if (respEnviar.IsSuccessStatusCode)
             {
-                // Paso B: Avanzar estado
                 string endpointAvanzar = _configuracion.ObtenerMetodo("ApiEndPoints", "AvanzarCotizacionEnviadaFlujo");
                 string urlAvanzar = $"{endpointAvanzar}?idEmpresa={idEmpresa}&idUsuario={idUsuario}&idCotizacion={idCotizacion}";
                 await cliente.PutAsync(urlAvanzar, null);
@@ -159,7 +148,6 @@ namespace Web.Pages.Ventas
             return RedirectToPage();
         }
 
-        // 5. ACCIÓN: FACTURAR
         public async Task<IActionResult> OnPostFacturarAsync(int idCotizacion, FacturarRequest request)
         {
             if (request.FechaFactura == null)
@@ -191,7 +179,6 @@ namespace Web.Pages.Ventas
             return RedirectToPage();
         }
 
-        // 6. ACCIÓN: RETROCEDER DE ORDEN A ENVIADA
         public async Task<IActionResult> OnPostRetrocederAsync(int idCotizacion)
         {
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "RetrocederAEnviada");
