@@ -7,7 +7,9 @@
     [monto_original]    DECIMAL (18, 2) NOT NULL,
     [saldo_pendiente]   DECIMAL (18, 2) NOT NULL,
     [id_estado]         INT             NOT NULL,
+    [id_empresa]        INT             NOT NULL,
     CONSTRAINT [PK_CUENTA_POR_PAGAR] PRIMARY KEY CLUSTERED ([id_cuenta_pagar] ASC),
+    CONSTRAINT [FK_CUENTA_POR_PAGAR_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
     CONSTRAINT [FK_CUENTA_POR_PAGAR_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
     CONSTRAINT [FK_CUENTA_POR_PAGAR_ORDEN] FOREIGN KEY ([id_orden_compra]) REFERENCES [dbo].[ORDEN_COMPRA] ([id_orden_compra]),
     CONSTRAINT [FK_CUENTA_POR_PAGAR_PROVEEDOR] FOREIGN KEY ([id_proveedor]) REFERENCES [dbo].[PROVEEDOR] ([id_proveedor])

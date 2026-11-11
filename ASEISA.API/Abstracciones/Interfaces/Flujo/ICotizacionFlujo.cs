@@ -18,7 +18,7 @@ namespace Abstracciones.Interfaces.Flujo
         Task<int> RetrocederCotizacionEnviada(int idCotizacion);
         Task<ActionResult> AvanzarCotizacionAOrdenDeVenta(int idCotizacion);
         Task<ActionResult> Facturar(int idCotizacion, int idUsuario, FacturarRequest request);
-        Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa);
+        Task<ActionResult> ObtenerCanceladasRechazadas(int idEmpresa, string? busqueda, DateTime? fecha);
         Task<CotizacionCatalogoRespuesta> ObtenerCotizacionesFlujo(CotizacionFiltro filtro);
         public Task<int> EditarCotizacionFlujo(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
         public Task<int> CancelarCotizacionFlujo(int idEmpresa, int idUsuario, int idCotizacion);
