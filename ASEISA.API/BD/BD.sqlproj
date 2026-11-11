@@ -192,6 +192,7 @@
     <Build Include="dbo\Stored Procedures\InhabilitarDistribucionAnalitica.sql" />
     <Build Include="dbo\Stored Procedures\EditarDistribucionAnalitica.sql" />
     <Build Include="dbo\Stored Procedures\AgregarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
