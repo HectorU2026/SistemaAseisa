@@ -1,5 +1,6 @@
 ﻿using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using Flujo;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,16 +18,10 @@ namespace API.Controllers
 
 
         [HttpGet("ObtenerCuentasPorPagar")]
-        public async Task<IActionResult> ObtenerCuentasPorPagar()
+        public async Task<ActionResult<IEnumerable<CuentaPorPagar>>> ObtenerCuentasPorPagar([FromQuery] int idEmpresa,string? busqueda = null,int? idEstado = null,DateTime? fechaVencimiento = null)
         {
-            var contexto = await _cuentasPorPagarFlujo.ObtenerCuentasPorPagar();
-
-            if (!contexto.Any())
-            {
-                return NoContent();
-            }
-
-            return Ok(contexto);
+            var resultado = await _cuentasPorPagarFlujo.ObtenerCuentasPorPagar(idEmpresa, busqueda, idEstado, fechaVencimiento);
+            return Ok(resultado);
         }
     }
 }

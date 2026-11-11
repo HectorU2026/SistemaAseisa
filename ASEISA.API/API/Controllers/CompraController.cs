@@ -114,19 +114,24 @@ namespace API.Controllers
         [HttpPost("FacturarOrdenCompra")]
         //[Authorize(Roles = "Administrador,Contador,Comprador,Auxiliar")]
         public async Task<IActionResult> FacturarOrdenCompra([FromBody] ComprasFacturarRequest compra)
-        {var contexto = await ObtenerContextoUsuario();
+        {
+            var contexto = await ObtenerContextoUsuario();
             if (contexto == null)
                 return Forbid();
+
             var (idEmpresa, idUsuario) = contexto.Value;
+
+            compra ??= new ComprasFacturarRequest();
             compra.IdEmpresa = idEmpresa;
             compra.IdUsuario = idUsuario;
+
             var resultado = await _compraFlujo.FacturarOrdenCompra(compra);
             return Ok(resultado);
         }
 
         #endregion
 
-            #region "Helpers"
+        #region "Helpers"
 
         private async Task<(int IdEmpresa, int IdUsuario)?> ObtenerContextoUsuario()
         {

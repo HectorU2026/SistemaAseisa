@@ -8,7 +8,6 @@
         public string Moneda { get; set; }
         public decimal SaldoActual { get; set; }
         public int IdCuentaContable { get; set; }
-        public int IdEstado { get; set; } = 1;
     }
 
     public class CuentaBancariaResponse

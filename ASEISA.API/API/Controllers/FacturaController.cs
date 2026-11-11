@@ -138,5 +138,72 @@ namespace API.Controllers
                 request.Monto,
                 request.MetodoPago);
         }
+
+        [HttpPost("{idFactura:int}/notas-credito")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> RegistrarNotaCredito(
+            [FromRoute] int idFactura,
+            [FromBody] FacturaNotaCreditoRequest request)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.RegistrarNotaCredito(
+                idUsuario,
+                idFactura,
+                request.Motivo,
+                request.Monto,
+                request.DescripcionAdicional);
+        }
+
+        [HttpGet("{idFactura:int}/xml")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> DescargarXml([FromRoute] int idFactura)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.DescargarXml(idUsuario, idFactura);
+        }
+
+        [HttpPost("{idFactura:int}/xml/enviar")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> EnviarXml([FromRoute] int idFactura)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.EnviarXml(idUsuario, idFactura);
+        }
+
+        [HttpPost("{idFactura:int}/enviar")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> Enviar([FromRoute] int idFactura)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.Enviar(idUsuario, idFactura);
+        }
     }
 }

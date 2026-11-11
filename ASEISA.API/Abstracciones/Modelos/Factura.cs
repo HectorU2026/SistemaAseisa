@@ -148,4 +148,29 @@ namespace Abstracciones.Modelos
         public int? IdPagoCliente { get; set; }
         public byte[]? VersionFila { get; set; }
     }
+
+    public class FacturaNotaCreditoRequest
+    {
+        [Required(ErrorMessage = "Por favor, rellene los campos obligatorios")]
+        [StringLength(500, ErrorMessage = "Por favor, rellene los campos obligatorios")]
+        public string Motivo { get; set; }
+
+        [Required(ErrorMessage = "Por favor, rellene los campos obligatorios")]
+        [Range(typeof(decimal), "0.01", "79228162514264337593543950335", ParseLimitsInInvariantCulture = true, ErrorMessage = "Por favor, rellene los campos obligatorios")]
+        public decimal? Monto { get; set; }
+
+        [StringLength(500)]
+        public string? DescripcionAdicional { get; set; }
+    }
+
+    public class FacturaNotaCreditoResultado
+    {
+        public int Codigo { get; set; }
+        public string Mensaje { get; set; }
+        public int? IdNotaCredito { get; set; }
+        public string? NumeroNotaCredito { get; set; }
+        public int? IdFactura { get; set; }
+        public string? NumeroFactura { get; set; }
+        public decimal? Monto { get; set; }
+    }
 }

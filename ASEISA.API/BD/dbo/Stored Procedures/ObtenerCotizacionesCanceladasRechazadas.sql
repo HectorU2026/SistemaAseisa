@@ -1,6 +1,7 @@
-﻿
-CREATE   PROCEDURE [dbo].[ObtenerCotizacionesCanceladasRechazadas]
-    @id_empresa INT
+﻿CREATE   PROCEDURE [dbo].[ObtenerCotizacionesCanceladasRechazadas]
+    @id_empresa INT,
+    @busqueda VARCHAR(150) = NULL,
+    @fecha_cancelacion DATE = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -23,15 +24,26 @@ BEGIN
         c.impuesto              AS Impuesto,
         c.descuento             AS Descuento,
         c.total                 AS Total,
-        c.id_estado_cotizacion  AS IdEstado, 
+        c.id_estado_cotizacion  AS IdEstado,
         ec.nombre_estado        AS NombreEstado,
         cli.nombre_razon_social AS NombreRazonSocial
     FROM COTIZACION c
     INNER JOIN ESTADO_COTIZACION ec ON ec.id_estado_cotizacion = c.id_estado_cotizacion
     INNER JOIN CLIENTE cli ON cli.id_cliente = c.id_cliente
     WHERE c.id_estado_cotizacion IN (@id_cancelada, @id_rechazada)
-      AND c.id_empresa = @id_empresa;
+      AND c.id_empresa = @id_empresa
+      AND (
+          @busqueda IS NULL 
+          OR c.numero_cotizacion LIKE '%' + @busqueda + '%'
+          OR cli.nombre_razon_social LIKE '%' + @busqueda + '%'
+      )
 
+      AND (
+          @fecha_cancelacion IS NULL 
+          OR CAST(c.fecha_emision AS DATE) = @fecha_cancelacion
+      );
+
+    
     SELECT
         d.id_cotizacion         AS IdCotizacion,
         d.id_detalle_cotizacion AS IdDetalleCotizacion,
@@ -44,5 +56,14 @@ BEGIN
     INNER JOIN COTIZACION c ON c.id_cotizacion = d.id_cotizacion
     INNER JOIN PRODUCTO p ON p.id_producto = d.id_producto
     WHERE c.id_estado_cotizacion IN (@id_cancelada, @id_rechazada)
-      AND c.id_empresa = @id_empresa;
+      AND c.id_empresa = @id_empresa
+      AND (
+          @busqueda IS NULL 
+          OR c.numero_cotizacion LIKE '%' + @busqueda + '%'
+          OR EXISTS (SELECT 1 FROM CLIENTE cli WHERE cli.id_cliente = c.id_cliente AND cli.nombre_razon_social LIKE '%' + @busqueda + '%')
+      )
+      AND (
+          @fecha_cancelacion IS NULL 
+          OR CAST(c.fecha_emision AS DATE) = @fecha_cancelacion
+      );
 END;

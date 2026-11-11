@@ -107,6 +107,40 @@ namespace DA
                 commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<FacturaNotaCreditoResultado> RegistrarNotaCredito(
+            int idEmpresa,
+            int idUsuario,
+            int idFactura,
+            string motivo,
+            decimal monto,
+            string? descripcionAdicional)
+        {
+            var parametros = new DynamicParameters();
+            parametros.Add("id_factura", idFactura);
+            parametros.Add("id_empresa", idEmpresa);
+            parametros.Add("id_usuario", idUsuario);
+            parametros.Add("motivo", motivo);
+            parametros.Add("monto", monto);
+            parametros.Add("descripcion_adicional", descripcionAdicional);
+
+            return await _sqlConnection.QuerySingleAsync<FacturaNotaCreditoResultado>(
+                "RegistrarNotaCredito",
+                parametros,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<int> ContarEnvios(int idEmpresa, int idFactura)
+        {
+            return await _sqlConnection.ExecuteScalarAsync<int>(
+                "ContarEnviosFactura",
+                new
+                {
+                    id_factura = idFactura,
+                    id_empresa = idEmpresa
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
         private async Task<FacturaCambioEstadoResultado> EjecutarCambioEstado(
             string procedimiento,
             int idEmpresa,

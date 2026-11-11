@@ -20,14 +20,14 @@ namespace DA
         {
             using var conexion = new SqlConnection(_connectionString);
 
-            return await conexion.QueryAsync<TerminoPagoResponse>(
+            var contexto = await conexion.QueryAsync<TerminoPagoResponse>(
                 "dbo.ObtenerTerminosPago",
                 new
                 {
                     id_empresa = idEmpresa,
                     id_usuario = idUsuario
-                },
-                commandType: CommandType.StoredProcedure);
+                });
+            return contexto;
         }
 
         public async Task<TerminoPagoCreadoResponse> Agregar(

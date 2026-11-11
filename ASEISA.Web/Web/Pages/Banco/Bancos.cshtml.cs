@@ -9,7 +9,9 @@ namespace Web.Pages.Banco
     public class BancosModel : PageModel
     {
         private readonly IConfiguracion _configuracion;
+
         public List<CuentaBancariaResponse> Cuentas { get; set; } = new();
+        public List<MovimientoBancarioItem> Movimientos { get; set; } = new();
 
         public BancosModel(IConfiguracion configuracion)
         {
@@ -18,20 +20,28 @@ namespace Web.Pages.Banco
 
         public async Task OnGetAsync()
         {
-            var idEmpresa = User.FindFirst("Empresa")?.Value;
-            if (string.IsNullOrEmpty(idEmpresa))
-                return;
-
-            string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCuentasBancarias");
-            string url = $"{endpoint}?idEmpresa={idEmpresa}";
             var cliente = ObtenerClienteConToken();
-            var respuesta = await cliente.GetAsync(url);
 
-            if (respuesta.IsSuccessStatusCode)
+            string endpointCuentas = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCuentasBancarias");
+            var respCuentas = await cliente.GetAsync(endpointCuentas);
+
+            if (respCuentas.IsSuccessStatusCode)
             {
-                var contenido = await respuesta.Content.ReadAsStringAsync();
+                var contenido = await respCuentas.Content.ReadAsStringAsync();
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 Cuentas = JsonSerializer.Deserialize<List<CuentaBancariaResponse>>(contenido, opciones) ?? new();
+            }
+
+            string endpointMov = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerMovimientos");
+            string urlMov = $"{endpointMov}?pagina=1&tamanoPagina=10";
+
+            var respMov = await cliente.GetAsync(urlMov);
+            if (respMov.IsSuccessStatusCode)
+            {
+                var contenidoMov = await respMov.Content.ReadAsStringAsync();
+                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var resultado = JsonSerializer.Deserialize<MovimientoBancarioRespuesta>(contenidoMov, opciones);
+                Movimientos = resultado?.Items?.ToList() ?? new();
             }
         }
 

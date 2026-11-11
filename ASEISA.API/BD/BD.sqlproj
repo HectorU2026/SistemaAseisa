@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -149,6 +149,9 @@
     <Build Include="dbo\Stored Procedures\InactivarFactura.sql" />
     <Build Include="dbo\Stored Procedures\ReactivarFactura.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarNotaCredito.sql" />
+    <Build Include="dbo\Stored Procedures\ContarEnviosFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEmpresaPorId.sql" />
     <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
@@ -184,6 +187,12 @@
     <Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagar.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerDistribucionesAnaliticas.sql" />
+    <Build Include="dbo\Stored Procedures\InhabilitarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\EditarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
