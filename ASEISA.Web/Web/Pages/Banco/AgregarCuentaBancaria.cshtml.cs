@@ -25,29 +25,24 @@ namespace Web.Pages.Banco
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var idEmpresa = User.FindFirst("Empresa")?.Value;
-            if (string.IsNullOrEmpty(idEmpresa))
+            if (User.FindFirst("Empresa") is null)
                 return RedirectToPage("/Seguridad/Login");
 
-            await CargarCatalogos(int.Parse(idEmpresa));
+            await CargarCatalogos();
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var idEmpresa = User.FindFirst("Empresa")?.Value;
-            if (string.IsNullOrEmpty(idEmpresa))
+            if (User.FindFirst("Empresa") is null)
                 return RedirectToPage("/Seguridad/Login");
 
             if (string.IsNullOrEmpty(Cuenta.NumeroCuenta) || Cuenta.IdTipoCuenta == 0 || Cuenta.IdCuentaContable == 0)
             {
                 MensajeError = "Por favor, complete los campos obligatorios.";
-                await CargarCatalogos(int.Parse(idEmpresa));
+                await CargarCatalogos();
                 return Page();
             }
-
-            Cuenta.IdEmpresa = int.Parse(idEmpresa);
-            Cuenta.IdEstado = 1;
 
             string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "RegistrarCuentaBancaria");
             var cliente = ObtenerClienteConToken();
@@ -62,12 +57,12 @@ namespace Web.Pages.Banco
             {
                 var error = await respuesta.Content.ReadAsStringAsync();
                 MensajeError = "Error al registrar la cuenta: " + error;
-                await CargarCatalogos(int.Parse(idEmpresa));
+                await CargarCatalogos();
                 return Page();
             }
         }
 
-        private async Task CargarCatalogos(int idEmpresa)
+        private async Task CargarCatalogos()
         {
             var cliente = ObtenerClienteConToken();
 
@@ -80,7 +75,7 @@ namespace Web.Pages.Banco
             }
 
             string endpointContables = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCuentasContables");
-            var respContables = await cliente.GetAsync($"{endpointContables}?idEmpresa={idEmpresa}");
+            var respContables = await cliente.GetAsync(endpointContables);
             if (respContables.IsSuccessStatusCode)
             {
                 var contenido = await respContables.Content.ReadAsStringAsync();
