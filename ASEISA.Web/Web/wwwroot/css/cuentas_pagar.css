@@ -1,0 +1,207 @@
+﻿.cxp-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+/* --- Encabezado --- */
+.cxp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.cxp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8a909e;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.cxp-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    margin: 0 0 6px;
+    color: #202535;
+}
+
+.cxp-header p {
+    margin: 0;
+    color: #8a909e;
+    font-size: 13px;
+}
+
+/* --- Botones --- */
+.btn-cxp-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #F2382F;
+    border: 1px solid #F2382F;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+    .btn-cxp-primary:hover {
+        background: #d92e27;
+        border-color: #d92e27;
+        color: white;
+    }
+
+.btn-cxp-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e2e5eb;
+    background: white;
+    color: #535c6c;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+    .btn-cxp-outline:hover {
+        background: #f8fafc;
+        color: #202535;
+    }
+
+/* --- Filtros --- */
+.cxp-filtros {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: white;
+    border: 1px solid #edf0f4;
+    border-radius: 15px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.cxp-search {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+    .cxp-search i {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+
+    .cxp-search input {
+        width: 100%;
+        padding: 10px 12px 10px 38px;
+        border: 1px solid #e2e5eb;
+        border-radius: 10px;
+        font-size: 13px;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+        .cxp-search input:focus, .cxp-filtros .form-select:focus, .cxp-filtros .form-control:focus {
+            border-color: #F2382F;
+            box-shadow: 0 0 0 3px rgba(242, 56, 47, .1);
+        }
+
+.cxp-filtros .form-select,
+.cxp-filtros .form-control {
+    width: auto;
+    min-width: 160px;
+    border-radius: 10px;
+    border: 1px solid #e2e5eb;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #535c6c;
+}
+
+/* --- Tabla --- */
+.cxp-panel {
+    background: white;
+    border: 1px solid #edf0f4;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.cxp-table {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+    .cxp-table thead th {
+        background: #fafbfc;
+        color: #89909d;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+        padding: 14px 20px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .cxp-table tbody td {
+        padding: 16px 20px;
+        color: #535c6c;
+        font-size: 13px;
+        border-bottom: 1px solid #f0f2f5;
+        vertical-align: middle;
+    }
+
+    .cxp-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+/* --- Badges de Estado --- */
+.badge-cxp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+    .badge-cxp.bg-pendiente {
+        color: #856404;
+        background: #fff3cd;
+    }
+
+    .badge-cxp.bg-pagada {
+        color: #155724;
+        background: #d4edda;
+    }
+
+    .badge-cxp.bg-vencida {
+        color: #721c24;
+        background: #f8d7da;
+    }
+
+    .badge-cxp.bg-abono {
+        color: #004085;
+        background: #cce5ff;
+    }
+
+/* --- Footer --- */
+.cxp-footer {
+    padding: 17px 24px;
+    color: #939aa6;
+    font-size: 12px;
+    border-top: 1px solid #edf0f4;
+}

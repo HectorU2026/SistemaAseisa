@@ -10,5 +10,5 @@ public interface ICompraDA
     Task<CompraPaginaResponse> Obtener(int idEmpresa, int idUsuario, CompraFiltro filtro);
     Task<CompraResponse?> Obtener(int idEmpresa, int idUsuario, int idCompra);
     Task<CompraCatalogosResponse> ObtenerCatalogos(int idEmpresa, int idUsuario);
-    Task<int> FacturarOrdenCompra(ComprasFacturarRequest request);
+    Task<ComprasFacturarResponse> FacturarOrdenCompra(ComprasFacturarRequest request);
 }

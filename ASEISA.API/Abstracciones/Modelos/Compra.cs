@@ -199,3 +199,15 @@ public class ComprasFacturarRequest
     public DateTime FechaFactura { get; set; }
     public int IdTerminoPago { get; set; }
 }
+
+public class ComprasFacturarResponse
+{
+    public int IdCuentaPagar { get; set; }
+    public int IdOrdenCompra { get; set; }
+    public int IdProveedor { get; set; }
+    public decimal MontoOriginal { get; set; }
+    public decimal SaldoPendiente { get; set; }
+    public DateTime FechaVencimiento { get; set; }
+    public int IdEstado { get; set; }
+    public string NombreEstado { get; set; } = string.Empty;
+}

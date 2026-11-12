@@ -1,58 +1,61 @@
 ﻿@page
 @model Web.Pages.Banco.BancosModel
 @{
+    ViewData["Title"] = "Bancos";
 }
 
-<div class="container mt-4 mb-5">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <a href="/" class="btn btn-light border shadow-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                <i class="bi bi-arrow-left text-secondary"></i>
-            </a>
-            <div>
-                <h1 class="h3 fw-bold mb-0 text-dark">Bancos</h1>
-                <p class="text-muted small mb-0">Gestione sus cuentas y movimientos bancarios.</p>
+<link rel="stylesheet" href="~/css/bancos.css" asp-append-version="true" />
+
+<div class="container mt-4 mb-5 bancos-page">
+
+    <!-- ENCABEZADO -->
+    <div class="bancos-header">
+        <div>
+            <div class="bancos-breadcrumb">
+                <i class="bi bi-bank"></i>
+                <span>Finanzas / Bancos</span>
             </div>
+            <h1>Bancos</h1>
+            <p>Gestione sus cuentas y movimientos bancarios.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="/Banco/AgregarCuentaBancaria" class="btn text-white fw-semibold" style="background-color: #F2382F;">
-                <i class="bi bi-plus-lg me-1"></i> Nueva cuenta
+            <a href="/Banco/AgregarCuentaBancaria" class="btn-banco-primary shadow-sm">
+                <i class="bi bi-plus-lg"></i> Nueva cuenta
             </a>
-            <a href="/Bancos/Movimientos" class="btn btn-outline-secondary fw-semibold">
-                <i class="bi bi-arrow-left-right me-1"></i> Movimientos
+            <a href="/Banco/Movimientos" class="btn-banco-outline">
+                <i class="bi bi-arrow-left-right"></i> Movimientos
             </a>
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+    <!-- MIS CUENTAS -->
+    <p class="banco-section-title">Mis cuentas</p>
+    <div class="row g-3 mb-5">
         @if (Model.Cuentas != null && Model.Cuentas.Any())
         {
             foreach (var cuenta in Model.Cuentas)
             {
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-secondary" style="width: 40px; height: 40px;">
-                                    <i class="bi bi-bank"></i>
-                                </div>
-                                <span class="badge bg-secondary bg-opacity-25 text-dark px-3 py-2 rounded-pill">
-                                    @cuenta.TipoCuenta
-                                </span>
+                    <div class="banco-card">
+                        <div>
+                            <div class="banco-card-top">
+                                <div class="banco-card-icon"><i class="bi bi-bank"></i></div>
+                                <span class="badge-soft is-neutro">@cuenta.TipoCuenta</span>
                             </div>
-                            
-                            <h5 class="fw-bold mb-1">@cuenta.NumeroCuenta</h5>
-                            <p class="text-muted small mb-3">@cuenta.NombreCuentaContable</p>
-                            
-                            <div class="d-flex justify-content-between align-items-end mt-4">
-                                <div>
-                                    <p class="text-muted small mb-0">Saldo actual</p>
-                                    <h4 class="fw-bold mb-0 text-dark">
-                                        @cuenta.SaldoActual.ToString() 
-                                        <span class="fs-6 text-muted fw-normal">@cuenta.Moneda</span>
-                                    </h4>
-                                </div>
+                            <h5 class="banco-card-numero">@cuenta.NumeroCuenta</h5>
+                            <p class="banco-card-nombre">@cuenta.NombreCuentaContable</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <p class="banco-card-saldo-label">Saldo actual</p>
+                                <h4 class="banco-card-saldo">
+                                    @cuenta.SaldoActual.ToString("N2")
+                                    <small>@cuenta.Moneda</small>
+                                </h4>
                             </div>
+                            <span class="badge-soft @(cuenta.IdEstado == 1 ? "is-activa" : "is-inactiva")">
+                                @(cuenta.IdEstado == 1 ? "Activa" : "Inactiva")
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -61,49 +64,77 @@
         else
         {
             <div class="col-12">
-                <div class="alert alert-light border text-center text-muted" role="alert">
-                    <i class="bi bi-info-circle me-2"></i> No hay cuentas bancarias registradas.
+                <div class="banco-empty">
+                    <i class="bi bi-inbox"></i>
+                    <strong>No hay cuentas bancarias registradas</strong>
+                    <span>Registre su primera cuenta para comenzar.</span>
+                    <div class="mt-3">
+                        <a href="/Banco/AgregarCuentaBancaria" class="btn-banco-primary">Registrar primera cuenta</a>
+                    </div>
                 </div>
             </div>
         }
     </div>
 
-    <!-- TABLA DE MOVIMIENTOS -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-            <h6 class="fw-bold text-dark mb-0">Últimos movimientos</h6>
+    <!-- MOVIMIENTOS -->
+    <div class="banco-panel">
+        <div class="banco-panel-header">
+            <div>
+                <h6>Últimos movimientos</h6>
+                <p>Actividad reciente de sus cuentas</p>
+            </div>
+            <a href="/Banco/Movimientos" class="btn-banco-outline">Ver todos</a>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+            <table class="table banco-table align-middle mb-0">
+                <thead>
                     <tr>
-                        <th class="text-muted small fw-semibold py-3 ps-4">Fecha</th>
-                        <th class="text-muted small fw-semibold py-3">Cuenta</th>
-                        <th class="text-muted small fw-semibold py-3">Tipo</th>
-                        <th class="text-muted small fw-semibold py-3 text-end">Monto</th>
-                        <th class="text-muted small fw-semibold py-3">Descripción</th>
+                        <th>Fecha</th>
+                        <th>Cuenta</th>
+                        <th>Tipo</th>
+                        <th>Referencia</th>
+                        <th class="text-end">Monto</th>
+                        <th>Descripción</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="ps-4 text-muted">12/08/2026</td>
-                        <td class="fw-semibold">Banco Nacional</td>
-                        <td><span class="badge bg-success bg-opacity-25 text-success px-2 py-1 rounded">Ingreso</span></td>
-                        <td class="text-end fw-bold text-success">₡485,000.00</td>
-                        <td class="text-muted">Pago factura FAC-002310</td>
-                    </tr>
-                    <tr>
-                        <td class="ps-4 text-muted">10/08/2026</td>
-                        <td class="fw-semibold">Banco Nacional</td>
-                        <td><span class="badge bg-danger bg-opacity-25 text-danger px-2 py-1 rounded">Egreso</span></td>
-                        <td class="text-end fw-bold text-danger">₡395,500.00</td>
-                        <td class="text-muted">Pago proveedor PROV-001</td>
-                    </tr>
+                    @if (Model.Movimientos != null && Model.Movimientos.Any())
+                    {
+                        foreach (var m in Model.Movimientos)
+                        {
+                            bool esIngreso = string.Equals(m.TipoMovimiento, "Ingreso", StringComparison.OrdinalIgnoreCase);
+                            string montoClase = esIngreso ? "monto-in" : "monto-out";
+                            string signo = esIngreso ? "+" : "-";
+
+                            <tr>
+                                <td class="text-muted">@m.FechaMovimiento.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="fw-semibold text-dark">@m.NumeroCuenta</td>
+                                <td>
+                                    <span class="badge-soft @(esIngreso ? "is-activa" : "is-inactiva")">
+                                        @m.TipoMovimiento
+                                    </span>
+                                </td>
+                                <td class="text-muted small">@(string.IsNullOrEmpty(m.Referencia) ? "-" : m.Referencia)</td>
+                                <td class="text-end @montoClase">@signo ₡@m.Monto.ToString("N2")</td>
+                                <td class="text-muted">@m.Descripcion</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-3" style="color: #c8ced8;"></i>
+                                <strong class="d-block mb-1 text-dark">No hay movimientos registrados</strong>
+                                <span class="small">Registre un pago para ver actividad aquí.</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
-        <div class="card-footer bg-white border-top-0 py-3 px-4 text-muted small">
-            Mostrando los últimos movimientos registrados.
+        <div class="banco-panel-footer">
+            <i class="bi bi-info-circle me-1"></i> Mostrando los últimos @Model.Movimientos.Count movimiento(s) registrado(s).
         </div>
     </div>
 </div>

@@ -20,7 +20,7 @@ namespace Abstracciones.Modelos
 
             [Required(ErrorMessage = "El término de pago es obligatorio")]
             [Range(1, int.MaxValue, ErrorMessage = "Seleccione un término de pago válido")]
-            public int IdTerminoPago { get; set; }
+            public int? IdTerminoPago { get; set; }
         }
 
         public class FacturacionResponse

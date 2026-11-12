@@ -140,12 +140,12 @@ public class CompraDA : ICompraDA
         };
     }
 
-    public async Task<int> FacturarOrdenCompra(ComprasFacturarRequest request)
+    public async Task<ComprasFacturarResponse> FacturarOrdenCompra(ComprasFacturarRequest request)
     {
         using var conexion = new SqlConnection(_connectionString);
-        var sql = "FacturarOrdenCompra";
+        var sql = "RegistrarFacturaCompraManual";
 
-        var resultado = await conexion.QueryFirstOrDefaultAsync<int>(
+        return await conexion.QuerySingleAsync<ComprasFacturarResponse>(
             sql,
             new
             {
@@ -156,8 +156,6 @@ public class CompraDA : ICompraDA
                 fecha_factura = request.FechaFactura,
                 id_termino_pago = request.IdTerminoPago
             });
-
-        return resultado;
     }
 
     #endregion

@@ -16,7 +16,7 @@ namespace Abstracciones.Interfaces.DA
         Task<int> RetrocederCotizacionEnviada(int idCotizacion);
         Task<int> AvanzarCotizacionAOrdenDeVenta(int idCotizacion);
         Task<FacturacionResponse?> FacturarOrdenDeVenta(FacturarCotizacion factura);
-        Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas(int idEmpresa);
+        Task<IEnumerable<CotizacionResponseDetallada>> ObtenerCanceladasRechazadas(int idEmpresa, string? busqueda, DateTime? fecha);
         Task<IEnumerable<FaltanteInventarioResponse>> ValidarInventarioCotizacion(int idCotizacion);
         Task<CotizacionCatalogoRespuesta> ObtenerCotizaciones(CotizacionFiltro filtro);
         public Task<int> EditarCotizacion(int idEmpresa, int idUsuario, CotizacionRequest cotizacion);
