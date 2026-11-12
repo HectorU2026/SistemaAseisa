@@ -109,6 +109,52 @@ public class Listado_DistribucionAnaliticaModel(DistribucionAnaliticaApiService 
             new { Busqueda, Estado });
     }
 
+    public async Task<IActionResult> OnPostHabilitarAsync(int idDistribucion, CancellationToken cancelacion)
+    {
+        if (!PuedeInhabilitar)
+            return Forbid();
+
+        var token = User.FindFirst("Token")?.Value;
+        if (string.IsNullOrWhiteSpace(token))
+            return RedirectToPage("/Seguridad/Login");
+
+        if (!ModelState.IsValid || idDistribucion <= 0)
+            TempData["MensajeError"] = "El identificador de la distribución no es válido.";
+        else
+        {
+            try
+            {
+                await servicio.HabilitarAsync(idDistribucion, token, cancelacion);
+                TempData["MensajeExito"] = "Distribución analítica habilitada con éxito";
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToPage("/Seguridad/Login");
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+            {
+                return Forbid();
+            }
+            catch (HttpRequestException ex)
+            {
+                TempData["MensajeError"] = ex.StatusCode switch
+                {
+                    HttpStatusCode.NotFound => "La distribución solicitada no existe.",
+                    HttpStatusCode.Conflict => "La distribución ya está activa.",
+                    _ => "No fue posible habilitar la distribución."
+                };
+            }
+            catch (Exception ex) when (ex is InvalidOperationException
+                                       || ex is OperationCanceledException && !cancelacion.IsCancellationRequested)
+            {
+                TempData["MensajeError"] = "No fue posible habilitar la distribución.";
+            }
+        }
+
+        return RedirectToPage("./Listado_DistribucionAnalitica",
+            new { Busqueda, Estado });
+    }
+
     private static bool Contiene(string? valor, string texto) =>
         valor?.Contains(texto, StringComparison.OrdinalIgnoreCase) == true;
 }

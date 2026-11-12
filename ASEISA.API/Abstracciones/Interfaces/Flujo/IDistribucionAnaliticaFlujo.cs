@@ -8,4 +8,5 @@ public interface IDistribucionAnaliticaFlujo
     Task<int> Agregar(int idEmpresa, int idUsuario, DistribucionAnaliticaRequest datos);
     Task<int> Editar(int idEmpresa, int idUsuario, int idDistribucion, DistribucionAnaliticaRequest datos);
     Task<int> Inhabilitar(int idEmpresa, int idUsuario, int idDistribucion);
+    Task<int> Habilitar(int idEmpresa, int idUsuario, int idDistribucion);
 }

@@ -43,4 +43,15 @@ public class DistribucionAnaliticaDA : IDistribucionAnaliticaDA
         return await conexion.QuerySingleAsync<int>("dbo.InhabilitarDistribucionAnalitica",
             new { idEmpresa, idUsuario, idDistribucion }, commandType: CommandType.StoredProcedure);
     }
+
+    public async Task<int> Habilitar(
+    int idEmpresa, int idUsuario, int idDistribucion)
+    {
+        using var conexion = new SqlConnection(_connectionString);
+
+        return await conexion.QuerySingleAsync<int>(
+            "dbo.HabilitarDistribucionAnalitica",
+            new { idEmpresa, idUsuario, idDistribucion },
+            commandType: CommandType.StoredProcedure);
+    }
 }

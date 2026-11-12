@@ -108,6 +108,8 @@ builder.Services.AddScoped<IGeneradorPdfCotizacion, GeneradorPdfCotizacion>();
 builder.Services.AddScoped<IEnviarCotizacion, EnviarCotizacion>();
 builder.Services.AddScoped<IGeneradorPdfFactura, GeneradorPdfFactura>();
 builder.Services.AddScoped<IEnviarFactura, EnviarFactura>();
+builder.Services.AddScoped<IGeneradorXmlFactura, GeneradorXmlFactura>();
+builder.Services.AddScoped<IEnviarXmlFactura, EnviarXmlFactura>();
 builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
 builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
 builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();
@@ -120,6 +122,8 @@ builder.Services.AddScoped<ITerminoPagoFlujo, TerminoPagoFlujo>();
 builder.Services.AddScoped<ITerminoPagoDA, TerminoPagoDA>();
 builder.Services.AddScoped<IMetodoPagoFlujo, MetodoPagoFlujo>();
 builder.Services.AddScoped<IMetodoPagoDA, MetodoPagoDA>();
+builder.Services.AddScoped<ICuentaContableDA, CuentaContableDA>();
+builder.Services.AddScoped<ICuentaContableFlujo, CuentaContableFlujo>();
 
 var app = builder.Build();
 
