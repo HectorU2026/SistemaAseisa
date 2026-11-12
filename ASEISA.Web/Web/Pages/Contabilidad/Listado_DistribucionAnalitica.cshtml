@@ -11,7 +11,7 @@
         <div>
             <div class="contactos-breadcrumb">
                 <i class="bi bi-calculator"></i>
-                <span>Contabilidad / Distribución analítica</span>
+                <a asp-page="./Index_Contabilidad">Contabilidad</a><span>/ Distribuciones analíticas</span>
             </div>
             <h1>Distribuciones analíticas</h1>
             <p>Consulte y administre las distribuciones de su empresa.</p>
@@ -117,6 +117,14 @@
                                             }
                                         </div>
                                     }
+                                    else if (Model.PuedeInhabilitar)
+                                    {
+                                        <button type="button" class="btn btn-contacto-estado btn-contacto-activar"
+                                                data-bs-toggle="modal" data-bs-target="#modalHabilitar"
+                                                data-id="@d.IdDistribucion" data-descripcion="@(d.Descripcion ?? $"#{d.IdDistribucion}")">
+                                            <i class="bi bi-check-circle" aria-hidden="true"></i> Habilitar
+                                        </button>
+                                    }
                                     else
                                     {
                                         <span class="text-muted">—</span>
@@ -156,6 +164,29 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalHabilitar" tabindex="-1"
+         aria-labelledby="tituloHabilitar" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content contacto-modal">
+                <div class="modal-body text-center">
+                    <div class="contacto-modal-icono activar"><i class="bi bi-check-circle"></i></div>
+                    <h3 id="tituloHabilitar">¿Habilitar distribución?</h3>
+                    <p class="contacto-modal-descripcion">
+                        La distribución <strong id="distribucionAHabilitar"></strong> volverá a estar activa.
+                    </p>
+                    <p class="contacto-modal-ayuda">Podrá volver a utilizar esta distribución.</p>
+                    <form method="post" asp-page-handler="Habilitar"
+                          asp-route-Busqueda="@Model.Busqueda" asp-route-Estado="@Model.Estado">
+                        <input type="hidden" name="idDistribucion" id="idDistribucionAHabilitar" />
+                        <div class="contacto-modal-acciones">
+                            <button type="button" class="btn btn-contacto-outline" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-contacto-estado btn-contacto-activar">Habilitar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @section Scripts {
@@ -164,6 +195,11 @@
             const boton = event.relatedTarget;
             document.getElementById('idDistribucionSeleccionada').value = boton?.dataset.id ?? '';
             document.getElementById('distribucionSeleccionada').textContent = boton?.dataset.descripcion ?? '';
+        });
+        document.getElementById('modalHabilitar')?.addEventListener('show.bs.modal', event => {
+            const boton = event.relatedTarget;
+            document.getElementById('idDistribucionAHabilitar').value = boton?.dataset.id ?? '';
+            document.getElementById('distribucionAHabilitar').textContent = boton?.dataset.descripcion ?? '';
         });
     </script>
 }

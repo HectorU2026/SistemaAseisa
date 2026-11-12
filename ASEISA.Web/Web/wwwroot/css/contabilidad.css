@@ -1,0 +1,172 @@
+.conta-accesos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.conta-tarjeta,
+.conta-historial {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 24px;
+    border: 1px solid #e9ecf0;
+    border-radius: 18px;
+    background: #fff;
+    color: #1d2635;
+}
+
+.conta-tarjeta {
+    text-decoration: none;
+}
+
+    .conta-tarjeta:hover,
+    .conta-tarjeta:focus-visible {
+        border-color: #f2382f;
+        color: #1d2635;
+    }
+
+    .conta-tarjeta:focus-visible {
+        outline: 2px solid #b22c25;
+        outline-offset: 3px;
+    }
+
+.conta-historial {
+    margin-top: 24px;
+}
+
+    .conta-tarjeta h2,
+    .conta-historial h2 {
+        margin: 0 0 8px;
+        font-size: 1.15rem;
+        font-weight: 700;
+    }
+
+    .conta-tarjeta p,
+    .conta-historial p {
+        margin: 0;
+        color: #566378;
+    }
+
+.conta-icono {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff0ef;
+    color: #b22c25;
+    font-size: 1.25rem;
+}
+
+.conta-historial .conta-icono {
+    background: #f1f3f6;
+    color: #566378;
+}
+
+.conta-enlace {
+    display: inline-block;
+    margin-top: 16px;
+    color: #b22c25;
+    font-weight: 700;
+}
+
+@media (max-width: 760px) {
+    .conta-accesos {
+        grid-template-columns: 1fr;
+    }
+}
+
+.conta-resumen {
+    margin-bottom: 24px;
+    padding: 24px;
+    border: 1px solid #e9ecf0;
+    border-radius: 18px;
+    background: #fff;
+}
+
+    .conta-resumen h2 {
+        margin: 0 0 16px;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+.conta-indicadores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+}
+
+    .conta-indicadores div {
+        background: #f3f5f8;
+        padding: 14px 16px;
+        border-radius: 12px;
+    }
+
+    .conta-indicadores dt {
+        color: #566378;
+        font-size: .9rem;
+    }
+
+    .conta-indicadores dd {
+        margin: 4px 0 0;
+        font-weight: 750;
+        font-size: 1.65rem;
+        color: #1d2635;
+    }
+
+.conta-tipos h3 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.conta-tipo {
+    display: grid;
+    grid-template-columns: minmax(0, 11rem) minmax(45px, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+    .conta-tipo meter {
+        width: 100%;
+        height: 16px;
+    }
+
+        .conta-tipo meter::-webkit-meter-optimum-value {
+            background: #b22c25;
+        }
+
+        .conta-tipo meter::-moz-meter-bar {
+            background: #b22c25;
+        }
+
+.conta-codigo {
+    display: block;
+    color: #566378;
+}
+
+.conta-acciones {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.conta-estado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: #f1f3f6;
+    color: #49556a;
+}
+
+.conta-estado-activo {
+    background: #e6f5ec;
+    color: #226440;
+}
+
+.conta-tabla td {
+    vertical-align: middle;
+}
