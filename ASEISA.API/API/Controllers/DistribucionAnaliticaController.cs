@@ -56,6 +56,18 @@ public class DistribucionAnaliticaController(
         return NoContent();
     }
 
+    [HttpPut("{id:int:min(1)}/habilitar")]
+    [Authorize(Roles = "Administrador,Contador")]
+    public async Task<IActionResult> Habilitar(int id)
+    {
+        if (await ObtenerContexto() is not { } c)
+            return Forbid();
+
+        await flujo.Habilitar(c.Empresa, c.Usuario, id);
+
+        return NoContent();
+    }
+
     private async Task<(int Empresa, int Usuario)?> ObtenerContexto()
     {
         if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuario) || usuario <= 0)
@@ -73,7 +85,7 @@ public sealed class FiltroDistribucionAnaliticaAttribute : ExceptionFilterAttrib
         {
             ValidationException => 400,
             SqlException { Number: 51301 } => 404,
-            SqlException { Number: 51302 } => 409,
+            SqlException { Number: 51302 or 51306 } => 409,
             SqlException { Number: 51303 or 51304 or 51305 } => 400,
             _ => null
         };

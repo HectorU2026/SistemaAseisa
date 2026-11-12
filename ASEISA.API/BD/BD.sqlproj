@@ -191,6 +191,12 @@
     <Build Include="dbo\Stored Procedures\InhabilitarDistribucionAnalitica.sql" />
     <Build Include="dbo\Stored Procedures\EditarDistribucionAnalitica.sql" />
     <Build Include="dbo\Stored Procedures\AgregarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\InhabilitarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\EditarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\ConsultarCuentasContables.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\HabilitarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarCuentaContableRaiz.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

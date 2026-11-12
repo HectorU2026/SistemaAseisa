@@ -1,0 +1,232 @@
+﻿@page
+@model Web.Pages.Contabilidad.Listado_CuentaContableModel
+@{
+    ViewData["Title"] = "Cuentas contables";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/contabilidad.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-journal-text" aria-hidden="true"></i>
+                <a asp-page="./Index_Contabilidad">Contabilidad</a><span>/ Cuentas contables</span>
+            </div>
+            <h1>Cuentas contables</h1>
+            <p>Administrá el catálogo de cuentas de tu empresa.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            @if (Model.PuedeCambiarEstado)
+            {
+                <a asp-page="./Formulario_CuentaContable"
+                   asp-route-raiz="true"
+                   class="btn btn-contacto-outline">
+                    <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>
+                    Nueva cuenta raíz
+                </a>
+            }
+            <a asp-page="./Formulario_CuentaContable" class="btn btn-contacto-primary">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva cuenta
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["MensajeCuenta"] is string mensaje)
+    {
+        <div class="alert alert-success" role="status">@mensaje</div>
+    }
+    @if (TempData["ErrorCuenta"] is string errorAccion)
+    {
+        <div class="alert alert-danger" role="alert">@errorAccion</div>
+    }
+    @if (Model.MensajeError is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    <section class="contactos-panel">
+        <div class="contactos-panel-header">
+            <div><h2>Catálogo de cuentas</h2><p>Buscá por código, nombre, tipo o cuenta principal.</p></div>
+            @if (Model.MensajeError is null)
+            {
+                <span>@Model.Cuentas.Count @(Model.Cuentas.Count == 1 ? "cuenta" : "cuentas")</span>
+            }
+        </div>
+        <form method="get" class="contactos-filtros">
+            <input asp-for="Busqueda" class="form-control" placeholder="Buscar cuenta…" aria-label="Buscar cuenta" />
+            <select asp-for="Estado" class="form-select" aria-label="Filtrar por estado">
+                <option value="">Todos los estados</option>
+                <option value="1">Activas</option>
+                <option value="2">Inactivas</option>
+            </select>
+            <button type="submit" class="btn btn-contacto-primary">Filtrar</button>
+            <a asp-page="./Listado_CuentaContable" class="btn btn-contacto-outline">Limpiar</a>
+        </form>
+        @if (Model.MensajeError is null)
+        {
+            <div class="table-responsive">
+                <table class="table contactos-table conta-tabla align-middle">
+                    <thead>
+                        <tr><th scope="col">Cuenta</th><th scope="col">Tipo</th><th scope="col">Cuenta principal</th>
+                            <th scope="col">Estado</th><th scope="col">Acciones</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Cuentas.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" class="contactos-empty text-center">
+                                    <i class="bi bi-inbox" aria-hidden="true"></i>
+                                    <strong>No se encontraron cuentas contables</strong>
+                                    <span>No hay cuentas que coincidan con los filtros.</span>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var cuenta in Model.Cuentas)
+                        {
+                            <tr>
+                                <td><strong>@cuenta.Nombre</strong><small class="conta-codigo">@cuenta.Codigo</small></td>
+                                <td>@cuenta.TipoCuenta</td>
+                                <td>@(cuenta.CuentaPrincipal ?? "Cuenta raíz")</td>
+                                <td><span class="conta-estado @(cuenta.IdEstado == 1 ? "conta-estado-activo" : "")">@cuenta.Estado</span></td>
+                                <td>
+                                    <div class="conta-acciones">
+                                        <a asp-page="./Formulario_CuentaContable" asp-route-id="@cuenta.IdCuentaContable"
+                                           class="btn btn-contacto-action" title="Editar cuenta"
+                                           aria-label="Editar cuenta @cuenta.Codigo">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        </a>
+                                        @if (Model.PuedeCambiarEstado && (cuenta.IdEstado is 1 or 2))
+                                        {
+                                            var habilitar = cuenta.IdEstado == 2;
+                                            var accion = habilitar ? "Habilitar" : "Inhabilitar";
+                                            <button type="button"
+                                                class="btn btn-contacto-estado @(habilitar ? "btn-contacto-activar" : "btn-contacto-desactivar")"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEstadoCuenta"
+                                                data-id="@cuenta.IdCuentaContable"
+                                                data-nombre="@cuenta.Nombre"
+                                                data-habilitar="@(habilitar ? "true" : "false")">
+                                                <i class="bi @(habilitar ? "bi-check-circle" : "bi-slash-circle")"
+                                                aria-hidden="true"></i>
+                                                @accion
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@if (Model.PuedeCambiarEstado)
+{
+    <div class="modal fade"
+         id="modalEstadoCuenta"
+         tabindex="-1"
+         aria-labelledby="tituloEstadoCuenta"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content contacto-modal">
+                <div class="modal-body text-center">
+                    <div id="iconoEstadoCuenta"
+                         class="contacto-modal-icono desactivar">
+                        <i class="bi bi-slash-circle" aria-hidden="true"></i>
+                    </div>
+
+                    <h3 id="tituloEstadoCuenta"></h3>
+
+                    <p class="contacto-modal-descripcion">
+                        La cuenta <strong id="nombreEstadoCuenta"></strong>
+                        <span id="descripcionEstadoCuenta"></span>
+                    </p>
+
+                    <p class="contacto-modal-ayuda" id="ayudaEstadoCuenta">
+                        El registro y su historial se conservarán.
+                    </p>
+
+                    <form method="post"
+                          asp-page-handler="CambiarEstado"
+                          asp-route-Busqueda="@Model.Busqueda"
+                          asp-route-Estado="@Model.Estado">
+                        <input type="hidden" name="id" id="idEstadoCuenta" />
+                        <input type="hidden"
+                               name="habilitar"
+                               id="habilitarEstadoCuenta" />
+
+                        <div class="contacto-modal-acciones">
+                            <button type="button"
+                                    class="btn btn-contacto-outline"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+
+                            <button type="submit"
+                                    id="confirmarEstadoCuenta"
+                                    class="btn btn-contacto-confirmar desactivar">
+                                Inhabilitar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('modalEstadoCuenta')
+            ?.addEventListener('show.bs.modal', event => {
+                const boton = event.relatedTarget;
+                if (!boton) return;
+
+                const habilitar = boton.dataset.habilitar === 'true';
+                const accion = habilitar ? 'Habilitar' : 'Inhabilitar';
+
+                document.getElementById('ayudaEstadoCuenta').textContent = habilitar
+                    ? 'Podrá volver a utilizar esta cuenta contable.'
+                    : 'El registro y su historial se conservarán.';
+
+                document.getElementById('idEstadoCuenta').value =
+                    boton.dataset.id ?? '';
+
+                document.getElementById('habilitarEstadoCuenta').value =
+                    habilitar ? 'true' : 'false';
+
+                document.getElementById('nombreEstadoCuenta').textContent =
+                    boton.dataset.nombre ?? '';
+
+                document.getElementById('tituloEstadoCuenta').textContent =
+                    '¿' + accion + ' cuenta contable?';
+
+                document.getElementById('descripcionEstadoCuenta').textContent =
+                    habilitar
+                        ? 'volverá a estar activa.'
+                        : 'quedará inactiva.';
+
+                const icono = document.getElementById('iconoEstadoCuenta');
+
+                icono.className =
+                    'contacto-modal-icono ' +
+                    (habilitar ? 'activar' : 'desactivar');
+
+                icono.querySelector('i').className =
+                    'bi ' +
+                    (habilitar ? 'bi-check-circle' : 'bi-slash-circle');
+
+                const confirmar =
+                    document.getElementById('confirmarEstadoCuenta');
+
+                confirmar.textContent = accion;
+                confirmar.className =
+                    'btn btn-contacto-confirmar ' +
+                    (habilitar ? 'activar' : 'desactivar');
+            });
+    </script>
+}
