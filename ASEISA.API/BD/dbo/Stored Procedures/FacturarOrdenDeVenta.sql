@@ -1,6 +1,4 @@
-﻿
-
-CREATE   PROCEDURE dbo.FacturarOrdenDeVenta
+﻿CREATE   PROCEDURE dbo.FacturarOrdenDeVenta
     @id_cotizacion   INT,
     @id_empresa      INT,
     @id_cliente      INT,
@@ -16,7 +14,7 @@ CREATE   PROCEDURE dbo.FacturarOrdenDeVenta
     @descuento       DECIMAL(18,2),
     @total           DECIMAL(18,2),
     @fecha_factura   DATETIME2,
-    @id_termino_pago INT
+    @id_termino_pago INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -55,16 +53,15 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
+        /* ---------- Validaciones de entrada ---------- */
         IF @fecha_factura IS NULL
            OR CAST(@fecha_factura AS DATE) = CONVERT(DATE, '0001-01-01')
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La fecha de factura es obligatoria' AS Mensaje;
-
             RETURN;
         END;
 
@@ -79,68 +76,89 @@ BEGIN
         IF @es_contado = 0 AND @es_credito = 0
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La condición de venta debe ser Contado o Crédito' AS Mensaje;
-
             RETURN;
         END;
 
-        IF @id_termino_pago IS NULL OR @id_termino_pago <= 0
+        /* ---------- Resolución del término de pago ---------- */
+        IF @id_termino_pago IS NOT NULL AND @id_termino_pago > 0
         BEGIN
-            ROLLBACK TRANSACTION;
-
+            /* Viene un término explícito: se valida contra la BD */
             SELECT
-                0 AS IdFactura,
-                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
-                'El término de pago es obligatorio' AS Mensaje;
+                @termino_pago_nombre = nombre,
+                @dias_credito = dias_credito
+            FROM dbo.TERMINO_PAGO
+            WHERE id_termino_pago = @id_termino_pago
+              AND id_empresa = @id_empresa
+              AND activo = 1;
 
-            RETURN;
-        END;
-
-        SELECT
-            @termino_pago_nombre = nombre,
-            @dias_credito = dias_credito
-        FROM dbo.TERMINO_PAGO
-        WHERE id_termino_pago = @id_termino_pago
-          AND id_empresa = @id_empresa
-          AND activo = 1;
-
-        IF @termino_pago_nombre IS NULL OR @dias_credito IS NULL
+            IF @termino_pago_nombre IS NULL OR @dias_credito IS NULL
+            BEGIN
+                ROLLBACK TRANSACTION;
+                SELECT
+                    0 AS IdFactura,
+                    CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                    'El término de pago no existe, no está activo o no pertenece a la empresa' AS Mensaje;
+                RETURN;
+            END;
+        END
+        ELSE
         BEGIN
-            ROLLBACK TRANSACTION;
+            /* No vino término: solo es válido si es contado.
+               Se resuelve el término "Contado" (dias_credito = 0) de la empresa. */
+            IF @es_contado = 0
+            BEGIN
+                ROLLBACK TRANSACTION;
+                SELECT
+                    0 AS IdFactura,
+                    CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                    'Para ventas a crédito es obligatorio seleccionar un término de pago' AS Mensaje;
+                RETURN;
+            END;
 
-            SELECT
-                0 AS IdFactura,
-                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
-                'El término de pago no existe, no está activo o no pertenece a la empresa' AS Mensaje;
+            SELECT TOP (1)
+                @id_termino_pago = id_termino_pago,
+                @termino_pago_nombre = nombre,
+                @dias_credito = dias_credito
+            FROM dbo.TERMINO_PAGO
+            WHERE id_empresa = @id_empresa
+              AND activo = 1
+              AND dias_credito = 0
+            ORDER BY CASE WHEN LOWER(LTRIM(RTRIM(nombre))) = 'contado' THEN 0 ELSE 1 END,
+                     id_termino_pago;
 
-            RETURN;
+            IF @id_termino_pago IS NULL OR @termino_pago_nombre IS NULL
+            BEGIN
+                ROLLBACK TRANSACTION;
+                SELECT
+                    0 AS IdFactura,
+                    CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                    'No existe un término de pago de contado configurado para la empresa' AS Mensaje;
+                RETURN;
+            END;
         END;
 
+        /* ---------- Coherencia condición vs días de crédito ---------- */
         IF @es_contado = 1 AND @dias_credito <> 0
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La venta de contado requiere un término con 0 días de crédito' AS Mensaje;
-
             RETURN;
         END;
 
         IF @es_credito = 1 AND @dias_credito <= 0
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La venta a crédito requiere un término con días de crédito mayores a cero' AS Mensaje;
-
             RETURN;
         END;
 
@@ -149,14 +167,14 @@ BEGIN
         ELSE
             SET @fecha_vencimiento = DATEADD(DAY, @dias_credito, @fecha_factura);
 
-        -- --- INICIO DE CAMBIOS DE ESTADO ---
+        /* ---------- Estados por nombre (sin hardcode) ---------- */
         SELECT @id_estado_orden_venta = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Orden de Venta';
-        SELECT @id_estado_facturado = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Facturado';
-        
-        SELECT @id_estado_emitida = id_estado FROM ESTADO WHERE nombre_estado = 'Emitida';
+        SELECT @id_estado_facturado     = id_estado_cotizacion FROM ESTADO_COTIZACION WHERE nombre_estado = 'Facturado';
+
+        SELECT @id_estado_emitida  = id_estado FROM ESTADO WHERE nombre_estado = 'Emitida';
         SELECT @id_estado_borrador = id_estado FROM ESTADO WHERE nombre_estado = 'Borrador';
-        SELECT @id_estado_activo = id_estado FROM ESTADO WHERE nombre_estado = 'Activo';
-        
+        SELECT @id_estado_activo   = id_estado FROM ESTADO WHERE nombre_estado = 'Activo';
+
         SELECT @id_estado_factura_borrador = id_estado_factura FROM ESTADO_FACTURA WHERE nombre_estado = 'Borrador';
 
         IF @id_estado_orden_venta IS NULL
@@ -172,29 +190,24 @@ BEGIN
            OR (SELECT COUNT(*) FROM ESTADO_FACTURA WHERE nombre_estado = 'Borrador') <> 1
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'No se encontraron los estados de facturación' AS Mensaje;
-
             RETURN;
         END;
-        -- --- FIN DE CAMBIOS DE ESTADO ---
 
+        /* ---------- Coherencia de importes ---------- */
         IF @subtotal < 0
            OR @impuesto < 0
-           OR @descuento < 0
            OR @total < 0
            OR @total <> (@subtotal - @descuento + @impuesto)
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Los importes de la factura no son coherentes' AS Mensaje;
-
             RETURN;
         END;
 
@@ -207,12 +220,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'No se permiten importes negativos' AS Mensaje;
-
             RETURN;
         END;
 
@@ -224,15 +235,14 @@ BEGIN
            OR (@suma_detalles + @impuesto) <> @total
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Los importes de la factura no son coherentes' AS Mensaje;
-
             RETURN;
         END;
 
+        /* ---------- Usuario válido ---------- */
         IF NOT EXISTS
         (
             SELECT 1
@@ -243,16 +253,14 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Acceso denegado: usuario inactivo o de otra empresa' AS Mensaje;
-
             RETURN;
         END;
 
-        -- --- CAMBIO EN LA VALIDACIÓN DE LA COTIZACIÓN ---
+        /* ---------- Cotización en estado "Orden de Venta" ---------- */
         IF NOT EXISTS
         (
             SELECT 1
@@ -263,12 +271,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La cotización no está en estado Orden de Venta' AS Mensaje;
-
             RETURN;
         END;
 
@@ -280,12 +286,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La orden de venta ya fue facturada' AS Mensaje;
-
             RETURN;
         END;
 
@@ -299,15 +303,14 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La cotización tiene productos duplicados' AS Mensaje;
-
             RETURN;
         END;
 
+        /* ---------- Empresa y cuentas contables ---------- */
         SELECT
             @id_cuenta_cxc = id_cuenta_cxc,
             @id_cuenta_impuesto_ventas = id_cuenta_impuesto_ventas,
@@ -318,24 +321,20 @@ BEGIN
         IF @id_estado_empresa IS NULL
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La empresa no existe' AS Mensaje;
-
             RETURN;
         END;
 
         IF @id_estado_empresa <> @id_estado_activo
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La empresa no está activa' AS Mensaje;
-
             RETURN;
         END;
 
@@ -343,12 +342,10 @@ BEGIN
            OR (@impuesto > 0 AND @id_cuenta_impuesto_ventas IS NULL)
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La empresa no tiene configuradas las cuentas contables de facturación' AS Mensaje;
-
             RETURN;
         END;
 
@@ -363,12 +360,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La cuenta de CXC no es válida para la empresa' AS Mensaje;
-
             RETURN;
         END;
 
@@ -384,12 +379,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'La cuenta de impuestos sobre ventas no es válida para la empresa' AS Mensaje;
-
             RETURN;
         END;
 
@@ -397,12 +390,10 @@ BEGIN
            AND @id_cuenta_cxc = @id_cuenta_impuesto_ventas
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Las cuentas contables de la factura no pueden repetirse' AS Mensaje;
-
             RETURN;
         END;
 
@@ -427,12 +418,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Las cuentas de ingreso no son válidas' AS Mensaje;
-
             RETURN;
         END;
 
@@ -455,15 +444,14 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Las cuentas contables de la factura no pueden repetirse' AS Mensaje;
-
             RETURN;
         END;
 
+        /* ---------- Consecutivo de factura ---------- */
         SET @recurso_applock =
             N'FAC-NUMERO-' + CONVERT(NVARCHAR(11), @id_empresa);
 
@@ -476,12 +464,10 @@ BEGIN
         IF @applock < 0
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'No se pudo obtener el consecutivo de factura' AS Mensaje;
-
             RETURN;
         END;
 
@@ -497,18 +483,15 @@ BEGIN
             )
         FROM FACTURA WITH (HOLDLOCK)
         WHERE id_empresa = @id_empresa
-          AND numero_factura LIKE
-              'FAC-[0-9][0-9][0-9][0-9][0-9][0-9]';
+          AND numero_factura LIKE 'FAC-[0-9][0-9][0-9][0-9][0-9][0-9]';
 
         IF @n >= 999999
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Se alcanzó el límite de consecutivos de factura' AS Mensaje;
-
             RETURN;
         END;
 
@@ -518,130 +501,66 @@ BEGIN
                 RIGHT(CONCAT('000000', @n + 1), 6)
             );
 
+        /* ---------- Inserts ---------- */
         INSERT INTO VENTAS
         (
-            id_empresa,
-            id_cliente,
-            id_cotizacion,
-            id_usuario,
-            numero_comprobante,
-            tipo_comprobante,
-            fecha_emision,
-            condicion_venta,
-            moneda,
-            tipo_cambio,
-            subtotal,
-            impuesto,
-            descuento,
-            total,
-            id_estado
+            id_empresa, id_cliente, id_cotizacion, id_usuario,
+            numero_comprobante, tipo_comprobante, fecha_emision,
+            condicion_venta, moneda, tipo_cambio,
+            subtotal, impuesto, descuento, total, id_estado
         )
         VALUES
         (
-            @id_empresa,
-            @id_cliente,
-            @id_cotizacion,
-            @id_usuario,
-            @numero_venta,
-            'Factura',
-            SYSDATETIME(),
-            @condicion_venta,
-            @moneda,
-            @tipo_cambio,
-            @subtotal,
-            @impuesto,
-            @descuento,
-            @total,
-            @id_estado_emitida
+            @id_empresa, @id_cliente, @id_cotizacion, @id_usuario,
+            @numero_venta, 'Factura', SYSDATETIME(),
+            @condicion_venta, @moneda, @tipo_cambio,
+            @subtotal, @impuesto, @descuento, @total, @id_estado_emitida
         );
 
         SET @id_venta = CAST(SCOPE_IDENTITY() AS INT);
 
         INSERT INTO DETALLE_VENTA
         (
-            id_venta,
-            id_producto,
-            cantidad,
-            precio_unitario,
-            porcentaje_descuento,
-            porcentaje_impuesto,
-            subtotal
+            id_venta, id_producto, cantidad, precio_unitario,
+            porcentaje_descuento, porcentaje_impuesto, subtotal
         )
         SELECT
-            @id_venta,
-            id_producto,
-            cantidad,
-            precio_unitario,
-            porcentaje_descuento,
-            porcentaje_impuesto,
-            subtotal
+            @id_venta, id_producto, cantidad, precio_unitario,
+            porcentaje_descuento, porcentaje_impuesto, subtotal
         FROM DETALLE_COTIZACION
         WHERE id_cotizacion = @id_cotizacion;
 
         INSERT INTO FACTURA
         (
-            id_venta,
-            id_empresa,
-            id_usuario,
-            id_estado_factura,
-            numero_factura,
-            fecha_emision,
-            tipo_factura,
-            moneda,
-            tipo_cambio,
-            subtotal,
-            impuesto,
-            descuento,
-            total,
-            saldo_pendiente,
-            fecha_vencimiento,
-            id_termino_pago,
-            termino_pago_nombre
+            id_venta, id_empresa, id_usuario, id_estado_factura,
+            numero_factura, fecha_emision, tipo_factura, moneda, tipo_cambio,
+            subtotal, impuesto, descuento, total, saldo_pendiente,
+            fecha_vencimiento, id_termino_pago, termino_pago_nombre,
+            fecha_creacion
         )
         VALUES
         (
-            @id_venta,
-            @id_empresa,
-            @id_usuario,
-            @id_estado_factura_borrador,
-            @numero_generado,
-            @fecha_factura,
-            @tipo_factura,
-            @moneda,
-            @tipo_cambio,
-            @subtotal,
-            @impuesto,
-            @descuento,
-            @total,
-            @total,
-            @fecha_vencimiento,
-            @id_termino_pago,
-            @termino_pago_nombre
+            @id_venta, @id_empresa, @id_usuario, @id_estado_factura_borrador,
+            @numero_generado, @fecha_factura, @tipo_factura, @moneda, @tipo_cambio,
+            @subtotal, @impuesto, @descuento, @total, @total,
+            @fecha_vencimiento, @id_termino_pago, @termino_pago_nombre,
+            SYSDATETIME()
         );
 
         SET @id_factura = CAST(SCOPE_IDENTITY() AS INT);
 
         INSERT INTO DETALLE_FACTURA
         (
-            id_factura,
-            id_producto,
-            cantidad,
-            precio_unitario,
-            porcentaje_descuento,
-            porcentaje_impuesto,
-            subtotal
+            id_factura, id_producto, cantidad, precio_unitario,
+            porcentaje_descuento, porcentaje_impuesto, subtotal
         )
         SELECT
-            @id_factura,
-            id_producto,
-            cantidad,
-            precio_unitario,
-            porcentaje_descuento,
-            porcentaje_impuesto,
-            subtotal
+            @id_factura, id_producto, cantidad, precio_unitario,
+            porcentaje_descuento, porcentaje_impuesto, subtotal
         FROM DETALLE_COTIZACION
         WHERE id_cotizacion = @id_cotizacion;
 
+        /* ---------- Asiento contable ---------- */
         SET @numero_asiento =
             CONCAT('AST-FAC-', CONVERT(VARCHAR(11), @id_factura));
 
@@ -655,12 +574,10 @@ BEGIN
         )
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Ya existe un asiento para esta factura' AS Mensaje;
-
             RETURN;
         END;
 
@@ -669,80 +586,48 @@ BEGIN
         IF @total_haber <> @total
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'Los importes de la factura no son coherentes' AS Mensaje;
-
             RETURN;
         END;
 
         INSERT INTO ASIENTO_CONTABLE
         (
-            id_empresa,
-            numero_asiento,
-            fecha_asiento,
-            descripcion,
-            tipo_origen,
-            total_debe,
-            total_haber,
-            id_estado,
-            id_usuario
+            id_empresa, numero_asiento, fecha_asiento, descripcion, tipo_origen,
+            total_debe, total_haber, id_estado, id_usuario
         )
         VALUES
         (
-            @id_empresa,
-            @numero_asiento,
-            CAST(SYSDATETIME() AS DATE),
-            CONCAT('Factura ', @numero_generado),
-            'Factura',
-            @total,
-            @total,
-            @id_estado_borrador,
-            @id_usuario
+            @id_empresa, @numero_asiento, CAST(SYSDATETIME() AS DATE),
+            CONCAT('Factura ', @numero_generado), 'Factura',
+            @total, @total, @id_estado_borrador, @id_usuario
         );
 
         SET @id_asiento = CAST(SCOPE_IDENTITY() AS INT);
 
         INSERT INTO DETALLE_ASIENTO
         (
-            id_asiento,
-            id_cuenta_contable,
-            id_distribucion_analitica,
-            descripcion,
-            debe,
-            haber
+            id_asiento, id_cuenta_contable, id_distribucion_analitica,
+            descripcion, debe, haber
         )
         VALUES
         (
-            @id_asiento,
-            @id_cuenta_cxc,
-            NULL,
-            CONCAT('CXC factura ', @numero_generado),
-            @total,
-            0
+            @id_asiento, @id_cuenta_cxc, NULL,
+            CONCAT('CXC factura ', @numero_generado), @total, 0
         );
 
         INSERT INTO DETALLE_ASIENTO
         (
-            id_asiento,
-            id_cuenta_contable,
-            id_distribucion_analitica,
-            descripcion,
-            debe,
-            haber
+            id_asiento, id_cuenta_contable, id_distribucion_analitica,
+            descripcion, debe, haber
         )
         SELECT
-            @id_asiento,
-            p.id_cuenta_ingreso,
-            NULL,
-            CONCAT('Ingreso factura ', @numero_generado),
-            0,
-            SUM(df.subtotal)
+            @id_asiento, p.id_cuenta_ingreso, NULL,
+            CONCAT('Ingreso factura ', @numero_generado), 0, SUM(df.subtotal)
         FROM DETALLE_FACTURA df
-        INNER JOIN PRODUCTO p
-            ON p.id_producto = df.id_producto
+        INNER JOIN PRODUCTO p ON p.id_producto = df.id_producto
         WHERE df.id_factura = @id_factura
         GROUP BY p.id_cuenta_ingreso
         HAVING SUM(df.subtotal) <> 0;
@@ -751,24 +636,17 @@ BEGIN
         BEGIN
             INSERT INTO DETALLE_ASIENTO
             (
-                id_asiento,
-                id_cuenta_contable,
-                id_distribucion_analitica,
-                descripcion,
-                debe,
-                haber
+                id_asiento, id_cuenta_contable, id_distribucion_analitica,
+                descripcion, debe, haber
             )
             VALUES
             (
-                @id_asiento,
-                @id_cuenta_impuesto_ventas,
-                NULL,
-                CONCAT('Impuesto factura ', @numero_generado),
-                0,
-                @impuesto
+                @id_asiento, @id_cuenta_impuesto_ventas, NULL,
+                CONCAT('Impuesto factura ', @numero_generado), 0, @impuesto
             );
         END;
 
+        /* ---------- Cuadre del asiento ---------- */
         SELECT
             @suma_debe = ISNULL(SUM(debe), 0),
             @suma_haber = ISNULL(SUM(haber), 0)
@@ -799,12 +677,10 @@ BEGIN
            OR @suma_haber <> @total_haber_asiento
         BEGIN
             ROLLBACK TRANSACTION;
-
             SELECT
                 0 AS IdFactura,
                 CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
                 'El asiento contable no está cuadrado' AS Mensaje;
-
             RETURN;
         END;
 
@@ -823,7 +699,6 @@ BEGIN
     BEGIN CATCH
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
-
         THROW;
     END CATCH
 END;

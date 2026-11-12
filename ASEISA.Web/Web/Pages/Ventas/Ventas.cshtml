@@ -41,14 +41,12 @@
     }
 
     <!-- FILTROS -->
-        <!-- FILTROS -->
     <form method="get" class="ventas-filtros">
         <div class="ventas-search">
             <i class="bi bi-search"></i>
-            <!-- Mantenemos el valor si ya se buscó algo -->
             <input type="text" name="busqueda" value="@Request.Query["busqueda"]" placeholder="Buscar por número o cliente..." />
         </div>
-        
+
         <select name="idEstado" class="form-select">
             <option value="">Todos los estados activos</option>
             <option value="1" selected="@(Request.Query["idEstado"] == "1")">Cotización</option>
@@ -59,7 +57,7 @@
         <button type="submit" class="btn-venta-primary">
             <i class="bi bi-funnel"></i> Filtrar
         </button>
-        
+
         <a href="/Ventas/Ventas" class="btn-venta-outline">Limpiar</a>
 
         <a href="/Ventas/ventas_canceladas" class="btn-venta-outline ms-auto text-danger" style="border-color: #dc3545;">
@@ -89,7 +87,6 @@
                             if (item.Estado == "Cotización Enviada") badgeClass = "bg-enviada";
                             else if (item.Estado == "Orden de Venta") badgeClass = "bg-orden";
 
-                            <!-- FILA CLICKEABLE -->
                             <tr class="fila-principal"
                                 data-numero="@item.NumeroCotizacion.ToLower()"
                                 data-cliente="@item.NombreCliente.ToLower()"
@@ -113,7 +110,6 @@
                                 </td>
                             </tr>
 
-                            <!-- PANEL DESPLEGABLE -->
                             <tr class="collapse fila-panel" id="panel-@item.IdCotizacion">
                                 <td colspan="5">
                                     <div class="panel-contenido">
@@ -128,19 +124,18 @@
                                                         <i class="bi bi-pencil"></i> Editar
                                                     </a>
                                                 </div>
-                                                <div class="col-md-5">
-                                                    <form method="post" asp-page-handler="Enviar" class="d-flex gap-2">
+                                                <div class="col-md-auto">
+                                                    <form method="post" asp-page-handler="Avanzar">
                                                         <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
-                                                        <input type="email" name="correoDestino" class="form-control input-panel" placeholder="Correo del cliente" required />
-                                                        <button type="submit" class="btn-venta-primary text-nowrap" onclick="event.stopPropagation();">
-                                                            <i class="bi bi-send"></i> Enviar
+                                                        <button type="submit" class="btn-venta-primary" onclick="event.stopPropagation();">
+                                                            <i class="bi bi-send"></i> Enviar Cotización
                                                         </button>
                                                     </form>
                                                 </div>
                                                 <div class="col-md-auto ms-auto">
-                                                    <form method="post" asp-page-handler="Cancelar">
+                                                    <form method="post" asp-page-handler="Cancelar" class="form-cancelar">
                                                         <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
-                                                        <button type="submit" class="btn-venta-outline text-danger" onclick="event.stopPropagation(); return confirm('¿Está seguro de cancelar esta cotización?');">
+                                                        <button type="button" class="btn-venta-outline text-danger btn-confirmar-cancelar" onclick="event.stopPropagation();">
                                                             Cancelar
                                                         </button>
                                                     </form>
@@ -152,16 +147,27 @@
                                         @if (item.Estado == "Cotización Enviada")
                                         {
                                             <div class="panel-titulo"><i class="bi bi-hourglass-split"></i> Cotización enviada al cliente</div>
+                                            <div class="row g-3 align-items-end mb-3">
+                                                <div class="col-md-5">
+                                                    <form method="post" asp-page-handler="Enviar" class="d-flex gap-2">
+                                                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+                                                        <input type="email" name="correoDestino" class="form-control input-panel" placeholder="Correo del cliente" required />
+                                                        <button type="submit" class="btn-venta-primary text-nowrap" onclick="event.stopPropagation();">
+                                                            <i class="bi bi-envelope"></i> Enviar por correo
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                             <div class="d-flex gap-3">
                                                 <form method="post" asp-page-handler="Rechazar">
                                                     <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
                                                     <button type="submit" class="btn-venta-outline text-warning" onclick="event.stopPropagation();">
-                                                        <i class="bi bi-arrow-return-left"></i> Solicitar Cambios
+                                                        <i class="bi bi-arrow-return-left"></i> Cotización Rechazada
                                                     </button>
                                                 </form>
-                                                <form method="post" asp-page-handler="Aceptar">
+                                                <form method="post" asp-page-handler="Aceptar" class="form-aceptar">
                                                     <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
-                                                    <button type="submit" class="btn-venta-primary" style="background: #198754; border-color: #198754;" onclick="event.stopPropagation();">
+                                                    <button type="button" class="btn-venta-primary btn-confirmar-aceptar" style="background: #198754; border-color: #198754;" onclick="event.stopPropagation();">
                                                         <i class="bi bi-check-circle"></i> Cliente Aceptó (Crear Orden)
                                                     </button>
                                                 </form>
@@ -173,7 +179,7 @@
                                         {
                                             <div class="panel-titulo"><i class="bi bi-receipt"></i> Facturación Electrónica</div>
 
-                                            <form method="post" asp-page-handler="Facturar">
+                                            <form method="post" asp-page-handler="Facturar" class="form-facturar">
                                                 <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
                                                 <input type="hidden" name="request.FechaFactura" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")" />
 
@@ -187,18 +193,21 @@
                                                     </div>
                                                     <div class="col-md-2">
                                                         <label class="panel-label">Condición</label>
-                                                        <select name="request.CondicionVenta" id="cond-@item.IdCotizacion" class="form-select input-panel" onchange="toggleTermino(this, @item.IdCotizacion)" required>
+                                                        <select name="request.CondicionVenta" id="cond-@item.IdCotizacion" class="form-select input-panel"
+                                                                onchange="toggleTermino(this, @item.IdCotizacion)" required>
                                                             <option value="01">Contado</option>
                                                             <option value="02">Crédito</option>
                                                         </select>
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label class="panel-label">Plazo / Término Pago</label>
-                                                        <select name="request.IdTerminoPago" id="term-@item.IdCotizacion" class="form-select input-panel" disabled>
-                                                            <option value="">No aplica</option>
+                                                        <select name="request.IdTerminoPago" id="term-@item.IdCotizacion" class="form-select input-panel">
+                                                            <option value="">Seleccione término de pago</option>
                                                             @foreach (var t in Model.TerminosPago)
                                                             {
-                                                                <option value="@t.IdTerminoPago">@t.Nombre</option>
+                                                                <option value="@t.IdTerminoPago" data-dias="@t.DiasCredito" data-nombre="@t.Nombre">
+                                                                    @t.Nombre
+                                                                </option>
                                                             }
                                                         </select>
                                                     </div>
@@ -210,7 +219,6 @@
                                                 </div>
                                             </form>
 
-                                            <!-- BOTÓN RETROCEDER -->
                                             <div class="mt-3 pt-3 border-top" style="border-color: #e2e5eb !important;">
                                                 <form method="post" asp-page-handler="Retroceder">
                                                     <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
@@ -241,16 +249,109 @@
     </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    // --- Lógica del Toggle de Término de Pago (Facturación) ---
+    // 1. Habilitar temporalmente los selects de término antes de enviar
+    //    (necesario porque un <select disabled> no envía su valor en el POST)
+    document.addEventListener('submit', function (e) {
+        if (e.target && e.target.classList.contains('form-facturar')) {
+            e.target.querySelectorAll('select[name="request.IdTerminoPago"]').forEach(function (sel) {
+                sel.disabled = false;
+            });
+        }
+    }, true); // useCapture = true → corre antes del submit real
+
+    // 2. Inicializar el estado (Contado por defecto) al cargar la página
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('select[name="request.CondicionVenta"]').forEach(function (sel) {
+            var id = sel.id.replace('cond-', '');
+            toggleTermino(sel, id);
+        });
+    });
+
+    // 3. Función que controla el select de término según la condición
     function toggleTermino(selectCondicion, id) {
         var cond = selectCondicion.value;
         var termSelect = document.getElementById('term-' + id);
+        if (!termSelect) return;
+
+        var opciones = Array.from(termSelect.querySelectorAll('option[data-nombre]'));
+
+        // Reset
+        termSelect.value = '';
+        opciones.forEach(function (opt) { opt.hidden = false; });
+
         if (cond === '01') {
-            termSelect.value = '';
-            termSelect.disabled = true;
-        } else {
+            // CONTADO: seleccionar el término "Contado" de la BD y bloquear
+            var opcionContado = opciones.find(function (opt) {
+                return opt.getAttribute('data-nombre').toLowerCase() === 'contado';
+            });
+
+            if (opcionContado) {
+                termSelect.value = opcionContado.value;
+            }
+
+            termSelect.disabled = true;   // se ve y se comporta bloqueado
+
+        } else if (cond === '02') {
+            // CRÉDITO: solo términos con días > 0 y habilitado
             termSelect.disabled = false;
+
+            opciones.forEach(function (opt) {
+                var dias = parseInt(opt.getAttribute('data-dias') || '0');
+                opt.hidden = dias <= 0;
+            });
+
+            var visibles = opciones.filter(function (opt) { return !opt.hidden; });
+            if (visibles.length > 0) {
+                termSelect.value = visibles[0].value;
+            }
         }
     }
+
+    // --- Confirmación con SweetAlert2 para CANCELAR ---
+    document.querySelectorAll('.btn-confirmar-cancelar').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var form = this.closest('form');
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: 'Se cancelará esta cotización.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#F2382F',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, cancelar',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // --- Confirmación con SweetAlert2 para ACEPTAR (CREAR ORDEN) ---
+    document.querySelectorAll('.btn-confirmar-aceptar').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var form = this.closest('form');
+            Swal.fire({
+                title: '¿Confirmar aceptación?',
+                text: 'Se creará una Orden de Venta a partir de esta cotización.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, crear orden',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
 </script>

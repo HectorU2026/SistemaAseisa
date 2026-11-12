@@ -67,11 +67,15 @@ namespace DA
         {
             var sql = @"ObtenerCotizacionPorId";
 
-            using var multi = await _sqlConnection.QueryMultipleAsync(sql,
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            await conexion.OpenAsync();
+
+            using var multi = await conexion.QueryMultipleAsync(sql,
                 new
                 {
                     id_cotizacion = idCotizacion
-                });
+                },
+        commandType: CommandType.StoredProcedure);
 
             var cotizacion = await multi.ReadFirstOrDefaultAsync<CotizacionResponseDetallada>();
 
@@ -117,7 +121,8 @@ namespace DA
         {
             var sql = "FacturarOrdenDeVenta";
 
-            var resultado = await _sqlConnection.QueryFirstOrDefaultAsync<FacturacionResponse>(
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            var resultado = await conexion.QueryFirstOrDefaultAsync<FacturacionResponse>(
                 sql,
                 new
                 {
@@ -137,7 +142,8 @@ namespace DA
                     total = factura.Total,
                     fecha_factura = factura.FechaFactura,
                     id_termino_pago = factura.IdTerminoPago
-                });
+                },
+                commandType: CommandType.StoredProcedure);
 
             return resultado;
         }
