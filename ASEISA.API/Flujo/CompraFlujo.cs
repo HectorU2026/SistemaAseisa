@@ -80,7 +80,7 @@ public class CompraFlujo : ICompraFlujo
         return await _compraDA.ObtenerCatalogos(idEmpresa, idUsuario);
     }
 
-    public async Task<int> FacturarOrdenCompra(ComprasFacturarRequest compra)
+    public async Task<ComprasFacturarResponse> FacturarOrdenCompra(ComprasFacturarRequest compra)
     {
         ValidarFacturacion(compra);
         return await _compraDA.FacturarOrdenCompra(compra);
@@ -128,9 +128,12 @@ public class CompraFlujo : ICompraFlujo
         ValidarId(compra.IdEmpresa, nameof(compra.IdEmpresa));
         ValidarId(compra.IdUsuario, nameof(compra.IdUsuario));
         ValidarId(compra.IdProveedor, nameof(compra.IdProveedor));
-        ValidarId(compra.IdTerminoPago, nameof(compra.IdTerminoPago));
 
-        if (compra.FechaFactura == default) throw new ValidationException("La fecha de factura es obligatoria.");
+        if (compra.IdTerminoPago < 0)
+            throw new ValidationException("El término de pago no es válido.");
+
+        if (compra.FechaFactura == default)
+            throw new ValidationException("La fecha de factura es obligatoria.");
     }
 
     #endregion

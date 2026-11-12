@@ -1,6 +1,8 @@
 ﻿using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using DA;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,9 +18,11 @@ namespace Flujo
             _cuentasPorPagarDA = cuentasPorPagarDA;
         }
 
-        public async Task<IEnumerable<CuentaPorPagar>> ObtenerCuentasPorPagar()
+        public async Task<IEnumerable<CuentaPorPagar>> ObtenerCuentasPorPagar(int idEmpresa, string? busqueda, int? idEstado, DateTime? fechaVencimiento)
         {
-            return await _cuentasPorPagarDA.ObtenerCuentasPorPagar();
+            var cuentas = await _cuentasPorPagarDA.ObtenerCuentasPorPagar(idEmpresa, busqueda, idEstado, fechaVencimiento);
+
+            return(cuentas);
         }
     }
 }

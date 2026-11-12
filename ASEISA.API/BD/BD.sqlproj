@@ -187,6 +187,7 @@
     <Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagar.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerDistribucionesAnaliticas.sql" />
     <Build Include="dbo\Stored Procedures\InhabilitarDistribucionAnalitica.sql" />
     <Build Include="dbo\Stored Procedures\EditarDistribucionAnalitica.sql" />
@@ -197,6 +198,7 @@
     <Build Include="dbo\Stored Procedures\AgregarCuentaContable.sql" />
     <Build Include="dbo\Stored Procedures\HabilitarCuentaContable.sql" />
     <Build Include="dbo\Stored Procedures\AgregarCuentaContableRaiz.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

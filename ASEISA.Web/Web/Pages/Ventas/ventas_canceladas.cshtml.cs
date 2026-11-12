@@ -16,12 +16,22 @@ namespace Web.Pages.Ventas
             _configuracion = configuracion;
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? busqueda, DateTime? fecha)
         {
-            var idEmpresaClaim = User.FindFirst("Empresa")?.Value;
-
             string endpoint = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCanceladasRechazadas");
-            string url = $"{endpoint}?idEmpresa={idEmpresaClaim}";
+
+            var queryParams = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+                queryParams.Add($"busqueda={Uri.EscapeDataString(busqueda)}");
+
+            if (fecha.HasValue)
+                queryParams.Add($"fecha={fecha.Value:yyyy-MM-dd}");
+
+            string url = queryParams.Any()
+                ? $"{endpoint}?{string.Join("&", queryParams)}"
+                : endpoint;
+
             var cliente = ObtenerClienteConToken();
             var respuesta = await cliente.GetAsync(url);
 
