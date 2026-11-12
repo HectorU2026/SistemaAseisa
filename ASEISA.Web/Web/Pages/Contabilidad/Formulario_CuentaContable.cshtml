@@ -1,0 +1,106 @@
+﻿@page "{id:int:min(1)?}"
+@model Web.Pages.Contabilidad.Formulario_CuentaContableModel
+@{
+    ViewData["Title"] = Model.EsRaiz ? "Nueva cuenta raíz" : Model.Id.HasValue ? "Editar cuenta contable" : "Nueva cuenta contable";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb"><a asp-page="./Listado_CuentaContable">Cuentas contables</a></div>
+            <h1>@ViewData["Title"]</h1>
+            <p>Completá la información de la cuenta.</p>
+        </div>
+    </div>
+    <form method="post" asp-route-id="@Model.Id" asp-route-raiz="@(Model.EsRaiz ? "true" : null)">
+        <section class="contacto-form-section">
+            <div class="contacto-form-heading">
+                <i class="bi bi-journal-text" aria-hidden="true"></i>
+                <div><h2>Información de la cuenta</h2><p>Los campos con * son obligatorios.</p></div>
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            @if (!Model.EsRaiz && !Model.Id.HasValue && !Model.PuedeGuardar && ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-warning">Para crear una cuenta, tu empresa necesita al menos una cuenta principal activa.</div>
+            }
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="Datos.Codigo" class="form-label">Código @(!Model.Id.HasValue ? "*" : "")</label>
+                    <input asp-for="Datos.Codigo" class="form-control" readonly="@Model.Id.HasValue" />
+                    <span asp-validation-for="Datos.Codigo" class="text-danger"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="Datos.Nombre" class="form-label">Nombre *</label>
+                    <input asp-for="Datos.Nombre" class="form-control" />
+                    <span asp-validation-for="Datos.Nombre" class="text-danger"></span>
+                </div>
+                @if (Model.EsRaiz)
+                {
+                    <div class="col-12"><p class="mb-0">La cuenta raíz agrupa subcuentas y no admite movimientos directos.</p></div>
+                    <div class="col-md-6">
+                        <label asp-for="Datos.TipoCuenta" class="form-label">Tipo de cuenta *</label>
+                        <select asp-for="Datos.TipoCuenta" class="form-select">
+                            <option value="">Seleccioná un tipo</option>
+                            <option>Activo</option><option>Pasivo</option><option>Patrimonio</option>
+                            <option>Ingreso</option><option>Gasto</option>
+                        </select>
+                        <span asp-validation-for="Datos.TipoCuenta" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Datos.Naturaleza" class="form-label">Naturaleza *</label>
+                        <select asp-for="Datos.Naturaleza" class="form-select">
+                            <option value="">Seleccioná la naturaleza</option>
+                            <option>Deudora</option><option>Acreedora</option>
+                        </select>
+                        <span asp-validation-for="Datos.Naturaleza" class="text-danger"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-6">
+                        <label asp-for="Datos.IdCuentaPrincipal" class="form-label">Cuenta principal @(!Model.Id.HasValue || Model.RequierePrincipal ? "*" : "")</label>
+                        <select asp-for="Datos.IdCuentaPrincipal" asp-items="Model.Principales" class="form-select">
+                            <option value="">@(Model.Id.HasValue && !Model.RequierePrincipal ? "Sin cuenta principal" : "Seleccioná una cuenta")</option>
+                        </select>
+                        <span asp-validation-for="Datos.IdCuentaPrincipal" class="text-danger"></span>
+                    </div>
+                }
+                <div class="col-md-6">
+                    <label asp-for="Datos.ConciliacionPagos" class="form-label">Conciliación de pagos *</label>
+                    <select asp-for="Datos.ConciliacionPagos" class="form-select">
+                        <option value="">Seleccioná una opción</option>
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                    <span asp-validation-for="Datos.ConciliacionPagos" class="text-danger"></span>
+                </div>
+                @if (!Model.Id.HasValue)
+                {
+                    <div class="col-md-6">
+                        <label asp-for="Datos.IdEstado" class="form-label">Estado inicial *</label>
+                        <select asp-for="Datos.IdEstado" class="form-select">
+                            <option value="1">Activo</option><option value="2">Inactivo</option>
+                        </select>
+                        <span asp-validation-for="Datos.IdEstado" class="text-danger"></span>
+                    </div>
+                }
+                <div class="col-md-6">
+                    <label asp-for="Datos.Impuestos" class="form-label">Impuestos</label>
+                    <input asp-for="Datos.Impuestos" class="form-control" inputmode="decimal" />
+                    <span asp-validation-for="Datos.Impuestos" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Datos.Descripcion" class="form-label">Descripción</label>
+                    <textarea asp-for="Datos.Descripcion" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Datos.Descripcion" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <div class="contacto-form-actions">
+            <a asp-page="./Listado_CuentaContable" class="btn btn-contacto-outline">Cancelar</a>
+            <button type="submit" class="btn btn-contacto-primary" disabled="@(!Model.PuedeGuardar)">Guardar cuenta</button>
+        </div>
+    </form>
+</div>

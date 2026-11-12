@@ -1,0 +1,82 @@
+﻿@page
+@model Web.Pages.Contabilidad.Index_ContabilidadModel
+@{
+    ViewData["Title"] = "Contabilidad";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/contabilidad.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb"><i class="bi bi-bank" aria-hidden="true"></i><span>Finanzas / Contabilidad</span></div>
+            <h1>Contabilidad</h1>
+            <p>Revisá el catálogo contable y accedé a las herramientas de tu empresa.</p>
+        </div>
+    </div>
+
+    @if (TempData["MensajeExito"] is string mensaje)
+    {
+        <div class="alert alert-success" role="status">@mensaje</div>
+    }
+
+    <section class="conta-resumen" aria-labelledby="titulo-resumen">
+        <h2 id="titulo-resumen">Resumen del catálogo</h2>
+        @if (Model.ResumenDisponible)
+        {
+            <dl class="conta-indicadores">
+                <div><dt>Cuentas activas</dt><dd>@Model.Activas</dd></div>
+                <div><dt>Cuentas inactivas</dt><dd>@Model.Inactivas</dd></div>
+                <div><dt>Cuentas raíz activas</dt><dd>@Model.Raices</dd></div>
+            </dl>
+            <div class="conta-tipos">
+                <h3>Cuentas activas por tipo</h3>
+                @if (Model.PorTipo.Count == 0)
+                {
+                    <p class="mb-0">Todavía no hay cuentas activas.</p>
+                }
+                @foreach (var tipo in Model.PorTipo)
+                {
+                    <div class="conta-tipo">
+                        <span>@tipo.Nombre</span>
+                        <meter min="0" max="@Model.Activas" value="@tipo.Cantidad"
+                               aria-label="@tipo.Nombre"></meter>
+                        <strong>@tipo.Cantidad</strong>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="mb-0">No fue posible cargar el resumen. Podés volver a intentarlo al recargar la página.</p>
+        }
+    </section>
+
+    <section class="conta-accesos" aria-label="Apartados de Contabilidad">
+        <a asp-page="./Listado_DistribucionAnalitica" class="conta-tarjeta">
+            <span class="conta-icono"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+            <div>
+                <h2>Distribución analítica</h2>
+                <p>Consultá y administrá las distribuciones asociadas a proveedores y productos.</p>
+                <span class="conta-enlace">Ver distribuciones <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+            </div>
+        </a>
+        <a asp-page="./Listado_CuentaContable" class="conta-tarjeta">
+            <span class="conta-icono"><i class="bi bi-journal-text" aria-hidden="true"></i></span>
+            <div>
+                <h2>Cuentas contables</h2>
+                <p>Consultá el catálogo de cuentas, su clasificación y la relación con sus cuentas principales.</p>
+                <span class="conta-enlace">Ver cuentas contables <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+            </div>
+        </a>
+    </section>
+
+    <section class="conta-historial" aria-labelledby="titulo-historial">
+        <span class="conta-icono"><i class="bi bi-clock-history" aria-hidden="true"></i></span>
+        <div>
+            <h2 id="titulo-historial">Historial de asientos</h2>
+            <p>Cuando se habilite el módulo de asientos, podrás consultar aquí sus registros.</p>
+        </div>
+    </section>
+</div>

@@ -22,6 +22,12 @@ public class DistribucionAnaliticaApiService(HttpClient cliente, IConfiguration 
         respuesta.EnsureSuccessStatusCode();
     }
 
+    public async Task HabilitarAsync(int id, string token, CancellationToken cancelacion)
+    {
+        using var respuesta = await EnviarAsync(HttpMethod.Put, $"/{id}/habilitar", token, cancelacion);
+        respuesta.EnsureSuccessStatusCode();
+    }
+
     public async Task<DistribucionAnaliticaResponse?> ObtenerDetalleAsync(
         int id, string token, CancellationToken cancelacion)
     {
