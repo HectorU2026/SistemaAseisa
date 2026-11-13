@@ -18,6 +18,7 @@ namespace Flujo
         private readonly IEnviarFactura _enviarFactura;
         private readonly IEnviarXmlFactura _enviarXmlFactura;
         private readonly IGeneradorXmlFactura _generadorXml;
+        private readonly IGeneradorPdfFactura _generadorPdf;
 
         public FacturaFlujo(
             IFacturaDA facturaDA,
@@ -26,7 +27,8 @@ namespace Flujo
             IBitacoraDA bitacoraDA,
             IEnviarFactura enviarFactura,
             IEnviarXmlFactura enviarXmlFactura,
-            IGeneradorXmlFactura generadorXml)
+            IGeneradorXmlFactura generadorXml,
+            IGeneradorPdfFactura generadorPdf)
         {
             _facturaDA = facturaDA;
             _usuarioDA = usuarioDA;
@@ -35,6 +37,7 @@ namespace Flujo
             _enviarFactura = enviarFactura;
             _enviarXmlFactura = enviarXmlFactura;
             _generadorXml = generadorXml;
+            _generadorPdf = generadorPdf;
         }
 
         public async Task<ActionResult> ObtenerFacturas(int idUsuario, FacturaFiltro? filtro)
@@ -46,6 +49,116 @@ namespace Flujo
 
             var facturas = await _facturaDA.ObtenerFacturas(idEmpresaUsuario.Value, filtro);
             return new OkObjectResult(facturas);
+        }
+
+        public async Task<ActionResult> ObtenerFlujoFacturas(int idUsuario, FlujoFacturaFiltro? filtro)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            if (filtro?.IdCotizacion is int idCotizacion && idCotizacion <= 0)
+                return new BadRequestObjectResult("El identificador de cotización no es válido");
+
+            var numeroFactura = filtro?.NumeroFactura?.Trim();
+            if (string.IsNullOrEmpty(numeroFactura))
+                numeroFactura = null;
+            else if (numeroFactura.Length > 50)
+                return new BadRequestObjectResult("El número de factura no puede superar 50 caracteres");
+
+            var ordenarPor = filtro?.OrdenarPor?.Trim();
+            if (string.IsNullOrEmpty(ordenarPor))
+                ordenarPor = "id_cotizacion";
+            else if (ordenarPor != "id_cotizacion" && ordenarPor != "numeroFactura")
+                return new BadRequestObjectResult("El ordenamiento solo admite id_cotizacion o numeroFactura");
+
+            var filtroConsulta = new FlujoFacturaFiltro
+            {
+                IdCotizacion = filtro?.IdCotizacion,
+                NumeroFactura = numeroFactura,
+                OrdenarPor = ordenarPor
+            };
+
+            var items = (await _facturaDA.ObtenerFlujoFacturas(idEmpresaUsuario.Value, filtroConsulta)).ToList();
+            var hayFiltros = filtroConsulta.IdCotizacion.HasValue || filtroConsulta.NumeroFactura != null;
+
+            string? mensaje = null;
+            if (items.Count == 0)
+            {
+                mensaje = hayFiltros
+                    ? "No se encontraron resultados que coincidan"
+                    : "No hay registros disponibles";
+            }
+
+            await _bitacoraDA.RegistrarBitacora(new Bitacora
+            {
+                IdUsuario = idUsuario,
+                IdEmpresa = idEmpresaUsuario.Value,
+                TablaAfectada = "FACTURA",
+                Accion = "CONSULTAR_FLUJO",
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    idCotizacion = filtroConsulta.IdCotizacion,
+                    numeroFactura = filtroConsulta.NumeroFactura,
+                    ordenarPor = filtroConsulta.OrdenarPor
+                })
+            });
+
+            return new OkObjectResult(new FlujoFacturaConsulta
+            {
+                Mensaje = mensaje,
+                Items = items
+            });
+        }
+
+        public async Task<ActionResult> ObtenerFlujoFactura(int idUsuario, int idFactura)
+        {
+            if (idFactura <= 0)
+                return new BadRequestObjectResult("El identificador de factura no es válido");
+
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var factura = await _facturaDA.ObtenerFactura(idEmpresaUsuario.Value, idFactura);
+
+            if (factura == null || !factura.IdCotizacion.HasValue)
+                return new NotFoundObjectResult("La factura no existe");
+
+            var filasFlujo = await _facturaDA.ObtenerFlujoFacturas(
+                idEmpresaUsuario.Value,
+                new FlujoFacturaFiltro
+                {
+                    IdCotizacion = factura.IdCotizacion,
+                    OrdenarPor = "id_cotizacion"
+                });
+
+            var resumen = filasFlujo.FirstOrDefault(fila => fila.IdFactura == idFactura);
+
+            if (resumen == null)
+                return new NotFoundObjectResult("La factura no existe");
+
+            await _bitacoraDA.RegistrarBitacora(new Bitacora
+            {
+                IdUsuario = idUsuario,
+                IdEmpresa = idEmpresaUsuario.Value,
+                TablaAfectada = "FACTURA",
+                RegistroId = idFactura.ToString(),
+                Accion = "CONSULTAR_FLUJO",
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    consulta = "detalle",
+                    idFactura
+                })
+            });
+
+            return new OkObjectResult(new FlujoFacturaDetalle
+            {
+                Factura = factura,
+                Resumen = resumen
+            });
         }
 
         public async Task<ActionResult> ObtenerFactura(int idUsuario, int idFactura)
@@ -230,6 +343,46 @@ namespace Flujo
             return await _enviarXmlFactura.Enviar(idUsuario, idEmpresaUsuario.Value, idFactura);
         }
 
+        public async Task<ActionResult> DescargarPdf(int idUsuario, int idFactura)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var idEmpresa = idEmpresaUsuario.Value;
+            var factura = await _facturaDA.ObtenerFactura(idEmpresa, idFactura);
+
+            if (factura == null)
+                return new NotFoundObjectResult("La factura no existe");
+
+            var rechazo = ValidarElegibilidadPdf(factura);
+            if (rechazo != null)
+                return rechazo;
+
+            var empresa = await _empresaDA.ObtenerEmpresaPorId(idEmpresa);
+            var pdf = _generadorPdf.Generar(factura, empresa);
+
+            return new PdfInlineResult(pdf, NombreArchivoPdf(factura.NumeroFactura));
+        }
+
+        private static ActionResult? ValidarElegibilidadPdf(FacturaDetalle factura)
+        {
+            if (string.Equals(factura.Estado, "Borrador", StringComparison.Ordinal))
+                return new BadRequestObjectResult("La factura debe estar confirmada antes de generar el documento");
+
+            if (string.Equals(factura.Estado, "Inactiva", StringComparison.Ordinal))
+                return new BadRequestObjectResult("No se puede generar el documento de una factura inactiva");
+
+            if (!string.Equals(factura.Estado, "Emitida", StringComparison.Ordinal)
+                && !string.Equals(factura.Estado, "Pagada", StringComparison.Ordinal))
+            {
+                return new BadRequestObjectResult("La factura no se puede generar en el estado actual");
+            }
+
+            return null;
+        }
+
         private static ActionResult? ValidarElegibilidadXml(FacturaDetalle factura)
         {
             if (string.Equals(factura.Estado, "Borrador", StringComparison.Ordinal))
@@ -253,6 +406,36 @@ namespace Flujo
             var invalidos = Path.GetInvalidFileNameChars();
             var sanitizado = new string(numero.Select(c => invalidos.Contains(c) ? '_' : c).ToArray());
             return $"Factura_{sanitizado}.xml";
+        }
+
+        private static string NombreArchivoPdf(string? numeroFactura)
+        {
+            var numero = string.IsNullOrWhiteSpace(numeroFactura) ? "sin-numero" : numeroFactura.Trim();
+            var invalidos = Path.GetInvalidFileNameChars();
+            var sanitizado = new string(numero.Select(c => invalidos.Contains(c) ? '_' : c).ToArray());
+            return $"Factura_{sanitizado}.pdf";
+        }
+
+        private sealed class PdfInlineResult : ActionResult
+        {
+            private readonly byte[] _contenido;
+            private readonly string _nombreArchivo;
+
+            public PdfInlineResult(byte[] contenido, string nombreArchivo)
+            {
+                _contenido = contenido;
+                _nombreArchivo = nombreArchivo;
+            }
+
+            public override async Task ExecuteResultAsync(ActionContext context)
+            {
+                var response = context.HttpContext.Response;
+                response.StatusCode = 200;
+                response.ContentType = "application/pdf";
+                response.ContentLength = _contenido.Length;
+                response.Headers["Content-Disposition"] = $"inline; filename=\"{_nombreArchivo}\"";
+                await response.Body.WriteAsync(_contenido);
+            }
         }
 
         private async Task RegistrarErrorXml(int idUsuario, int idEmpresa, int idFactura, Exception ex)

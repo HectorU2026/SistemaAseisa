@@ -143,6 +143,7 @@
     <Build Include="dbo\Stored Procedures\ObtenerCotizacionesCanceladasRechazadas.sql" />
     <Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFacturas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFlujoFacturas.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
     <Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
     <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />

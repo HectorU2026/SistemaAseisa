@@ -31,6 +31,22 @@ namespace DA
             return resultado;
         }
 
+        public async Task<IEnumerable<FlujoFacturaListado>> ObtenerFlujoFacturas(int idEmpresa, FlujoFacturaFiltro? filtro)
+        {
+            var resultado = await _sqlConnection.QueryAsync<FlujoFacturaListado>(
+                "ObtenerFlujoFacturas",
+                new
+                {
+                    id_empresa = idEmpresa,
+                    id_cotizacion = filtro?.IdCotizacion,
+                    numero_factura = filtro?.NumeroFactura,
+                    ordenar_por = filtro?.OrdenarPor
+                },
+                commandType: CommandType.StoredProcedure);
+
+            return resultado;
+        }
+
         public async Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura)
         {
             using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
