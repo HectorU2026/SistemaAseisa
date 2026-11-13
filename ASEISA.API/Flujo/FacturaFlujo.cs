@@ -18,6 +18,7 @@ namespace Flujo
         private readonly IEnviarFactura _enviarFactura;
         private readonly IEnviarXmlFactura _enviarXmlFactura;
         private readonly IGeneradorXmlFactura _generadorXml;
+        private readonly IGeneradorPdfFactura _generadorPdf;
 
         public FacturaFlujo(
             IFacturaDA facturaDA,
@@ -26,7 +27,8 @@ namespace Flujo
             IBitacoraDA bitacoraDA,
             IEnviarFactura enviarFactura,
             IEnviarXmlFactura enviarXmlFactura,
-            IGeneradorXmlFactura generadorXml)
+            IGeneradorXmlFactura generadorXml,
+            IGeneradorPdfFactura generadorPdf)
         {
             _facturaDA = facturaDA;
             _usuarioDA = usuarioDA;
@@ -35,6 +37,7 @@ namespace Flujo
             _enviarFactura = enviarFactura;
             _enviarXmlFactura = enviarXmlFactura;
             _generadorXml = generadorXml;
+            _generadorPdf = generadorPdf;
         }
 
         public async Task<ActionResult> ObtenerFacturas(int idUsuario, FacturaFiltro? filtro)
@@ -230,6 +233,46 @@ namespace Flujo
             return await _enviarXmlFactura.Enviar(idUsuario, idEmpresaUsuario.Value, idFactura);
         }
 
+        public async Task<ActionResult> DescargarPdf(int idUsuario, int idFactura)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var idEmpresa = idEmpresaUsuario.Value;
+            var factura = await _facturaDA.ObtenerFactura(idEmpresa, idFactura);
+
+            if (factura == null)
+                return new NotFoundObjectResult("La factura no existe");
+
+            var rechazo = ValidarElegibilidadPdf(factura);
+            if (rechazo != null)
+                return rechazo;
+
+            var empresa = await _empresaDA.ObtenerEmpresaPorId(idEmpresa);
+            var pdf = _generadorPdf.Generar(factura, empresa);
+
+            return new PdfInlineResult(pdf, NombreArchivoPdf(factura.NumeroFactura));
+        }
+
+        private static ActionResult? ValidarElegibilidadPdf(FacturaDetalle factura)
+        {
+            if (string.Equals(factura.Estado, "Borrador", StringComparison.Ordinal))
+                return new BadRequestObjectResult("La factura debe estar confirmada antes de generar el documento");
+
+            if (string.Equals(factura.Estado, "Inactiva", StringComparison.Ordinal))
+                return new BadRequestObjectResult("No se puede generar el documento de una factura inactiva");
+
+            if (!string.Equals(factura.Estado, "Emitida", StringComparison.Ordinal)
+                && !string.Equals(factura.Estado, "Pagada", StringComparison.Ordinal))
+            {
+                return new BadRequestObjectResult("La factura no se puede generar en el estado actual");
+            }
+
+            return null;
+        }
+
         private static ActionResult? ValidarElegibilidadXml(FacturaDetalle factura)
         {
             if (string.Equals(factura.Estado, "Borrador", StringComparison.Ordinal))
@@ -253,6 +296,36 @@ namespace Flujo
             var invalidos = Path.GetInvalidFileNameChars();
             var sanitizado = new string(numero.Select(c => invalidos.Contains(c) ? '_' : c).ToArray());
             return $"Factura_{sanitizado}.xml";
+        }
+
+        private static string NombreArchivoPdf(string? numeroFactura)
+        {
+            var numero = string.IsNullOrWhiteSpace(numeroFactura) ? "sin-numero" : numeroFactura.Trim();
+            var invalidos = Path.GetInvalidFileNameChars();
+            var sanitizado = new string(numero.Select(c => invalidos.Contains(c) ? '_' : c).ToArray());
+            return $"Factura_{sanitizado}.pdf";
+        }
+
+        private sealed class PdfInlineResult : ActionResult
+        {
+            private readonly byte[] _contenido;
+            private readonly string _nombreArchivo;
+
+            public PdfInlineResult(byte[] contenido, string nombreArchivo)
+            {
+                _contenido = contenido;
+                _nombreArchivo = nombreArchivo;
+            }
+
+            public override async Task ExecuteResultAsync(ActionContext context)
+            {
+                var response = context.HttpContext.Response;
+                response.StatusCode = 200;
+                response.ContentType = "application/pdf";
+                response.ContentLength = _contenido.Length;
+                response.Headers["Content-Disposition"] = $"inline; filename=\"{_nombreArchivo}\"";
+                await response.Body.WriteAsync(_contenido);
+            }
         }
 
         private async Task RegistrarErrorXml(int idUsuario, int idEmpresa, int idFactura, Exception ex)
