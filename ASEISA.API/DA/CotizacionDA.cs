@@ -121,29 +121,30 @@ namespace DA
         {
             var sql = "FacturarOrdenDeVenta";
 
+            var parametros = new
+            {
+                id_cotizacion = factura.IdCotizacion,
+                id_empresa = factura.IdEmpresa,
+                id_cliente = factura.IdCliente,
+                id_usuario = factura.IdUsuario,
+                numero_venta = factura.NumeroVenta,
+                numero_factura = (string?)null,
+                tipo_factura = factura.TipoFactura,
+                condicion_venta = factura.CondicionVenta,
+                moneda = factura.Moneda,
+                tipo_cambio = factura.TipoCambio,
+                subtotal = factura.Subtotal,
+                impuesto = factura.Impuesto,
+                descuento = factura.Descuento,
+                total = factura.Total,
+                fecha_factura = factura.FechaFactura,
+                id_termino_pago = factura.IdTerminoPago
+            };
+
             using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+
             var resultado = await conexion.QueryFirstOrDefaultAsync<FacturacionResponse>(
-                sql,
-                new
-                {
-                    id_cotizacion = factura.IdCotizacion,
-                    id_empresa = factura.IdEmpresa,
-                    id_cliente = factura.IdCliente,
-                    id_usuario = factura.IdUsuario,
-                    numero_venta = factura.NumeroVenta,
-                    numero_factura = (string?)null,
-                    tipo_factura = factura.TipoFactura,
-                    condicion_venta = factura.CondicionVenta,
-                    moneda = factura.Moneda,
-                    tipo_cambio = factura.TipoCambio,
-                    subtotal = factura.Subtotal,
-                    impuesto = factura.Impuesto,
-                    descuento = factura.Descuento,
-                    total = factura.Total,
-                    fecha_factura = factura.FechaFactura,
-                    id_termino_pago = factura.IdTerminoPago
-                },
-                commandType: CommandType.StoredProcedure);
+                sql, parametros);
 
             return resultado;
         }

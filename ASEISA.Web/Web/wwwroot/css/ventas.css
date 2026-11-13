@@ -264,3 +264,24 @@
     margin-bottom: 6px;
     display: block;
 }
+
+
+/* --- Indicador de Fila Desplegable --- */
+.fila-principal {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .fila-principal:hover {
+        background-color: #f8fafc !important;
+    }
+
+.chevron-icon {
+    transition: transform 0.3s ease;
+    font-size: 1.2rem;
+    display: inline-block;
+}
+
+.fila-principal[aria-expanded="true"] .chevron-icon {
+    transform: rotate(-180deg);
+}
