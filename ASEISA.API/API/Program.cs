@@ -122,6 +122,8 @@ builder.Services.AddScoped<ITerminoPagoFlujo, TerminoPagoFlujo>();
 builder.Services.AddScoped<ITerminoPagoDA, TerminoPagoDA>();
 builder.Services.AddScoped<IMetodoPagoFlujo, MetodoPagoFlujo>();
 builder.Services.AddScoped<IMetodoPagoDA, MetodoPagoDA>();
+builder.Services.AddScoped<ICuentaContableDA, CuentaContableDA>();
+builder.Services.AddScoped<ICuentaContableFlujo, CuentaContableFlujo>();
 
 var app = builder.Build();
 
