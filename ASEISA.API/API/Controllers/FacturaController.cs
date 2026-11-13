@@ -161,6 +161,21 @@ namespace API.Controllers
                 request.DescripcionAdicional);
         }
 
+        [HttpGet("{idFactura:int}/pdf")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> DescargarPdf([FromRoute] int idFactura)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.DescargarPdf(idUsuario, idFactura);
+        }
+
         [HttpGet("{idFactura:int}/xml")]
         [Authorize(Roles = "Contador")]
         public async Task<IActionResult> DescargarXml([FromRoute] int idFactura)

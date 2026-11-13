@@ -17,5 +17,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> Enviar(int idUsuario, int idFactura);
         Task<ActionResult> DescargarXml(int idUsuario, int idFactura);
         Task<ActionResult> EnviarXml(int idUsuario, int idFactura);
+        Task<ActionResult> DescargarPdf(int idUsuario, int idFactura);
     }
 }
