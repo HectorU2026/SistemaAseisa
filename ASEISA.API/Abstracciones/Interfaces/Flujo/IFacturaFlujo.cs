@@ -9,6 +9,8 @@ namespace Abstracciones.Interfaces.Flujo
         Task<ActionResult> ObtenerFacturas(int idUsuario, FacturaFiltro? filtro);
         Task<ActionResult> ObtenerFlujoFacturas(int idUsuario, FlujoFacturaFiltro? filtro);
         Task<ActionResult> ObtenerFlujoFactura(int idUsuario, int idFactura);
+        Task<ActionResult> ObtenerReporteFacturacion(int idUsuario, ReporteFacturacionFiltro? filtro);
+        Task<ActionResult> ObtenerDetalleReporteFacturacion(int idUsuario, int idFactura);
         Task<ActionResult> ObtenerFactura(int idUsuario, int idFactura);
         Task<ActionResult> Confirmar(int idUsuario, int idFactura, byte[]? versionFila);
         Task<ActionResult> Restablecer(int idUsuario, int idFactura, byte[]? versionFila);
