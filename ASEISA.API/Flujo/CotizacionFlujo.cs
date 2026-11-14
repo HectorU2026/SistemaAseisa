@@ -355,17 +355,25 @@ namespace Flujo
 
         private static void ValidarTerminoPago(FacturarRequest request)
         {
-            bool esContado = request.CondicionVenta == "01";
-            bool esCredito = request.CondicionVenta == "02";
+            var condicion = (request.CondicionVenta ?? string.Empty).Trim();
+
+            bool esContado = string.Equals(condicion, "Contado", StringComparison.OrdinalIgnoreCase);
+            bool esCredito = string.Equals(condicion, "Crédito", StringComparison.OrdinalIgnoreCase) || string.Equals(condicion, "Credito", StringComparison.OrdinalIgnoreCase);
 
             if (!esContado && !esCredito)
-                throw new ValidationException("La condición de venta debe ser '01' (contado) o '02' (crédito).");
+                throw new ValidationException("La condición de venta debe ser 'Contado' o 'Crédito'.");
 
-            if (esContado && request.IdTerminoPago.HasValue && request.IdTerminoPago > 0)
-                throw new ValidationException("Para ventas de contado no se debe especificar un término de pago.");
+            if (esContado)
+            {
+                if (request.IdTerminoPago.HasValue && request.IdTerminoPago.Value < 0)
+                    throw new ValidationException("El término de pago no es válido para una venta de contado.");
+            }
 
-            if (esCredito && (!request.IdTerminoPago.HasValue || request.IdTerminoPago <= 0))
-                throw new ValidationException("Para ventas a crédito es obligatorio seleccionar un término de pago válido.");
+            if (esCredito)
+            {
+                if (!request.IdTerminoPago.HasValue || request.IdTerminoPago.Value <= 0)
+                    throw new ValidationException("Para ventas a crédito es obligatorio seleccionar un término de pago válido.");
+            }
         }
 
         #endregion
