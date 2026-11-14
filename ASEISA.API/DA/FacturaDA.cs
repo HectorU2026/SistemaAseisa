@@ -47,6 +47,96 @@ namespace DA
             return resultado;
         }
 
+        public async Task<ReporteFacturacionResultado> ObtenerReporteFacturacion(int idEmpresa, ReporteFacturacionFiltro? filtro)
+        {
+            using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
+            using var resultados = await conexion.QueryMultipleAsync(
+                "ObtenerReporteFacturacion",
+                new
+                {
+                    id_empresa = idEmpresa,
+                    periodo = filtro?.Periodo,
+                    tipo_factura = filtro?.TipoFactura,
+                    ordenar_por = filtro?.OrdenarPor
+                },
+                commandType: CommandType.StoredProcedure);
+
+            var grupos = (await resultados.ReadAsync<ReporteFacturacionGrupo>()).ToList();
+            var lineas = (await resultados.ReadAsync<ReporteFacturacionLinea>()).ToList();
+
+            var lineasPorGrupo = new Dictionary<ClaveGrupoReporte, List<ReporteFacturacionLinea>>();
+
+            foreach (var grupo in grupos)
+            {
+                var clave = ClaveGrupoReporte.Desde(grupo.Periodo, grupo.TipoFactura, grupo.Moneda);
+                lineasPorGrupo[clave] = new List<ReporteFacturacionLinea>();
+            }
+
+            foreach (var linea in lineas)
+            {
+                var clave = ClaveGrupoReporte.Desde(linea.Periodo, linea.TipoFactura, linea.Moneda);
+
+                if (!lineasPorGrupo.TryGetValue(clave, out var facturasGrupo))
+                {
+                    throw new InvalidOperationException(
+                        $"La factura {linea.IdFactura} no coincide con ningún grupo del reporte (periodo, tipo_factura, moneda).");
+                }
+
+                if (facturasGrupo.Exists(factura => factura.IdFactura == linea.IdFactura))
+                {
+                    throw new InvalidOperationException(
+                        $"El reporte devolvió la factura {linea.IdFactura} duplicada en el mismo grupo.");
+                }
+
+                facturasGrupo.Add(linea);
+            }
+
+            foreach (var grupo in grupos)
+            {
+                var clave = ClaveGrupoReporte.Desde(grupo.Periodo, grupo.TipoFactura, grupo.Moneda);
+                grupo.Facturas = lineasPorGrupo[clave];
+            }
+
+            return new ReporteFacturacionResultado
+            {
+                Grupos = grupos
+            };
+        }
+
+        public async Task<IEnumerable<ReporteNotaCredito>> ObtenerNotasCreditoReporteFacturacion(int idEmpresa, int idFactura)
+        {
+            return await _sqlConnection.QueryAsync<ReporteNotaCredito>(
+                "ObtenerNotasCreditoReporteFacturacion",
+                new
+                {
+                    id_empresa = idEmpresa,
+                    id_factura = idFactura
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<ReporteFacturacionDetalle?> ObtenerDetalleReporteFacturacion(int idEmpresa, int idFactura)
+        {
+            var factura = await ObtenerFactura(idEmpresa, idFactura);
+
+            if (factura == null)
+                return null;
+
+            if (!string.Equals(factura.Estado, "Emitida", StringComparison.Ordinal)
+                && !string.Equals(factura.Estado, "Pagada", StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var notasCredito = (await ObtenerNotasCreditoReporteFacturacion(idEmpresa, idFactura)).ToList();
+
+            return new ReporteFacturacionDetalle
+            {
+                Factura = factura,
+                NotasCredito = notasCredito
+            };
+        }
+
         public async Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura)
         {
             using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
@@ -180,6 +270,17 @@ namespace DA
                 commandType: CommandType.StoredProcedure);
 
             return resultado;
+        }
+
+        private readonly record struct ClaveGrupoReporte(string Periodo, string? TipoFactura, string? Moneda)
+        {
+            public static ClaveGrupoReporte Desde(string? periodo, string? tipoFactura, string? moneda)
+            {
+                return new ClaveGrupoReporte(
+                    periodo?.TrimEnd() ?? string.Empty,
+                    tipoFactura,
+                    moneda);
+            }
         }
     }
 }
