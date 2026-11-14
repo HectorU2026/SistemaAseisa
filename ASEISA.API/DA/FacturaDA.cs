@@ -137,6 +137,51 @@ namespace DA
             };
         }
 
+        public async Task<IEnumerable<FacturaPagadaListado>> ObtenerFacturasPagadas(int idEmpresa, FacturaPagadaFiltro? filtro)
+        {
+            return await _sqlConnection.QueryAsync<FacturaPagadaListado>(
+                "ObtenerFacturasPagadas",
+                new
+                {
+                    id_empresa = idEmpresa,
+                    nombre_cliente = filtro?.NombreCliente,
+                    fecha_pago_desde = filtro?.FechaPagoDesde?.Date,
+                    fecha_pago_hasta = filtro?.FechaPagoHasta?.Date
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<FacturaPagadaPago>> ObtenerPagosFacturaPagada(int idEmpresa, int idFactura)
+        {
+            return await _sqlConnection.QueryAsync<FacturaPagadaPago>(
+                "ObtenerPagosFacturaPagada",
+                new
+                {
+                    id_empresa = idEmpresa,
+                    id_factura = idFactura
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<FacturaPagadaDetalle?> ObtenerFacturaPagada(int idEmpresa, int idFactura)
+        {
+            var factura = await ObtenerFactura(idEmpresa, idFactura);
+
+            if (factura == null)
+                return null;
+
+            if (!string.Equals(factura.Estado, "Pagada", StringComparison.Ordinal))
+                return null;
+
+            var pagos = (await ObtenerPagosFacturaPagada(idEmpresa, idFactura)).ToList();
+
+            return new FacturaPagadaDetalle
+            {
+                Factura = factura,
+                Pagos = pagos
+            };
+        }
+
         public async Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura)
         {
             using var conexion = new SqlConnection(_sqlConnection.ConnectionString);
