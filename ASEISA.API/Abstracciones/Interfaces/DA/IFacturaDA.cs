@@ -10,6 +10,9 @@ namespace Abstracciones.Interfaces.DA
         Task<ReporteFacturacionResultado> ObtenerReporteFacturacion(int idEmpresa, ReporteFacturacionFiltro? filtro);
         Task<IEnumerable<ReporteNotaCredito>> ObtenerNotasCreditoReporteFacturacion(int idEmpresa, int idFactura);
         Task<ReporteFacturacionDetalle?> ObtenerDetalleReporteFacturacion(int idEmpresa, int idFactura);
+        Task<IEnumerable<FacturaPagadaListado>> ObtenerFacturasPagadas(int idEmpresa, FacturaPagadaFiltro? filtro);
+        Task<IEnumerable<FacturaPagadaPago>> ObtenerPagosFacturaPagada(int idEmpresa, int idFactura);
+        Task<FacturaPagadaDetalle?> ObtenerFacturaPagada(int idEmpresa, int idFactura);
         Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura);
         Task<FacturaCambioEstadoResultado> Confirmar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
         Task<FacturaCambioEstadoResultado> Restablecer(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
