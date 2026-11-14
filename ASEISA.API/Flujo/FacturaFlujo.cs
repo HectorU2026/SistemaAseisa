@@ -3,6 +3,7 @@ using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Interfaces.Servicio;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Text.Json;
 
 namespace Flujo
@@ -159,6 +160,194 @@ namespace Flujo
                 Factura = factura,
                 Resumen = resumen
             });
+        }
+
+        public async Task<ActionResult> ObtenerReporteFacturacion(int idUsuario, ReporteFacturacionFiltro? filtro)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var periodo = filtro?.Periodo?.Trim();
+            if (string.IsNullOrEmpty(periodo))
+                periodo = null;
+            else if (!DateTime.TryParseExact(periodo, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                return new BadRequestObjectResult("El período debe tener el formato YYYY-MM");
+
+            var tipoFactura = filtro?.TipoFactura?.Trim();
+            if (string.IsNullOrEmpty(tipoFactura))
+                tipoFactura = null;
+            else if (tipoFactura.Length > 50)
+                return new BadRequestObjectResult("El tipo de factura no puede superar 50 caracteres");
+
+            var ordenarPor = filtro?.OrdenarPor?.Trim();
+            if (string.IsNullOrEmpty(ordenarPor))
+                ordenarPor = "periodo";
+            else if (ordenarPor != "periodo" && ordenarPor != "tipo_factura")
+                return new BadRequestObjectResult("El ordenamiento solo admite periodo o tipo_factura");
+
+            var filtroConsulta = new ReporteFacturacionFiltro
+            {
+                Periodo = periodo,
+                TipoFactura = tipoFactura,
+                OrdenarPor = ordenarPor
+            };
+
+            var resultado = await _facturaDA.ObtenerReporteFacturacion(idEmpresaUsuario.Value, filtroConsulta);
+            var hayFiltros = filtroConsulta.Periodo != null || filtroConsulta.TipoFactura != null;
+
+            string? mensaje = null;
+            if (resultado.Grupos.Count == 0)
+            {
+                mensaje = hayFiltros
+                    ? "No se encontraron resultados que coincidan"
+                    : "No hay registros disponibles";
+            }
+
+            await _bitacoraDA.RegistrarBitacora(new Bitacora
+            {
+                IdUsuario = idUsuario,
+                IdEmpresa = idEmpresaUsuario.Value,
+                TablaAfectada = "FACTURA",
+                Accion = "CONSULTAR_REPORTE",
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    periodo = filtroConsulta.Periodo,
+                    tipoFactura = filtroConsulta.TipoFactura,
+                    ordenarPor = filtroConsulta.OrdenarPor
+                })
+            });
+
+            return new OkObjectResult(new ReporteFacturacionConsulta
+            {
+                Mensaje = mensaje,
+                Grupos = resultado.Grupos
+            });
+        }
+
+        public async Task<ActionResult> ObtenerDetalleReporteFacturacion(int idUsuario, int idFactura)
+        {
+            if (idFactura <= 0)
+                return new BadRequestObjectResult("El identificador de factura no es válido");
+
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var detalle = await _facturaDA.ObtenerDetalleReporteFacturacion(idEmpresaUsuario.Value, idFactura);
+
+            if (detalle == null)
+                return new NotFoundObjectResult("La factura no existe");
+
+            await _bitacoraDA.RegistrarBitacora(new Bitacora
+            {
+                IdUsuario = idUsuario,
+                IdEmpresa = idEmpresaUsuario.Value,
+                TablaAfectada = "FACTURA",
+                RegistroId = idFactura.ToString(),
+                Accion = "CONSULTAR_REPORTE",
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    consulta = "detalle",
+                    idFactura
+                })
+            });
+
+            return new OkObjectResult(detalle);
+        }
+
+        public async Task<ActionResult> ObtenerFacturasPagadas(int idUsuario, FacturaPagadaFiltro? filtro)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var nombreCliente = filtro?.NombreCliente?.Trim();
+            if (string.IsNullOrEmpty(nombreCliente))
+                nombreCliente = null;
+            else if (nombreCliente.Length > 200)
+                return new BadRequestObjectResult("El nombre del cliente no puede superar 200 caracteres");
+
+            DateTime? fechaPagoDesde = filtro?.FechaPagoDesde?.Date;
+            DateTime? fechaPagoHasta = filtro?.FechaPagoHasta?.Date;
+
+            if (fechaPagoDesde.HasValue && fechaPagoHasta.HasValue && fechaPagoDesde.Value > fechaPagoHasta.Value)
+                return new BadRequestObjectResult("El rango de fechas no es válido");
+
+            var filtroConsulta = new FacturaPagadaFiltro
+            {
+                NombreCliente = nombreCliente,
+                FechaPagoDesde = fechaPagoDesde,
+                FechaPagoHasta = fechaPagoHasta
+            };
+
+            var facturas = (await _facturaDA.ObtenerFacturasPagadas(idEmpresaUsuario.Value, filtroConsulta)).ToList();
+            var hayFiltros = filtroConsulta.NombreCliente != null
+                || filtroConsulta.FechaPagoDesde.HasValue
+                || filtroConsulta.FechaPagoHasta.HasValue;
+
+            string? mensaje = null;
+            if (facturas.Count == 0)
+            {
+                mensaje = hayFiltros
+                    ? "No se encontraron resultados"
+                    : "No hay facturas pagadas registradas";
+            }
+
+            await _bitacoraDA.RegistrarBitacora(new Bitacora
+            {
+                IdUsuario = idUsuario,
+                IdEmpresa = idEmpresaUsuario.Value,
+                TablaAfectada = "FACTURA",
+                Accion = "CONSULTAR_PAGADAS",
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    nombreCliente = filtroConsulta.NombreCliente,
+                    fechaPagoDesde = filtroConsulta.FechaPagoDesde,
+                    fechaPagoHasta = filtroConsulta.FechaPagoHasta
+                })
+            });
+
+            return new OkObjectResult(new FacturaPagadaConsulta
+            {
+                Mensaje = mensaje,
+                Facturas = facturas
+            });
+        }
+
+        public async Task<ActionResult> ObtenerFacturaPagada(int idUsuario, int idFactura)
+        {
+            if (idFactura <= 0)
+                return new BadRequestObjectResult("El identificador de factura no es válido");
+
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var detalle = await _facturaDA.ObtenerFacturaPagada(idEmpresaUsuario.Value, idFactura);
+
+            if (detalle == null)
+                return new NotFoundObjectResult("La factura no existe");
+
+            await _bitacoraDA.RegistrarBitacora(new Bitacora
+            {
+                IdUsuario = idUsuario,
+                IdEmpresa = idEmpresaUsuario.Value,
+                TablaAfectada = "FACTURA",
+                RegistroId = idFactura.ToString(),
+                Accion = "CONSULTAR_PAGADAS",
+                ValorNuevo = JsonSerializer.Serialize(new
+                {
+                    consulta = "detalle",
+                    idFactura
+                })
+            });
+
+            return new OkObjectResult(detalle);
         }
 
         public async Task<ActionResult> ObtenerFactura(int idUsuario, int idFactura)
