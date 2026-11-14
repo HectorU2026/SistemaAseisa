@@ -146,6 +146,8 @@
     <Build Include="dbo\Stored Procedures\ObtenerFlujoFacturas.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerReporteFacturacion.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerNotasCreditoReporteFacturacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFacturasPagadas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerPagosFacturaPagada.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
     <Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
     <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
