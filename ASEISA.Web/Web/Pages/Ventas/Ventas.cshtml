@@ -88,7 +88,6 @@
                             if (item.Estado == "Cotización Enviada") badgeClass = "bg-enviada";
                             else if (item.Estado == "Orden de Venta") badgeClass = "bg-orden";
 
-                            <!-- QUITAMOS data-bs-toggle="collapse" PARA CONTROLARLO CON JS -->
                             <tr class="fila-principal"
                                 data-numero="@item.NumeroCotizacion.ToLower()"
                                 data-cliente="@item.NombreCliente.ToLower()"
@@ -118,7 +117,6 @@
                                 <td colspan="6">
                                     <div class="panel-contenido">
 
-                                        <!-- OPCIONES: COTIZACIÓN -->
                                         @if (item.Estado == "Cotización")
                                         {
                                             <div class="panel-titulo"><i class="bi bi-pencil-square"></i> Acciones de la Cotización</div>
@@ -136,7 +134,13 @@
                                                         </button>
                                                     </form>
                                                 </div>
-                                                <div class="col-md-auto ms-auto">
+                                            </div>
+
+                                            <hr class="my-3 text-muted opacity-25" />
+
+                                            <div class="panel-titulo"><i class="bi bi-arrow-return-left"></i> Cancelar Cotización</div>
+                                            <div class="row g-3 align-items-end">
+                                                <div class="col-md-auto">
                                                     <form method="post" asp-page-handler="Cancelar" class="form-cancelar">
                                                         <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
                                                         <button type="button" class="btn-venta-outline text-danger btn-confirmar-cancelar" onclick="event.stopPropagation();">
@@ -147,7 +151,6 @@
                                             </div>
                                         }
 
-                                        <!-- OPCIONES: COTIZACIÓN ENVIADA -->
                                         @if (item.Estado == "Cotización Enviada")
                                         {
                                             <div class="panel-titulo"><i class="bi bi-envelope"></i> Enviar al Cliente</div>
@@ -182,7 +185,6 @@
                                             </div>
                                         }
 
-                                        <!-- OPCIONES: ORDEN DE VENTA -->
                                         @if (item.Estado == "Orden de Venta")
                                         {
                                             <div class="panel-titulo"><i class="bi bi-receipt"></i> Facturación Electrónica</div>
@@ -208,9 +210,9 @@
                                             <div class="panel-titulo"><i class="bi bi-arrow-return-left"></i> Correcciones</div>
                                             <div class="row g-3 align-items-end">
                                                 <div class="col-md-auto">
-                                                    <form method="post" asp-page-handler="Retroceder">
+                                                    <form method="post" asp-page-handler="Retroceder" class="form-retroceder">
                                                         <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
-                                                        <button type="submit" class="btn-venta-outline text-secondary" onclick="event.stopPropagation(); return confirm('¿Está seguro de regresar esta orden a Cotización Enviada?');">
+                                                        <button type="button" class="btn-venta-outline text-secondary btn-confirmar-retroceder" onclick="event.stopPropagation();">
                                                             <i class="bi bi-arrow-return-left"></i> Retroceder a Cotización Enviada
                                                         </button>
                                                     </form>
@@ -248,7 +250,6 @@
             </div>
             <div class="modal-body">
 
-                <!-- INFORMACIÓN DE LA COTIZACIÓN (SOLO LECTURA) -->
                 <div class="bg-light rounded p-3 mb-4">
                     <h6 class="fw-bold text-muted small mb-3 text-uppercase">Información de la Cotización</h6>
                     <div class="row g-3">
@@ -279,7 +280,6 @@
                     </div>
                 </div>
 
-                <!-- FORMULARIO DE FACTURACIÓN -->
                 <form method="post" asp-page-handler="Facturar" class="form-facturar" id="formFacturar">
                     <input type="hidden" name="idCotizacion" id="hiddenIdCotizacion" value="" />
                     <input type="hidden" name="request.FechaFactura" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")" />
@@ -325,16 +325,13 @@
     </div>
 </div>
 
-<!-- Scripts de Bootstrap (Necesario para el Modal) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // --- CONTROL MANUAL DE LAS PESTAÑAS (ABRIR/CERRAR CON 1 CLIC) ---
+    // --- CONTROL MANUAL DE LAS PESTAÑAS ---
     document.querySelectorAll('.fila-principal').forEach(function(fila) {
         fila.addEventListener('click', function(e) {
-            // Si el clic fue en un botón o enlace interno, no hacemos nada
             if (e.target.closest('button') || e.target.closest('a')) return;
 
             var targetSelector = this.getAttribute('data-bs-target');
@@ -343,16 +340,14 @@
             if (targetPanel) {
                 var collapseInstance = bootstrap.Collapse.getInstance(targetPanel);
                 if (!collapseInstance) {
-                    // Creamos la instancia la primera vez
                     collapseInstance = new bootstrap.Collapse(targetPanel, { toggle: false });
                 }
-                // Alternamos (si está cerrado abre, si está abierto cierra)
                 collapseInstance.toggle();
             }
         });
     });
 
-    // 1. Lógica para Abrir el Modal y Pasar los Datos
+    // --- MODAL DE FACTURACIÓN ---
     function abrirModalFacturar(id, numero, cliente, vencimiento, subtotal, impuesto, total) {
         document.getElementById('infoNumero').value = numero;
         document.getElementById('infoCliente').value = cliente;
@@ -370,7 +365,6 @@
         myModal.show();
     }
 
-    // 2. Habilitar temporalmente el select de término antes de enviar
     document.addEventListener('submit', function (e) {
         if (e.target && e.target.classList.contains('form-facturar')) {
             e.target.querySelectorAll('select[name="request.IdTerminoPago"]').forEach(function (sel) {
@@ -379,7 +373,6 @@
         }
     }, true);
 
-    // 3. Función que controla el select de término
     function toggleTerminoModal() {
         var cond = document.getElementById('modalCondicion').value;
         var termSelect = document.getElementById('modalTermino');
@@ -405,7 +398,9 @@
         }
     }
 
-    // 4. Confirmaciones con SweetAlert2
+    // --- CONFIRMACIONES CON SWEETALERT2 ---
+
+    // Cancelar Cotización
     document.querySelectorAll('.btn-confirmar-cancelar').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
@@ -425,6 +420,7 @@
         });
     });
 
+    // Aceptar Cotización (Crear Orden)
     document.querySelectorAll('.btn-confirmar-aceptar').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
@@ -437,6 +433,26 @@
                 confirmButtonColor: '#198754',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Sí, crear orden',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) { form.submit(); }
+            });
+        });
+    });
+
+    // Retroceder Orden de Venta a Cotización Enviada (NUEVO)
+    document.querySelectorAll('.btn-confirmar-retroceder').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var form = this.closest('form');
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: 'La orden de venta regresará al estado de Cotización Enviada.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#6c757d', // Color gris para indicar retroceso
+                cancelButtonColor: '#F2382F',
+                confirmButtonText: 'Sí, retroceder',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) { form.submit(); }
