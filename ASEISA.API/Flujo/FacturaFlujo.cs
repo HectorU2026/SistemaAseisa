@@ -5,12 +5,15 @@ using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text.Json;
+using System.Xml;
 
 namespace Flujo
 {
     public class FacturaFlujo : IFacturaFlujo
     {
         private const string MensajeErrorXml = "No fue posible generar o enviar el archivo XML";
+        private const string MensajeErrorXmlAcademico =
+            "No fue posible generar o firmar el XML académico.";
 
         private readonly IFacturaDA _facturaDA;
         private readonly IUsuarioDA _usuarioDA;
@@ -19,6 +22,8 @@ namespace Flujo
         private readonly IEnviarFactura _enviarFactura;
         private readonly IEnviarXmlFactura _enviarXmlFactura;
         private readonly IGeneradorXmlFactura _generadorXml;
+        private readonly IGeneradorXmlFactura44Academico _generadorXmlAcademico;
+        private readonly IFirmaAcademicaSimulada _firmaAcademicaSimulada;
         private readonly IGeneradorPdfFactura _generadorPdf;
 
         public FacturaFlujo(
@@ -29,6 +34,8 @@ namespace Flujo
             IEnviarFactura enviarFactura,
             IEnviarXmlFactura enviarXmlFactura,
             IGeneradorXmlFactura generadorXml,
+            IGeneradorXmlFactura44Academico generadorXmlAcademico,
+            IFirmaAcademicaSimulada firmaAcademicaSimulada,
             IGeneradorPdfFactura generadorPdf)
         {
             _facturaDA = facturaDA;
@@ -38,6 +45,8 @@ namespace Flujo
             _enviarFactura = enviarFactura;
             _enviarXmlFactura = enviarXmlFactura;
             _generadorXml = generadorXml;
+            _generadorXmlAcademico = generadorXmlAcademico;
+            _firmaAcademicaSimulada = firmaAcademicaSimulada;
             _generadorPdf = generadorPdf;
         }
 
@@ -367,7 +376,55 @@ namespace Flujo
 
         public async Task<ActionResult> Confirmar(int idUsuario, int idFactura, byte[]? versionFila)
         {
-            return await EjecutarCambioEstado(idUsuario, idFactura, versionFila, _facturaDA.Confirmar);
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            if (versionFila == null || versionFila.Length != 8)
+                return new BadRequestObjectResult("La versión de la factura es obligatoria");
+
+            var idEmpresa = idEmpresaUsuario.Value;
+            var factura = await _facturaDA.ObtenerFactura(idEmpresa, idFactura);
+
+            if (factura == null || factura.IdEmpresa != idEmpresa)
+                return new NotFoundObjectResult("La factura no existe");
+
+            if (!string.Equals(factura.Estado, "Borrador", StringComparison.Ordinal))
+                return new BadRequestObjectResult("La factura no está en Borrador");
+
+            var empresa = await _empresaDA.ObtenerEmpresaPorId(idEmpresa);
+            if (empresa == null || empresa.IdEmpresa != idEmpresa)
+                return new BadRequestObjectResult(MensajeErrorXmlAcademico);
+
+            FirmaAcademicaSimuladaResultado firma;
+            try
+            {
+                var xml = _generadorXmlAcademico.Generar(factura, empresa);
+                firma = _firmaAcademicaSimulada.Firmar(xml);
+            }
+            catch (InvalidOperationException)
+            {
+                return new BadRequestObjectResult(MensajeErrorXmlAcademico);
+            }
+            catch (XmlException)
+            {
+                return new BadRequestObjectResult(MensajeErrorXmlAcademico);
+            }
+
+            if (firma.Xml.Length == 0 || string.IsNullOrWhiteSpace(firma.HuellaContenido))
+                return new BadRequestObjectResult(MensajeErrorXmlAcademico);
+
+            var resultado = await _facturaDA.Confirmar(
+                idEmpresa,
+                idUsuario,
+                idFactura,
+                versionFila,
+                firma.Xml,
+                firma.HuellaContenido,
+                firma.Algoritmo);
+
+            return MapearCambioEstado(resultado);
         }
 
         public async Task<ActionResult> Restablecer(int idUsuario, int idFactura, byte[]? versionFila)
@@ -683,6 +740,7 @@ namespace Flujo
                 }),
                 0 => new NotFoundObjectResult(resultado.Mensaje),
                 2 => new ConflictObjectResult(resultado.Mensaje),
+                9 or 10 => new BadRequestObjectResult(resultado.Mensaje),
                 _ => new BadRequestObjectResult(resultado.Mensaje)
             };
         }
