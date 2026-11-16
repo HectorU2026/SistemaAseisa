@@ -1,8 +1,11 @@
 CREATE PROCEDURE dbo.ConfirmarFactura
-    @id_factura   INT,
-    @id_empresa   INT,
-    @id_usuario   INT,
-    @version_fila BINARY(8)
+    @id_factura          INT,
+    @id_empresa          INT,
+    @id_usuario          INT,
+    @version_fila        BINARY(8),
+    @xml_firmado         VARBINARY(MAX),
+    @huella_contenido    VARCHAR(128),
+    @algoritmo_firma     VARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -253,6 +256,49 @@ BEGIN
             RETURN;
         END;
 
+        SET @huella_contenido = NULLIF(LTRIM(RTRIM(@huella_contenido)), '');
+        SET @algoritmo_firma = NULLIF(LTRIM(RTRIM(@algoritmo_firma)), '');
+
+        IF @xml_firmado IS NULL
+           OR DATALENGTH(@xml_firmado) = 0
+           OR @huella_contenido IS NULL
+           OR LEN(@huella_contenido) > 128
+           OR @algoritmo_firma IS NULL
+           OR LEN(@algoritmo_firma) > 100
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                9 AS Codigo,
+                'El XML académico firmado es inválido' AS Mensaje,
+                CAST(NULL AS INT) AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                CAST(NULL AS VARCHAR(100)) AS Estado,
+                CAST(NULL AS BINARY(8)) AS VersionFila;
+
+            RETURN;
+        END;
+
+        IF EXISTS
+        (
+            SELECT 1
+            FROM dbo.FACTURA_XML_ACADEMICO x
+            WHERE x.id_factura = @id_factura
+        )
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                10 AS Codigo,
+                'La factura ya tiene un XML académico registrado' AS Mensaje,
+                CAST(NULL AS INT) AS IdFactura,
+                CAST(NULL AS VARCHAR(50)) AS NumeroFactura,
+                CAST(NULL AS VARCHAR(100)) AS Estado,
+                CAST(NULL AS BINARY(8)) AS VersionFila;
+
+            RETURN;
+        END;
+
         SET @valor_anterior = CONCAT(
             '{"estadoFactura":"',
             @estado_factura_anterior,
@@ -291,6 +337,23 @@ BEGIN
             'CONFIRMAR',
             @valor_anterior,
             @valor_nuevo
+        );
+
+        INSERT dbo.FACTURA_XML_ACADEMICO
+        (
+            id_factura,
+            id_empresa,
+            xml_firmado,
+            huella_contenido,
+            algoritmo_firma
+        )
+        VALUES
+        (
+            @id_factura,
+            @id_empresa,
+            @xml_firmado,
+            @huella_contenido,
+            @algoritmo_firma
         );
 
         COMMIT TRANSACTION;

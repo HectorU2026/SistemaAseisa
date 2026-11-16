@@ -8,8 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.13" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.3.14" />
     <PackageReference Include="QuestPDF" Version="2026.9.1" />
-	<PackageReference Include="Aseisa.Servicios" Version="1.0.4" />
+    <PackageReference Include="Aseisa.Servicios" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>
