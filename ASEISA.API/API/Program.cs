@@ -110,6 +110,8 @@ builder.Services.AddScoped<IGeneradorPdfFactura, GeneradorPdfFactura>();
 builder.Services.AddScoped<IEnviarFactura, EnviarFactura>();
 builder.Services.AddScoped<IGeneradorXmlFactura, GeneradorXmlFactura>();
 builder.Services.AddScoped<IEnviarXmlFactura, EnviarXmlFactura>();
+builder.Services.AddScoped<IGeneradorXmlFactura44Academico, GeneradorXmlFactura44Academico>();
+builder.Services.AddScoped<IFirmaAcademicaSimulada, FirmaAcademicaSimulada>();
 builder.Services.AddScoped<IInventarioFisicoDA, InventarioFisicoDA>();
 builder.Services.AddScoped<IInventarioFisicoFlujo, InventarioFisicoFlujo>();
 builder.Services.AddScoped<IIngresoProductoDA, IngresoProductoDA>();

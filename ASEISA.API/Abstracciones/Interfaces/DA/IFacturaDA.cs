@@ -14,7 +14,14 @@ namespace Abstracciones.Interfaces.DA
         Task<IEnumerable<FacturaPagadaPago>> ObtenerPagosFacturaPagada(int idEmpresa, int idFactura);
         Task<FacturaPagadaDetalle?> ObtenerFacturaPagada(int idEmpresa, int idFactura);
         Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura);
-        Task<FacturaCambioEstadoResultado> Confirmar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
+        Task<FacturaCambioEstadoResultado> Confirmar(
+            int idEmpresa,
+            int idUsuario,
+            int idFactura,
+            byte[] versionFila,
+            byte[] xmlFirmado,
+            string huellaContenido,
+            string algoritmoFirma);
         Task<FacturaCambioEstadoResultado> Restablecer(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
         Task<FacturaCambioEstadoResultado> Inactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila, string motivoAnulacion);
         Task<FacturaCambioEstadoResultado> Reactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);

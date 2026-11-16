@@ -213,9 +213,28 @@ namespace DA
             return factura;
         }
 
-        public Task<FacturaCambioEstadoResultado> Confirmar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila)
+        public async Task<FacturaCambioEstadoResultado> Confirmar(
+            int idEmpresa,
+            int idUsuario,
+            int idFactura,
+            byte[] versionFila,
+            byte[] xmlFirmado,
+            string huellaContenido,
+            string algoritmoFirma)
         {
-            return EjecutarCambioEstado("ConfirmarFactura", idEmpresa, idUsuario, idFactura, versionFila);
+            var parametros = new DynamicParameters();
+            parametros.Add("id_factura", idFactura);
+            parametros.Add("id_empresa", idEmpresa);
+            parametros.Add("id_usuario", idUsuario);
+            parametros.Add("version_fila", versionFila, DbType.Binary, size: 8);
+            parametros.Add("xml_firmado", xmlFirmado, DbType.Binary, size: -1);
+            parametros.Add("huella_contenido", huellaContenido);
+            parametros.Add("algoritmo_firma", algoritmoFirma);
+
+            return await _sqlConnection.QuerySingleAsync<FacturaCambioEstadoResultado>(
+                "ConfirmarFactura",
+                parametros,
+                commandType: CommandType.StoredProcedure);
         }
 
         public Task<FacturaCambioEstadoResultado> Restablecer(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila)
