@@ -33,7 +33,8 @@ namespace Flujo
                 return 0;
             }
 
-            if (inventario.ContadoFisicamente < 0)
+            if (inventario.CantidadDelInventario < 0
+                || inventario.ContadoFisicamente < 0)
             {
                 return 2;
             }
