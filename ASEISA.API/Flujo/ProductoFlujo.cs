@@ -19,9 +19,10 @@ namespace Flujo
             _productoDA = productoDA;
         }
 
-        public async Task<int> RegistrarProducto(Producto producto)
+        public async Task<int> RegistrarProducto(Producto producto, int idEmpresa)
         {
             if (producto == null
+                || idEmpresa <= 0
                 || !producto.IdEmpresa.HasValue
                 || producto.IdEmpresa <= 0
                 || string.IsNullOrWhiteSpace(producto.Codigo)
@@ -70,7 +71,7 @@ namespace Flujo
             producto.TipoProducto = tipo;
             producto.PoliticaFacturacion = politica;
 
-            return await _productoDA.RegistrarProducto(producto);
+            return await _productoDA.RegistrarProducto(producto, idEmpresa);
         }
 
         public async Task<int> EditarProducto(Producto producto, int idEmpresa)

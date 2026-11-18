@@ -23,9 +23,30 @@ namespace API.Controllers
         }
 
         [HttpPost("RegistrarProducto")]
+        [Authorize(Roles = "Administrador,Contador,Comprador")]
         public async Task<ActionResult> RegistrarProducto(Producto producto)
         {
-            var resultado = await productoFlujo.RegistrarProducto(producto);
+            var valor = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(valor, out var idUsuario) || idUsuario <= 0)
+                return Unauthorized();
+
+            var idEmpresa = await usuarioFlujo.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresa.HasValue || idEmpresa.Value <= 0)
+                return Forbid();
+
+            if (producto == null
+                || !producto.IdEmpresa.HasValue
+                || producto.IdEmpresa <= 0)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            if (producto.IdEmpresa.Value != idEmpresa.Value)
+                return Forbid();
+
+            var resultado = await productoFlujo.RegistrarProducto(producto, idEmpresa.Value);
 
             if (resultado == 0)
             {
