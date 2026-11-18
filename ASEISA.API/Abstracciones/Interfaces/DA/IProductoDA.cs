@@ -9,7 +9,7 @@ namespace Abstracciones.Interfaces.DA
     {
         Task<int> RegistrarProducto(Producto producto);
         Task<int> EditarProducto(Producto producto);
-        Task<int> InhabilitarProducto(int idProducto);
+        Task<int> InhabilitarProducto(int idProducto, int idEmpresa);
         Task<ProductoCatalogoRespuesta> ObtenerProductos(ProductoFiltro filtro);
     }
 }

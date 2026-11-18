@@ -74,14 +74,15 @@ namespace DA
             return resultado.FirstOrDefault();
         }
 
-        public async Task<int> InhabilitarProducto(int idProducto)
+        public async Task<int> InhabilitarProducto(int idProducto, int idEmpresa)
         {
             var sql = @"InhabilitarProducto";
 
             var resultado = await _sqlConnection.QueryAsync<int>(sql,
                 new
                 {
-                    id_producto = idProducto
+                    id_producto = idProducto,
+                    id_empresa = idEmpresa
                 });
 
             return resultado.FirstOrDefault();
