@@ -89,9 +89,27 @@ namespace API.Controllers
         }
 
         [HttpPost("InhabilitarProducto")]
+        [Authorize(Roles = "Administrador,Contador")]
         public async Task<ActionResult> InhabilitarProducto(ProductoInhabilitar producto)
         {
-            var resultado = await productoFlujo.InhabilitarProducto(producto);
+            var valor = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(valor, out var idUsuario) || idUsuario <= 0)
+                return Unauthorized();
+
+            var idEmpresa = await usuarioFlujo.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresa.HasValue || idEmpresa.Value <= 0)
+                return Forbid();
+
+            if (producto == null
+                || !producto.IdProducto.HasValue
+                || producto.IdProducto <= 0)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            var resultado = await productoFlujo.InhabilitarProducto(producto, idEmpresa.Value);
 
             if (resultado == 0)
             {
