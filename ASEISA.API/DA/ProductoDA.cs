@@ -46,7 +46,7 @@ namespace DA
             return resultado.FirstOrDefault();
         }
 
-        public async Task<int> EditarProducto(Producto producto)
+        public async Task<int> EditarProducto(Producto producto, int idEmpresa)
         {
             var sql = @"EditarProducto";
 
@@ -54,6 +54,7 @@ namespace DA
                 new
                 {
                     id_producto = producto.IdProducto,
+                    id_empresa = idEmpresa,
                     nombre = producto.Nombre,
                     descripcion = producto.Descripcion,
                     tipo_producto = producto.TipoProducto,

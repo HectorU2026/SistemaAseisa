@@ -41,9 +41,20 @@ namespace API.Controllers
         }
 
         [HttpPost("EditarProducto")]
+        [Authorize(Roles = "Administrador,Contador,Comprador")]
         public async Task<ActionResult> EditarProducto(Producto producto)
         {
-            var resultado = await productoFlujo.EditarProducto(producto);
+            var valor = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(valor, out var idUsuario) || idUsuario <= 0)
+                return Unauthorized();
+
+            var idEmpresa = await usuarioFlujo.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresa.HasValue || idEmpresa.Value <= 0)
+                return Forbid();
+
+            var resultado = await productoFlujo.EditarProducto(producto, idEmpresa.Value);
 
             if (resultado == 0)
             {
