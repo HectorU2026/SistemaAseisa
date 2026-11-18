@@ -7,7 +7,7 @@ namespace Abstracciones.Interfaces.DA
 {
     public interface IProductoDA
     {
-        Task<int> RegistrarProducto(Producto producto);
+        Task<int> RegistrarProducto(Producto producto, int idEmpresa);
         Task<int> EditarProducto(Producto producto, int idEmpresa);
         Task<int> InhabilitarProducto(int idProducto, int idEmpresa);
         Task<ProductoCatalogoRespuesta> ObtenerProductos(ProductoFiltro filtro);
