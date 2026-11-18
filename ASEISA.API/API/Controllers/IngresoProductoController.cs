@@ -1,26 +1,54 @@
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using API.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrador,Contador,Comprador")]
     [IngresoProductoModelStateFilter]
     public class IngresoProductoController : Controller
     {
         private IIngresoProductoFlujo ingresoProductoFlujo;
+        private IUsuarioFlujo usuarioFlujo;
 
-        public IngresoProductoController(IIngresoProductoFlujo ingresoProductoFlujo)
+        public IngresoProductoController(IIngresoProductoFlujo ingresoProductoFlujo, IUsuarioFlujo usuarioFlujo)
         {
             this.ingresoProductoFlujo = ingresoProductoFlujo;
+            this.usuarioFlujo = usuarioFlujo;
         }
 
         [HttpPost("RegistrarIngresoProducto")]
         public async Task<ActionResult> RegistrarIngresoProducto(IngresoProducto ingreso)
         {
+            var valor = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(valor, out var idUsuario) || idUsuario <= 0)
+                return Unauthorized();
+
+            var idEmpresa = await usuarioFlujo.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresa.HasValue || idEmpresa.Value <= 0)
+                return Forbid();
+
+            if (ingreso == null
+                || ingreso.IdEmpresa == 0
+                || ingreso.IdUsuario == 0)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            if (ingreso.IdEmpresa != idEmpresa.Value
+                || ingreso.IdUsuario != idUsuario)
+            {
+                return Forbid();
+            }
+
             var resultado = await ingresoProductoFlujo.RegistrarIngresoProducto(ingreso);
 
             if (resultado == 0)
