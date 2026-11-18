@@ -1,5 +1,6 @@
 CREATE PROCEDURE EditarProducto
     @id_producto                INT,
+    @id_empresa                 INT,
     @nombre                     VARCHAR(150),
     @descripcion                VARCHAR(300) = NULL,
     @tipo_producto              VARCHAR(50),
@@ -19,18 +20,19 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Códigos: 1 éxito; 3 no existe; 4 referencias inválidas;
+    -- Códigos: 1 éxito; 3 no existe o de otra empresa; 4 referencias inválidas;
     -- 5 sin existencia; 6 varias existencias; 7 conflicto en destino.
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        DECLARE @id_empresa INT;
+        DECLARE @id_producto_empresa INT;
 
-        SELECT @id_empresa = id_empresa
+        SELECT @id_producto_empresa = id_producto
         FROM PRODUCTO WITH (UPDLOCK, HOLDLOCK)
-        WHERE id_producto = @id_producto;
+        WHERE id_producto = @id_producto
+          AND id_empresa = @id_empresa;
 
-        IF @id_empresa IS NULL
+        IF @id_producto_empresa IS NULL
         BEGIN
             ROLLBACK TRANSACTION;
             SELECT 3;
@@ -151,7 +153,8 @@ BEGIN
             id_cuenta_ingreso = @id_cuenta_ingreso,
             id_cuenta_gasto = @id_cuenta_gasto,
             fecha_modificacion = SYSDATETIME()
-        WHERE id_producto = @id_producto;
+        WHERE id_producto = @id_producto
+          AND id_empresa = @id_empresa;
 
         COMMIT TRANSACTION;
         SELECT 1;
