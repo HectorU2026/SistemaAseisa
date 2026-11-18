@@ -16,14 +16,14 @@ namespace DA
             _sqlConnection = _repositorioDapper.ObtenerRepositorio();
         }
 
-        public async Task<int> RegistrarProducto(Producto producto)
+        public async Task<int> RegistrarProducto(Producto producto, int idEmpresa)
         {
             var sql = @"RegistrarProducto";
 
             var resultado = await _sqlConnection.QueryAsync<int>(sql,
                 new
                 {
-                    id_empresa = producto.IdEmpresa,
+                    id_empresa = idEmpresa,
                     codigo = producto.Codigo,
                     nombre = producto.Nombre,
                     descripcion = producto.Descripcion,
