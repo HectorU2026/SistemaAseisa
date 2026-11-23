@@ -17,9 +17,17 @@
             <h1>Facturas</h1>
             <p>Consulte las facturas de su empresa.</p>
         </div>
-        <a asp-page="/Facturacion/Flujo" class="btn btn-contacto-outline">
-            Ver flujo
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            @if (User.IsInRole("Contador"))
+            {
+                <a asp-page="/Facturacion/Pagadas" class="btn btn-contacto-outline">
+                    Facturas pagadas
+                </a>
+            }
+            <a asp-page="/Facturacion/Flujo" class="btn btn-contacto-outline">
+                Ver flujo
+            </a>
+        </div>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(Model.MensajeError))

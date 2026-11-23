@@ -134,6 +134,151 @@ public class FacturaApiService(HttpClient cliente, IConfiguracion configuracion)
         return resultado;
     }
 
+    public async Task<FacturaPagadaConsulta> ObtenerFacturasPagadasAsync(
+        string token,
+        FacturaPagadaFiltro filtro,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new UnauthorizedAccessException(
+                "No se encontró el token de autenticación.");
+        }
+
+        var consulta = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(filtro.NombreCliente))
+            consulta.Add($"nombreCliente={Uri.EscapeDataString(filtro.NombreCliente.Trim())}");
+
+        if (filtro.FechaPagoDesde.HasValue)
+        {
+            consulta.Add(
+                "fechaPagoDesde=" +
+                filtro.FechaPagoDesde.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+        }
+
+        if (filtro.FechaPagoHasta.HasValue)
+        {
+            consulta.Add(
+                "fechaPagoHasta=" +
+                filtro.FechaPagoHasta.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+        }
+
+        var endpoint = configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerFacturasPagadas");
+        var url = consulta.Count == 0
+            ? endpoint
+            : $"{endpoint}?{string.Join("&", consulta)}";
+
+        using var solicitud = new HttpRequestMessage(HttpMethod.Get, url);
+        solicitud.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        using var respuesta = await cliente.SendAsync(solicitud, ct);
+
+        if (respuesta.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new HttpRequestException(
+                await LeerErrorValidacionAsync(respuesta, ct),
+                null,
+                HttpStatusCode.BadRequest);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new HttpRequestException(
+                "La sesión no está autorizada para consultar facturas.",
+                null,
+                HttpStatusCode.Unauthorized);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new HttpRequestException(
+                "No tiene permisos para consultar facturas.",
+                null,
+                HttpStatusCode.Forbidden);
+        }
+
+        respuesta.EnsureSuccessStatusCode();
+
+        var resultado = await respuesta.Content
+            .ReadFromJsonAsync<FacturaPagadaConsulta>(Json, ct);
+
+        if (resultado == null)
+        {
+            throw new InvalidOperationException(
+                "La API no devolvió las facturas pagadas.");
+        }
+
+        resultado.Facturas ??= new List<FacturaPagadaListado>();
+        return resultado;
+    }
+
+    public async Task<FacturaPagadaDetalle> ObtenerFacturaPagadaAsync(
+        string token,
+        int idFactura,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new UnauthorizedAccessException(
+                "No se encontró el token de autenticación.");
+        }
+
+        var endpoint = configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerFacturasPagadas");
+        using var solicitud = new HttpRequestMessage(HttpMethod.Get, $"{endpoint}/{idFactura}");
+        solicitud.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        using var respuesta = await cliente.SendAsync(solicitud, ct);
+
+        if (respuesta.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new HttpRequestException(
+                await LeerErrorValidacionAsync(respuesta, ct),
+                null,
+                HttpStatusCode.NotFound);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new HttpRequestException(
+                await LeerErrorValidacionAsync(respuesta, ct),
+                null,
+                HttpStatusCode.BadRequest);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new HttpRequestException(
+                "La sesión no está autorizada para consultar facturas.",
+                null,
+                HttpStatusCode.Unauthorized);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new HttpRequestException(
+                "No tiene permisos para consultar facturas.",
+                null,
+                HttpStatusCode.Forbidden);
+        }
+
+        respuesta.EnsureSuccessStatusCode();
+
+        var detalle = await respuesta.Content
+            .ReadFromJsonAsync<FacturaPagadaDetalle>(Json, ct);
+
+        if (detalle?.Factura == null)
+        {
+            throw new InvalidOperationException(
+                "La API no devolvió el detalle de la factura pagada.");
+        }
+
+        detalle.Pagos ??= new List<FacturaPagadaPago>();
+        return detalle;
+    }
+
     public async Task<FacturaDetalle> ObtenerFacturaAsync(
         string token,
         int idFactura,
