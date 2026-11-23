@@ -62,6 +62,78 @@ public class FacturaApiService(HttpClient cliente, IConfiguracion configuracion)
         return LeerListaAsync<EstadoFactura>(token, endpoint, ct);
     }
 
+    public async Task<FlujoFacturaConsulta> ObtenerFlujoFacturasAsync(
+        string token,
+        FlujoFacturaFiltro filtro,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new UnauthorizedAccessException(
+                "No se encontró el token de autenticación.");
+        }
+
+        var consulta = new List<string>();
+
+        if (filtro.IdCotizacion is > 0)
+            consulta.Add($"idCotizacion={filtro.IdCotizacion.Value}");
+
+        if (!string.IsNullOrWhiteSpace(filtro.NumeroFactura))
+            consulta.Add($"numeroFactura={Uri.EscapeDataString(filtro.NumeroFactura.Trim())}");
+
+        if (!string.IsNullOrWhiteSpace(filtro.OrdenarPor))
+            consulta.Add($"ordenarPor={Uri.EscapeDataString(filtro.OrdenarPor.Trim())}");
+
+        var endpoint = configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerFlujoFacturas");
+        var url = consulta.Count == 0
+            ? endpoint
+            : $"{endpoint}?{string.Join("&", consulta)}";
+
+        using var solicitud = new HttpRequestMessage(HttpMethod.Get, url);
+        solicitud.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        using var respuesta = await cliente.SendAsync(solicitud, ct);
+
+        if (respuesta.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new HttpRequestException(
+                await LeerErrorValidacionAsync(respuesta, ct),
+                null,
+                HttpStatusCode.BadRequest);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new HttpRequestException(
+                "La sesión no está autorizada para consultar facturas.",
+                null,
+                HttpStatusCode.Unauthorized);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new HttpRequestException(
+                "No tiene permisos para consultar facturas.",
+                null,
+                HttpStatusCode.Forbidden);
+        }
+
+        respuesta.EnsureSuccessStatusCode();
+
+        var resultado = await respuesta.Content
+            .ReadFromJsonAsync<FlujoFacturaConsulta>(Json, ct);
+
+        if (resultado == null)
+        {
+            throw new InvalidOperationException(
+                "La API no devolvió el flujo de facturación.");
+        }
+
+        resultado.Items ??= new List<FlujoFacturaListado>();
+        return resultado;
+    }
+
     public async Task<FacturaDetalle> ObtenerFacturaAsync(
         string token,
         int idFactura,
