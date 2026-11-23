@@ -34,3 +34,9 @@ public class FlujoFacturaConsulta
     public string? Mensaje { get; set; }
     public List<FlujoFacturaListado> Items { get; set; } = new();
 }
+
+public class FlujoFacturaDetalle
+{
+    public FacturaDetalle Factura { get; set; } = new();
+    public FlujoFacturaListado Resumen { get; set; } = new();
+}

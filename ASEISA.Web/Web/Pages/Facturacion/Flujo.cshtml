@@ -129,6 +129,15 @@
                                        asp-route-idFactura="@item.IdFactura">
                                         @item.NumeroFactura
                                     </a>
+                                    <div>
+                                        <a asp-page="/Facturacion/Flujo/Detalle"
+                                           asp-route-idFactura="@item.IdFactura"
+                                           asp-route-IdCotizacion="@Model.IdCotizacion"
+                                           asp-route-NumeroFactura="@Model.NumeroFactura"
+                                           asp-route-OrdenarPor="@Model.OrdenarPor">
+                                            Ver trazabilidad
+                                        </a>
+                                    </div>
                                 </td>
                                 <td>@item.EstadoFactura</td>
                                 <td>@item.NombreCliente</td>
