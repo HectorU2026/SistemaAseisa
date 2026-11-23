@@ -7,6 +7,7 @@ namespace Abstracciones.Interfaces.Flujo
     public interface IFacturaFlujo
     {
         Task<ActionResult> ObtenerFacturas(int idUsuario, FacturaFiltro? filtro);
+        Task<ActionResult> ObtenerEstadosFactura(int idUsuario);
         Task<ActionResult> ObtenerFlujoFacturas(int idUsuario, FlujoFacturaFiltro? filtro);
         Task<ActionResult> ObtenerFlujoFactura(int idUsuario, int idFactura);
         Task<ActionResult> ObtenerReporteFacturacion(int idUsuario, ReporteFacturacionFiltro? filtro);

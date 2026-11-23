@@ -26,6 +26,7 @@ builder.Services.AddHttpClient<MetodoPagoApiService>();
 builder.Services.AddHttpClient<DistribucionAnaliticaApiService>();
 builder.Services.AddHttpClient<CuentaContableApiService>();
 builder.Services.AddHttpClient<ProductoApiService>();
+builder.Services.AddHttpClient<FacturaApiService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

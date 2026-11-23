@@ -1,12 +1,16 @@
 ﻿CREATE PROCEDURE dbo.ObtenerFacturas
     @id_empresa INT,
     @id_estado_factura INT = NULL,
-    @nombre_cliente VARCHAR(200) = NULL
+    @nombre_cliente VARCHAR(200) = NULL,
+    @numero_factura VARCHAR(50) = NULL,
+    @fecha_emision_desde DATETIME2(7) = NULL,
+    @fecha_emision_hasta DATETIME2(7) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SET @nombre_cliente = NULLIF(LTRIM(RTRIM(@nombre_cliente)), '');
+    SET @numero_factura = NULLIF(LTRIM(RTRIM(@numero_factura)), '');
 
     SELECT
         f.id_factura           AS IdFactura,
@@ -36,5 +40,11 @@ BEGIN
             OR ef.nombre_estado <> 'Inactiva'
           )
       AND (@nombre_cliente IS NULL OR CHARINDEX(@nombre_cliente, cl.nombre_razon_social) > 0)
+      AND (@numero_factura IS NULL OR CHARINDEX(@numero_factura, f.numero_factura) > 0)
+      AND (@fecha_emision_desde IS NULL OR f.fecha_emision >= CAST(@fecha_emision_desde AS date))
+      AND (
+            @fecha_emision_hasta IS NULL
+            OR f.fecha_emision < DATEADD(DAY, 1, CAST(@fecha_emision_hasta AS date))
+          )
     ORDER BY f.fecha_emision DESC;
 END;

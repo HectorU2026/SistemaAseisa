@@ -57,8 +57,37 @@ namespace Flujo
             if (!idEmpresaUsuario.HasValue)
                 return new ForbidResult();
 
+            if (filtro != null)
+            {
+                filtro.NumeroFactura = string.IsNullOrWhiteSpace(filtro.NumeroFactura)
+                    ? null
+                    : filtro.NumeroFactura.Trim();
+                filtro.NombreCliente = string.IsNullOrWhiteSpace(filtro.NombreCliente)
+                    ? null
+                    : filtro.NombreCliente.Trim();
+
+                if (filtro.FechaEmisionDesde.HasValue
+                    && filtro.FechaEmisionHasta.HasValue
+                    && filtro.FechaEmisionDesde.Value.Date > filtro.FechaEmisionHasta.Value.Date)
+                {
+                    return new BadRequestObjectResult(
+                        "La fecha de emisión desde no puede ser posterior a la fecha de emisión hasta.");
+                }
+            }
+
             var facturas = await _facturaDA.ObtenerFacturas(idEmpresaUsuario.Value, filtro);
             return new OkObjectResult(facturas);
+        }
+
+        public async Task<ActionResult> ObtenerEstadosFactura(int idUsuario)
+        {
+            var idEmpresaUsuario = await _usuarioDA.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresaUsuario.HasValue)
+                return new ForbidResult();
+
+            var estados = await _facturaDA.ObtenerEstadosFactura();
+            return new OkObjectResult(estados);
         }
 
         public async Task<ActionResult> ObtenerFlujoFacturas(int idUsuario, FlujoFacturaFiltro? filtro)
