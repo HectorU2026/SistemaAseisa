@@ -24,8 +24,20 @@ namespace DA
                 {
                     id_empresa = idEmpresa,
                     id_estado_factura = filtro?.IdEstadoFactura,
-                    nombre_cliente = filtro?.NombreCliente
+                    nombre_cliente = filtro?.NombreCliente,
+                    numero_factura = filtro?.NumeroFactura,
+                    fecha_emision_desde = filtro?.FechaEmisionDesde,
+                    fecha_emision_hasta = filtro?.FechaEmisionHasta
                 },
+                commandType: CommandType.StoredProcedure);
+
+            return resultado;
+        }
+
+        public async Task<IEnumerable<EstadoFactura>> ObtenerEstadosFactura()
+        {
+            var resultado = await _sqlConnection.QueryAsync<EstadoFactura>(
+                "ObtenerEstadosFactura",
                 commandType: CommandType.StoredProcedure);
 
             return resultado;

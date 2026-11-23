@@ -6,6 +6,7 @@ namespace Abstracciones.Interfaces.DA
     public interface IFacturaDA
     {
         Task<IEnumerable<FacturaListado>> ObtenerFacturas(int idEmpresa, FacturaFiltro? filtro);
+        Task<IEnumerable<EstadoFactura>> ObtenerEstadosFactura();
         Task<IEnumerable<FlujoFacturaListado>> ObtenerFlujoFacturas(int idEmpresa, FlujoFacturaFiltro? filtro);
         Task<ReporteFacturacionResultado> ObtenerReporteFacturacion(int idEmpresa, ReporteFacturacionFiltro? filtro);
         Task<IEnumerable<ReporteNotaCredito>> ObtenerNotasCreditoReporteFacturacion(int idEmpresa, int idFactura);
