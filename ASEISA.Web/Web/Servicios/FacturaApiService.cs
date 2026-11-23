@@ -134,6 +134,70 @@ public class FacturaApiService(HttpClient cliente, IConfiguracion configuracion)
         return resultado;
     }
 
+    public async Task<FlujoFacturaDetalle> ObtenerFlujoFacturaAsync(
+        string token,
+        int idFactura,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new UnauthorizedAccessException(
+                "No se encontró el token de autenticación.");
+        }
+
+        var endpoint = configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerFlujoFacturas");
+        using var solicitud = new HttpRequestMessage(HttpMethod.Get, $"{endpoint}/{idFactura}");
+        solicitud.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        using var respuesta = await cliente.SendAsync(solicitud, ct);
+
+        if (respuesta.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new HttpRequestException(
+                await LeerErrorValidacionAsync(respuesta, ct),
+                null,
+                HttpStatusCode.NotFound);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new HttpRequestException(
+                await LeerErrorValidacionAsync(respuesta, ct),
+                null,
+                HttpStatusCode.BadRequest);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw new HttpRequestException(
+                "La sesión no está autorizada para consultar facturas.",
+                null,
+                HttpStatusCode.Unauthorized);
+        }
+
+        if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new HttpRequestException(
+                "No tiene permisos para consultar facturas.",
+                null,
+                HttpStatusCode.Forbidden);
+        }
+
+        respuesta.EnsureSuccessStatusCode();
+
+        var detalle = await respuesta.Content
+            .ReadFromJsonAsync<FlujoFacturaDetalle>(Json, ct);
+
+        if (detalle?.Factura == null || detalle.Resumen == null)
+        {
+            throw new InvalidOperationException(
+                "La API no devolvió el detalle del flujo de facturación.");
+        }
+
+        return detalle;
+    }
+
     public async Task<FacturaPagadaConsulta> ObtenerFacturasPagadasAsync(
         string token,
         FacturaPagadaFiltro filtro,
