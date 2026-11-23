@@ -139,7 +139,12 @@
                         @foreach (var factura in Model.Facturas)
                         {
                             <tr>
-                                <td><strong>@factura.NumeroFactura</strong></td>
+                                <td>
+                                    <a asp-page="/Facturacion/Detalle"
+                                       asp-route-idFactura="@factura.IdFactura">
+                                        <strong>@factura.NumeroFactura</strong>
+                                    </a>
+                                </td>
                                 <td>@factura.NombreCliente</td>
                                 <td>@(string.IsNullOrWhiteSpace(factura.CondicionVenta) ? "—" : factura.CondicionVenta)</td>
                                 <td>@factura.Estado</td>
