@@ -1,4 +1,4 @@
-﻿CREATE   PROCEDURE dbo.AgregarCuentaContable
+﻿CREATE   PROCEDURE [dbo].[AgregarCuentaContable]
     @idEmpresa INT,
     @idUsuario INT,
     @idCuentaPrincipal INT,
@@ -7,7 +7,8 @@
     @conciliacionPagos BIT,
     @idEstado INT,
     @impuestos DECIMAL(9, 4) = NULL,
-    @descripcion VARCHAR(500) = NULL
+    @descripcion VARCHAR(500) = NULL,
+    @categoriaFlujo VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -30,11 +31,13 @@ BEGIN
                 @naturaleza VARCHAR(20),
                 @nivel INT,
                 @idCuenta INT,
-                @nuevo NVARCHAR(MAX);
+                @nuevo NVARCHAR(MAX),
+                @categoriaPadre VARCHAR(20);
 
         SELECT @tipoCuenta = tipo_cuenta,
                @naturaleza = naturaleza,
-               @nivel = nivel + 1
+               @nivel = nivel + 1,
+               @categoriaPadre = categoria_flujo
         FROM dbo.CUENTA_CONTABLE WITH (HOLDLOCK)
         WHERE id_cuenta_contable = @idCuentaPrincipal
           AND id_empresa = @idEmpresa
@@ -42,6 +45,15 @@ BEGIN
 
         IF @nivel IS NULL
             THROW 51403, 'Seleccione una cuenta principal activa de su empresa.', 1;
+
+        SET @categoriaFlujo = COALESCE(NULLIF(TRIM(@categoriaFlujo), ''), @categoriaPadre);
+
+        IF @categoriaFlujo IS NOT NULL
+           AND @categoriaFlujo NOT IN ('Efectivo', 'Operacion', 'Inversion', 'Financiamiento')
+            THROW 51409, 'Seleccione una categoría de flujo válida.', 1;
+
+        IF @categoriaFlujo = 'Efectivo' AND @tipoCuenta <> 'Activo'
+            THROW 51410, 'La categoría Efectivo solo aplica a cuentas de tipo Activo.', 1;
 
         IF EXISTS (
             SELECT 1
@@ -53,12 +65,14 @@ BEGIN
         INSERT INTO dbo.CUENTA_CONTABLE
         (
             id_empresa, codigo, nombre, tipo_cuenta, naturaleza, nivel,
-            id_estado, id_cuenta_principal, conciliacion_pagos, impuestos, descripcion
+            id_estado, id_cuenta_principal, conciliacion_pagos, impuestos, descripcion,
+            categoria_flujo
         )
         VALUES
         (
             @idEmpresa, @codigo, @nombre, @tipoCuenta, @naturaleza, @nivel,
-            @idEstado, @idCuentaPrincipal, @conciliacionPagos, @impuestos, @descripcion
+            @idEstado, @idCuentaPrincipal, @conciliacionPagos, @impuestos, @descripcion,
+            @categoriaFlujo
         );
 
         SET @idCuenta = CONVERT(INT, SCOPE_IDENTITY());

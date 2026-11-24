@@ -207,6 +207,12 @@
     <Build Include="dbo\Stored Procedures\HabilitarCuentaContable.sql" />
     <Build Include="dbo\Stored Procedures\AgregarCuentaContableRaiz.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralTotales.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralDetalle.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFlujoEfectivo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerReporteCuentasPorPagar.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerLibroMayor.sql" />
+    <Build Include="dbo\Tables\CONFIGURACION_CONTABLE.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
