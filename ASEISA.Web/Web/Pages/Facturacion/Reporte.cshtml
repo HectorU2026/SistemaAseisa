@@ -277,6 +277,15 @@
                                            asp-route-idFactura="@factura.IdFactura">
                                             <strong>@factura.NumeroFactura</strong>
                                         </a>
+                                        <div>
+                                            <a asp-page="/Facturacion/Reporte/Detalle"
+                                               asp-route-idFactura="@factura.IdFactura"
+                                               asp-route-Periodo="@Model.Periodo"
+                                               asp-route-TipoFactura="@Model.TipoFactura"
+                                               asp-route-OrdenarPor="@Model.OrdenarPor">
+                                                Ver detalle del reporte
+                                            </a>
+                                        </div>
                                     </td>
                                     <td>@factura.NombreCliente</td>
                                     <td>@factura.FechaEmision.ToString("dd/MM/yyyy")</td>
