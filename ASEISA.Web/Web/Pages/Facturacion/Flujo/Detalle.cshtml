@@ -1,0 +1,330 @@
+@page "{idFactura:int}"
+@model Web.Pages.Facturacion.Flujo.DetalleModel
+
+@{
+    ViewData["Title"] = "Trazabilidad de facturación";
+    var factura = Model.Factura;
+    var resumen = Model.Resumen;
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+                <a asp-page="/Facturacion/Flujo"
+                   asp-route-IdCotizacion="@Model.IdCotizacion"
+                   asp-route-NumeroFactura="@Model.NumeroFactura"
+                   asp-route-OrdenarPor="@Model.OrdenarPor">Flujo</a>
+                <span>/ Trazabilidad</span>
+            </div>
+            <h1>@(factura?.NumeroFactura ?? "Trazabilidad")</h1>
+            <p>Consulte la cotización, la orden de venta y la factura.</p>
+        </div>
+        <a asp-page="/Facturacion/Flujo"
+           asp-route-IdCotizacion="@Model.IdCotizacion"
+           asp-route-NumeroFactura="@Model.NumeroFactura"
+           asp-route-OrdenarPor="@Model.OrdenarPor"
+           class="btn btn-contacto-outline">
+            Volver al flujo
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    @if (factura is not null && resumen is not null)
+    {
+        <section class="contactos-panel mb-4">
+            <div class="contactos-panel-header">
+                <div>
+                    <h2>Trazabilidad</h2>
+                    <p>Cotización, orden de venta y factura.</p>
+                </div>
+            </div>
+            <div class="row g-3 px-4 pb-4">
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Número de cotización</span>
+                    <strong>@resumen.NumeroCotizacion</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Estado de cotización</span>
+                    <strong>@resumen.EstadoCotizacion</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Orden de venta</span>
+                    <strong>@resumen.IdVenta</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Total de la orden</span>
+                    <strong>@resumen.TotalOrden.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Total facturado</span>
+                    <strong>@resumen.TotalFacturado.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Cobrado de la orden</span>
+                    <strong>@resumen.TotalCobradoOrden.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Saldo de la orden</span>
+                    <strong>@resumen.SaldoPendienteOrden.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Facturas de la venta</span>
+                    <strong>@resumen.CantidadFacturasVenta</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Cobrado de la venta</span>
+                    <strong>@resumen.MontoCobradoVenta.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Número de factura</span>
+                    <strong>@resumen.NumeroFactura</strong>
+                </div>
+                <div class="col-md-3">
+                    <span class="text-muted small d-block">Estado de factura</span>
+                    <strong>@resumen.EstadoFactura</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Cliente</span>
+                    <strong>@resumen.NombreCliente</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Fecha de emisión</span>
+                    <strong>@resumen.FechaEmision.ToString("dd/MM/yyyy")</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Total de la factura</span>
+                    <strong>@resumen.TotalFactura.ToString("N2")</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Saldo de la factura</span>
+                    <strong>@resumen.SaldoPendienteFactura.ToString("N2")</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Cobrado de la factura</span>
+                    <strong>@(resumen.MontoCobradoFactura?.ToString("N2") ?? "—")</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="contactos-panel mb-4">
+            <div class="contactos-panel-header">
+                <div>
+                    <h2>Información general</h2>
+                    <p>@factura.Estado</p>
+                </div>
+            </div>
+            <div class="row g-3 px-4 pb-4">
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Número de factura</span>
+                    <strong>@factura.NumeroFactura</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Comprobante</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.NumeroComprobante) ? "—" : factura.NumeroComprobante)</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Tipo de factura</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.TipoFactura) ? "—" : factura.TipoFactura)</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Estado</span>
+                    <strong>@factura.Estado</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Fecha de emisión</span>
+                    <strong>@factura.FechaEmision.ToString("dd/MM/yyyy")</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Fecha de vencimiento</span>
+                    <strong>@(factura.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "—")</strong>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(factura.MotivoAnulacion))
+                {
+                    <div class="col-12">
+                        <span class="text-muted small d-block">Motivo de anulación</span>
+                        <strong>@factura.MotivoAnulacion</strong>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="contactos-panel mb-4">
+            <div class="contactos-panel-header">
+                <div>
+                    <h2>Cliente y condiciones</h2>
+                    <p>Datos comerciales de la factura.</p>
+                </div>
+            </div>
+            <div class="row g-3 px-4 pb-4">
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Cliente</span>
+                    <strong>@factura.NombreCliente</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Identificación</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.Identificacion) ? "—" : factura.Identificacion)</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Correo</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.CorreoCliente) ? "—" : factura.CorreoCliente)</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Condición de venta</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.CondicionVenta) ? "—" : factura.CondicionVenta)</strong>
+                </div>
+                <div class="col-md-4">
+                    <span class="text-muted small d-block">Término de pago</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.TerminoPagoNombre) ? "—" : factura.TerminoPagoNombre)</strong>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-muted small d-block">Moneda</span>
+                    <strong>@(string.IsNullOrWhiteSpace(factura.Moneda) ? "—" : factura.Moneda)</strong>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-muted small d-block">Tipo de cambio</span>
+                    <strong>@(factura.TipoCambio?.ToString("N2") ?? "—")</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="contactos-panel mb-4">
+            <div class="contactos-panel-header">
+                <div>
+                    <h2>Productos</h2>
+                    <p>Líneas incluidas en la factura.</p>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table contactos-table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col" class="text-end">Cantidad</th>
+                            <th scope="col" class="text-end">Precio</th>
+                            <th scope="col" class="text-end">Descuento %</th>
+                            <th scope="col" class="text-end">Impuesto %</th>
+                            <th scope="col" class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (factura.Productos.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="contactos-empty text-center">
+                                    <strong>Esta factura no tiene productos.</strong>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var producto in factura.Productos)
+                        {
+                            <tr>
+                                <td>@producto.Codigo</td>
+                                <td>@producto.Nombre</td>
+                                <td class="text-end">@producto.Cantidad.ToString("N2")</td>
+                                <td class="text-end">@producto.PrecioUnitario.ToString("N2")</td>
+                                <td class="text-end">@(producto.PorcentajeDescuento?.ToString("N2") ?? "—")</td>
+                                <td class="text-end">@(producto.PorcentajeImpuesto?.ToString("N2") ?? "—")</td>
+                                <td class="text-end">@producto.Subtotal.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="row g-3 px-4 pb-4 justify-content-end">
+                <div class="col-md-3 text-md-end">
+                    <span class="text-muted small d-block">Subtotal</span>
+                    <strong>@factura.Subtotal.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <span class="text-muted small d-block">Descuento</span>
+                    <strong>@factura.Descuento.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <span class="text-muted small d-block">Impuesto</span>
+                    <strong>@factura.Impuesto.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <span class="text-muted small d-block">Total</span>
+                    <strong>@factura.Total.ToString("N2")</strong>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <span class="text-muted small d-block">Saldo pendiente</span>
+                    <strong>@factura.SaldoPendiente.ToString("N2")</strong>
+                </div>
+            </div>
+        </section>
+
+        @if (factura.Asiento is not null)
+        {
+            var asiento = factura.Asiento;
+            <section class="contactos-panel mb-4">
+                <div class="contactos-panel-header">
+                    <div>
+                        <h2>Asiento contable</h2>
+                        <p>@asiento.NumeroAsiento · @asiento.FechaAsiento.ToString("dd/MM/yyyy") · @asiento.Estado</p>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(asiento.Descripcion) || !string.IsNullOrWhiteSpace(asiento.TipoOrigen))
+                {
+                    <p class="px-4">
+                        @(string.IsNullOrWhiteSpace(asiento.TipoOrigen) ? "" : asiento.TipoOrigen)
+                        @(string.IsNullOrWhiteSpace(asiento.Descripcion) ? "" : " · " + asiento.Descripcion)
+                    </p>
+                }
+                <div class="table-responsive">
+                    <table class="table contactos-table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Cuenta</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col" class="text-end">Debe</th>
+                                <th scope="col" class="text-end">Haber</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (asiento.Movimientos.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4" class="contactos-empty text-center">
+                                        <strong>El asiento no tiene movimientos.</strong>
+                                    </td>
+                                </tr>
+                            }
+                            @foreach (var movimiento in asiento.Movimientos)
+                            {
+                                <tr>
+                                    <td>@movimiento.Codigo - @movimiento.Nombre</td>
+                                    <td>@(string.IsNullOrWhiteSpace(movimiento.Descripcion) ? "—" : movimiento.Descripcion)</td>
+                                    <td class="text-end">@movimiento.Debe.ToString("N2")</td>
+                                    <td class="text-end">@movimiento.Haber.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row g-3 px-4 pb-4 justify-content-end">
+                    <div class="col-md-3 text-md-end">
+                        <span class="text-muted small d-block">Total debe</span>
+                        <strong>@asiento.TotalDebe.ToString("N2")</strong>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <span class="text-muted small d-block">Total haber</span>
+                        <strong>@asiento.TotalHaber.ToString("N2")</strong>
+                    </div>
+                </div>
+            </section>
+        }
+    }
+</div>
