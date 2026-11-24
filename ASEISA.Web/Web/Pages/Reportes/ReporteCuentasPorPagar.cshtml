@@ -1,0 +1,193 @@
+﻿@page
+@model Web.Pages.Reportes.ReporteCuentasPorPagarModel
+@{
+    ViewData["Title"] = "Cuentas por Pagar";
+}
+
+<link rel="stylesheet" href="~/css/reportes.css" asp-append-version="true" />
+
+<div class="container mt-4 mb-5 reporte-container">
+
+    <!-- ENCABEZADO -->
+    <div class="reporte-header">
+        <div>
+            <h1 class="reporte-title">Reporte de Cuentas por Pagar</h1>
+            <p class="reporte-subtitle">Obligaciones pendientes con proveedores</p>
+        </div>
+        <div class="reporte-meta">
+            <div><strong>Fecha de Corte:</strong> @Model.Reporte.Resumen.FechaCorte.ToString("dd/MM/yyyy")</div>
+            <div><strong>Generado:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+    </div>
+
+    <!-- TARJETAS KPI -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="kpi-card">
+                <div class="kpi-icon brand"><i class="bi bi-wallet2"></i></div>
+                <div>
+                    <p class="kpi-label">Deuda Total</p>
+                    <h4 class="kpi-value">@Model.Reporte.Resumen.TotalPorPagar.ToString("C")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-card">
+                <div class="kpi-icon success"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <p class="kpi-label">Por Vencer</p>
+                    <h4 class="kpi-value">@Model.Reporte.Resumen.TotalPorVencer.ToString("C")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-card">
+                <div class="kpi-icon danger"><i class="bi bi-exclamation-triangle"></i></div>
+                <div>
+                    <p class="kpi-label">Total Vencido</p>
+                    <h4 class="kpi-value" style="color: #a64d42;">@Model.Reporte.Resumen.TotalVencido.ToString("C")</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA DE HERRAMIENTAS -->
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <form method="get" class="d-flex align-items-center gap-3 m-0">
+                <input type="hidden" name="ordenarPor" value="@Model.OrdenarPor" />
+                <input type="hidden" name="ascendente" value="@Model.Ascendente.ToString().ToLower()" />
+
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" name="soloVencidas" value="true" id="chkVencidas"
+                    @(Model.SoloVencidas ? "checked" : "") onchange="this.form.submit()">
+                    <label class="form-check-label fw-semibold text-secondary small" for="chkVencidas">Solo facturas vencidas</label>
+                </div>
+            </form>
+            <a href="/Reportes/ReporteCuentasPorPagar" class="btn-sort ms-2">Limpiar Filtros</a>
+        </div>
+
+        <div class="toolbar-group">
+            <span class="text-muted small fw-bold text-uppercase me-2">Ordenar por:</span>
+
+            <a asp-page="./ReporteCuentasPorPagar"
+               asp-route-ordenarPor="FechaVencimiento"
+               asp-route-ascendente="@(Model.OrdenarPor == "FechaVencimiento" ? !Model.Ascendente : true)"
+               asp-route-soloVencidas="@Model.SoloVencidas"
+               class="btn-sort @(Model.OrdenarPor == "FechaVencimiento" || string.IsNullOrEmpty(Model.OrdenarPor) ? "active" : "")">
+                Fecha
+                @if (Model.OrdenarPor == "FechaVencimiento" || string.IsNullOrEmpty(Model.OrdenarPor))
+                {
+                    <i class="bi @(Model.Ascendente ? "bi-sort-down" : "bi-sort-up")"></i>
+                }
+            </a>
+
+            <a asp-page="./ReporteCuentasPorPagar"
+               asp-route-ordenarPor="MontoTotal"
+               asp-route-ascendente="@(Model.OrdenarPor == "MontoTotal" ? !Model.Ascendente : true)"
+               asp-route-soloVencidas="@Model.SoloVencidas"
+               class="btn-sort @(Model.OrdenarPor == "MontoTotal" ? "active" : "")">
+                Monto
+                @if (Model.OrdenarPor == "MontoTotal")
+                {
+                    <i class="bi @(Model.Ascendente ? "bi-sort-down" : "bi-sort-up")"></i>
+                }
+            </a>
+
+            <a asp-page="./ReporteCuentasPorPagar"
+               asp-route-ordenarPor="SaldoPendiente"
+               asp-route-ascendente="@(Model.OrdenarPor == "SaldoPendiente" ? !Model.Ascendente : true)"
+               asp-route-soloVencidas="@Model.SoloVencidas"
+               class="btn-sort @(Model.OrdenarPor == "SaldoPendiente" ? "active" : "")">
+                Saldo
+                @if (Model.OrdenarPor == "SaldoPendiente")
+                {
+                    <i class="bi @(Model.Ascendente ? "bi-sort-down" : "bi-sort-up")"></i>
+                }
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Reporte.Proveedores != null && Model.Reporte.Proveedores.Any())
+    {
+        <div class="accordion" id="accordionProveedores">
+            @foreach (var prov in Model.Reporte.Proveedores)
+            {
+                var idCollapse = $"collapse-{prov.IdProveedor}";
+                var hasVencidas = prov.TotalVencido > 0;
+
+                <div class="proveedor-card">
+                    <div class="proveedor-header" data-bs-toggle="collapse" data-bs-target="#@idCollapse" aria-expanded="true" role="button">
+                        <h5 class="proveedor-title">
+                            <i class="bi bi-building text-muted"></i> @prov.NombreProveedor
+                        </h5>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="proveedor-total @(hasVencidas ? "has-debt" : "no-debt")">
+                                Total Adeudado: @prov.TotalAdeudado.ToString("C")
+                            </span>
+                            <i class="bi bi-chevron-down text-muted"></i>
+                        </div>
+                    </div>
+
+                    <div id="@idCollapse" class="collapse show">
+                        <div class="table-responsive">
+                            <table class="table table-reporte">
+                                <thead>
+                                    <tr>
+                                        <th>Factura</th>
+                                        <th>Vencimiento</th>
+                                        <th class="text-end">Monto Total</th>
+                                        <th class="text-end">Pagado</th>
+                                        <th class="text-end">Saldo Pendiente</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var fac in prov.Facturas)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-dark">@fac.NumeroFacturaCompra</td>
+                                            <td class="text-muted">@fac.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                                            <td class="text-end">@fac.MontoTotal.ToString("C")</td>
+                                            <td class="text-end text-success fw-semibold">@fac.PagosAplicados.ToString("C")</td>
+                                            <td class="text-end fw-bold text-danger">@fac.SaldoPendiente.ToString("C")</td>
+                                            <td class="text-center">
+                                                @if (fac.EstadoVencimiento == "Vencida")
+                                                {
+                                                    <span class="badge-status vencida">
+                                                        Vencida (@fac.DiasAtraso d)
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-status por-vencer">
+                                                        Por Vencer
+                                                    </span>
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="6" class="p-0 border-0">
+                                                <div class="progress-container" title="@fac.PorcentajePagado% pagado">
+                                                    <div class="progress-bar-pago" style="width: @fac.PorcentajePagado%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm py-5 text-center" style="border-radius: 16px;">
+            <i class="bi bi-inbox fs-1 text-muted d-block mb-3 opacity-50"></i>
+            <h5 class="fw-bold text-dark">No hay cuentas por pagar</h5>
+            <p class="text-muted">@(Model.Reporte.Resumen.Mensaje ?? "No existen obligaciones pendientes para los filtros seleccionados.")</p>
+        </div>
+    }
+</div>

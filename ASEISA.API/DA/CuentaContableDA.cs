@@ -19,7 +19,8 @@ public class CuentaContableDA : ICuentaContableDA
     {
         using var conexion = new SqlConnection(_connectionString);
         return await conexion.QueryAsync<CuentaContableDetalleResponse>(
-            "dbo.ConsultarCuentasContables", new { idEmpresa, idCuentaContable, soloActivas },
+            "dbo.ConsultarCuentasContables",
+            new { idEmpresa, idCuentaContable, soloActivas },
             commandType: CommandType.StoredProcedure);
     }
 
@@ -27,7 +28,8 @@ public class CuentaContableDA : ICuentaContableDA
     {
         using var conexion = new SqlConnection(_connectionString);
         return await conexion.QuerySingleAsync<int>(
-            "dbo.AgregarCuentaContable", new
+            "dbo.AgregarCuentaContable",
+            new
             {
                 idEmpresa,
                 idUsuario,
@@ -37,7 +39,8 @@ public class CuentaContableDA : ICuentaContableDA
                 datos.ConciliacionPagos,
                 datos.IdEstado,
                 datos.Impuestos,
-                datos.Descripcion
+                datos.Descripcion,
+                datos.CategoriaFlujo
             },
             commandType: CommandType.StoredProcedure);
     }
@@ -45,7 +48,8 @@ public class CuentaContableDA : ICuentaContableDA
     public async Task<int> AgregarRaiz(int idEmpresa, int idUsuario, AgregarCuentaRaizRequest datos)
     {
         using var conexion = new SqlConnection(_connectionString);
-        return await conexion.QuerySingleAsync<int>("dbo.AgregarCuentaContableRaiz",
+        return await conexion.QuerySingleAsync<int>(
+            "dbo.AgregarCuentaContableRaiz",
             new
             {
                 idEmpresa,
@@ -57,7 +61,8 @@ public class CuentaContableDA : ICuentaContableDA
                 datos.ConciliacionPagos,
                 datos.IdEstado,
                 datos.Impuestos,
-                datos.Descripcion
+                datos.Descripcion,
+                datos.CategoriaFlujo
             },
             commandType: CommandType.StoredProcedure);
     }
@@ -66,7 +71,8 @@ public class CuentaContableDA : ICuentaContableDA
     {
         using var conexion = new SqlConnection(_connectionString);
         return await conexion.QuerySingleAsync<int>(
-            "dbo.EditarCuentaContable", new
+            "dbo.EditarCuentaContable",
+            new
             {
                 idEmpresa,
                 idUsuario,
@@ -75,7 +81,8 @@ public class CuentaContableDA : ICuentaContableDA
                 datos.Nombre,
                 datos.ConciliacionPagos,
                 datos.Impuestos,
-                datos.Descripcion
+                datos.Descripcion,
+                datos.CategoriaFlujo
             },
             commandType: CommandType.StoredProcedure);
     }
@@ -84,7 +91,8 @@ public class CuentaContableDA : ICuentaContableDA
     {
         using var conexion = new SqlConnection(_connectionString);
         return await conexion.QuerySingleAsync<int>(
-            "dbo.InhabilitarCuentaContable", new { idEmpresa, idUsuario, idCuentaContable },
+            "dbo.InhabilitarCuentaContable",
+            new { idEmpresa, idUsuario, idCuentaContable },
             commandType: CommandType.StoredProcedure);
     }
 
@@ -92,7 +100,8 @@ public class CuentaContableDA : ICuentaContableDA
     {
         using var conexion = new SqlConnection(_connectionString);
         return await conexion.QuerySingleAsync<int>(
-            "dbo.HabilitarCuentaContable", new { idEmpresa, idUsuario, idCuentaContable },
+            "dbo.HabilitarCuentaContable",
+            new { idEmpresa, idUsuario, idCuentaContable },
             commandType: CommandType.StoredProcedure);
     }
 }
