@@ -1,4 +1,4 @@
-﻿CREATE   PROCEDURE dbo.EditarCuentaContable
+﻿CREATE   PROCEDURE [dbo].[EditarCuentaContable]
     @idEmpresa INT,
     @idUsuario INT,
     @idCuentaContable INT,
@@ -6,15 +6,21 @@
     @nombre VARCHAR(150),
     @conciliacionPagos BIT,
     @impuestos DECIMAL(9, 4) = NULL,
-    @descripcion VARCHAR(500) = NULL
+    @descripcion VARCHAR(500) = NULL,
+    @categoriaFlujo VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
     SET @nombre = NULLIF(TRIM(@nombre), '');
+    SET @categoriaFlujo = NULLIF(TRIM(@categoriaFlujo), '');
 
     IF @nombre IS NULL OR @conciliacionPagos IS NULL
         THROW 51401, 'Escriba todos los datos requeridos.', 1;
+
+    IF @categoriaFlujo IS NOT NULL
+       AND @categoriaFlujo NOT IN ('Efectivo', 'Operacion', 'Inversion', 'Financiamiento')
+        THROW 51409, 'Seleccione una categoría de flujo válida.', 1;
 
     BEGIN TRY
         BEGIN TRANSACTION;
@@ -30,6 +36,9 @@ BEGIN
 
         IF @nivel IS NULL
             THROW 51405, 'La cuenta contable no existe.', 1;
+
+        IF @categoriaFlujo = 'Efectivo' AND @tipo <> 'Activo'
+            THROW 51410, 'La categoría Efectivo solo aplica a cuentas de tipo Activo.', 1;
 
         IF @idCuentaPrincipal IS NULL AND @principalAnterior IS NOT NULL
             THROW 51403, 'Seleccione una cuenta principal activa de su empresa.', 1;
@@ -68,7 +77,8 @@ BEGIN
         UPDATE dbo.CUENTA_CONTABLE
         SET nombre = @nombre, id_cuenta_principal = @idCuentaPrincipal,
             conciliacion_pagos = @conciliacionPagos, impuestos = @impuestos,
-            descripcion = @descripcion, nivel = @nivel
+            descripcion = @descripcion, nivel = @nivel,
+            categoria_flujo = @categoriaFlujo
         WHERE id_empresa = @idEmpresa AND id_cuenta_contable = @idCuentaContable;
 
         SELECT @nuevo = (

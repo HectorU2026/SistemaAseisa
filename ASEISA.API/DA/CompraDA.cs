@@ -154,8 +154,10 @@ public class CompraDA : ICompraDA
                 id_proveedor = request.IdProveedor,
                 id_usuario = request.IdUsuario,
                 fecha_factura = request.FechaFactura,
-                id_termino_pago = request.IdTerminoPago
-            });
+                id_termino_pago = request.IdTerminoPago,
+                numero_factura_proveedor = request.NumeroFacturaProveedor
+            },
+            commandType: CommandType.StoredProcedure);
     }
 
     #endregion

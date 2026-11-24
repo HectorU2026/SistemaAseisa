@@ -1,4 +1,5 @@
-﻿CREATE   PROCEDURE dbo.FacturarOrdenDeVenta
+﻿
+CREATE   PROCEDURE [dbo].[FacturarOrdenDeVenta]
     @id_cotizacion   INT,
     @id_empresa      INT,
     @id_cliente      INT,
@@ -36,6 +37,7 @@ BEGIN
     DECLARE @recurso_applock NVARCHAR(255);
     DECLARE @id_cuenta_cxc INT;
     DECLARE @id_cuenta_impuesto_ventas INT;
+    DECLARE @id_cuenta_ingreso_defecto INT;
     DECLARE @termino_pago_nombre NVARCHAR(100);
     DECLARE @dias_credito INT;
     DECLARE @fecha_vencimiento DATETIME2(7);
@@ -126,8 +128,9 @@ BEGIN
         END;
 
         -- 3. Obtener cuentas contables de la empresa (Si están en NULL, la factura se crea igual, sin asiento)
-        SELECT @id_cuenta_cxc = id_cuenta_cxc, @id_cuenta_impuesto_ventas = id_cuenta_impuesto_ventas
-        FROM EMPRESA WHERE id_empresa = @id_empresa;
+        SELECT @id_cuenta_cxc = id_cuenta_contable FROM dbo.CONFIGURACION_CONTABLE WHERE id_empresa = @id_empresa AND clave = 'CUENTA_CXC';
+        SELECT @id_cuenta_impuesto_ventas = id_cuenta_contable FROM dbo.CONFIGURACION_CONTABLE WHERE id_empresa = @id_empresa AND clave = 'CUENTA_IVA_VENTAS';
+        SELECT @id_cuenta_ingreso_defecto = id_cuenta_contable FROM dbo.CONFIGURACION_CONTABLE WHERE id_empresa = @id_empresa AND clave = 'CUENTA_INGRESO_DEFECTO';
 
         /* ---------- Consecutivo de factura (Lock) ---------- */
         SET @recurso_applock = N'FAC-NUMERO-' + CONVERT(NVARCHAR(11), @id_empresa);
@@ -181,11 +184,11 @@ BEGIN
 
             -- Abono a Cuentas de Ingreso
             INSERT INTO DETALLE_ASIENTO (id_asiento, id_cuenta_contable, id_distribucion_analitica, descripcion, debe, haber)
-            SELECT @id_asiento, p.id_cuenta_ingreso, NULL, CONCAT('Ingreso factura ', @numero_generado), 0, SUM(df.subtotal)
+            SELECT @id_asiento, COALESCE(p.id_cuenta_ingreso, @id_cuenta_ingreso_defecto), NULL, CONCAT('Ingreso factura ', @numero_generado), 0, SUM(df.subtotal)
             FROM DETALLE_FACTURA df
             INNER JOIN PRODUCTO p ON p.id_producto = df.id_producto
-            WHERE df.id_factura = @id_factura AND p.id_cuenta_ingreso IS NOT NULL
-            GROUP BY p.id_cuenta_ingreso
+            WHERE df.id_factura = @id_factura AND COALESCE(p.id_cuenta_ingreso, @id_cuenta_ingreso_defecto) IS NOT NULL
+            GROUP BY COALESCE(p.id_cuenta_ingreso, @id_cuenta_ingreso_defecto)
             HAVING SUM(df.subtotal) <> 0;
 
             -- Abono a IVA
