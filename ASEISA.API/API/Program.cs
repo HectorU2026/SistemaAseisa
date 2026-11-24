@@ -127,6 +127,12 @@ builder.Services.AddScoped<IMetodoPagoDA, MetodoPagoDA>();
 builder.Services.AddScoped<ICuentaContableDA, CuentaContableDA>();
 builder.Services.AddScoped<ICuentaContableFlujo, CuentaContableFlujo>();
 
+builder.Services.AddScoped<IReportesDA, ReportesDA>();
+builder.Services.AddScoped<IReportesFlujo, ReportesFlujo>();
+
+builder.Services.AddScoped<IActivoFijoDA, ActivoFijoDA>();
+builder.Services.AddScoped<IActivoFijoFlujo, ActivoFijoFlujo>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

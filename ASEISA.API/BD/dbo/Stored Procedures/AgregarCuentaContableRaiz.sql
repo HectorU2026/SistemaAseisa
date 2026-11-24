@@ -1,4 +1,4 @@
-﻿CREATE   PROCEDURE dbo.AgregarCuentaContableRaiz
+﻿CREATE   PROCEDURE [dbo].[AgregarCuentaContableRaiz]
     @idEmpresa INT,
     @idUsuario INT,
     @codigo VARCHAR(50),
@@ -8,7 +8,8 @@
     @conciliacionPagos BIT,
     @idEstado INT,
     @impuestos DECIMAL(9, 4) = NULL,
-    @descripcion VARCHAR(500) = NULL
+    @descripcion VARCHAR(500) = NULL,
+    @categoriaFlujo VARCHAR(20) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -26,6 +27,15 @@ BEGIN
     IF @idEstado IS NULL OR @idEstado NOT IN (1, 2)
         THROW 51402, 'Seleccione un estado válido.', 1;
 
+    SET @categoriaFlujo = NULLIF(TRIM(@categoriaFlujo), '');
+
+    IF @categoriaFlujo IS NOT NULL
+       AND @categoriaFlujo NOT IN ('Efectivo', 'Operacion', 'Inversion', 'Financiamiento')
+        THROW 51409, 'Seleccione una categoría de flujo válida.', 1;
+
+    IF @categoriaFlujo = 'Efectivo' AND @tipoCuenta <> 'Activo'
+        THROW 51410, 'La categoría Efectivo solo aplica a cuentas de tipo Activo.', 1;
+
     BEGIN TRY
         BEGIN TRANSACTION;
 
@@ -37,10 +47,12 @@ BEGIN
 
         INSERT INTO dbo.CUENTA_CONTABLE
             (id_empresa, codigo, nombre, tipo_cuenta, naturaleza, nivel, id_estado,
-             permite_movimientos, id_cuenta_principal, conciliacion_pagos, impuestos, descripcion)
+             permite_movimientos, id_cuenta_principal, conciliacion_pagos, impuestos, descripcion,
+             categoria_flujo)
         VALUES
             (@idEmpresa, @codigo, @nombre, @tipoCuenta, @naturaleza, 1, @idEstado,
-             0, NULL, @conciliacionPagos, @impuestos, @descripcion);
+             0, NULL, @conciliacionPagos, @impuestos, @descripcion,
+             @categoriaFlujo);
 
         DECLARE @idCuenta INT = CONVERT(INT, SCOPE_IDENTITY());
         DECLARE @nuevo NVARCHAR(MAX) = (

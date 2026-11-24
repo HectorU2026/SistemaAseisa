@@ -198,7 +198,9 @@ public class ComprasFacturarRequest
     public int IdUsuario { get; set; }
     public DateTime FechaFactura { get; set; }
     public int IdTerminoPago { get; set; }
+    public string? NumeroFacturaProveedor { get; set; }
 }
+
 
 public class ComprasFacturarResponse
 {
@@ -210,4 +212,5 @@ public class ComprasFacturarResponse
     public DateTime FechaVencimiento { get; set; }
     public int IdEstado { get; set; }
     public string NombreEstado { get; set; } = string.Empty;
+    public string NumeroAsiento { get; set; } = string.Empty;
 }
