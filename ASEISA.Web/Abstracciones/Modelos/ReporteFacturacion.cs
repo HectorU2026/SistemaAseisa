@@ -41,3 +41,21 @@ public class ReporteFacturacionConsulta
     public string? Mensaje { get; set; }
     public List<ReporteFacturacionGrupo> Grupos { get; set; } = new();
 }
+
+public class ReporteNotaCredito
+{
+    public int IdNotaCredito { get; set; }
+    public string NumeroNotaCredito { get; set; } = string.Empty;
+    public DateTime FechaEmision { get; set; }
+    public string Motivo { get; set; } = string.Empty;
+    public decimal Monto { get; set; }
+    public string? DescripcionAdicional { get; set; }
+    public string Estado { get; set; } = string.Empty;
+    public int IdFactura { get; set; }
+}
+
+public class ReporteFacturacionDetalle
+{
+    public FacturaDetalle Factura { get; set; } = new();
+    public List<ReporteNotaCredito> NotasCredito { get; set; } = new();
+}
