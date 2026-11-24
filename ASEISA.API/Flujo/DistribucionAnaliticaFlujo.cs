@@ -29,4 +29,10 @@ public class DistribucionAnaliticaFlujo(IDistribucionAnaliticaDA da) : IDistribu
     {
         return da.Inhabilitar(idEmpresa, idUsuario, idDistribucion);
     }
+
+    public Task<int> Habilitar(
+    int idEmpresa, int idUsuario, int idDistribucion)
+    {
+        return da.Habilitar(idEmpresa, idUsuario, idDistribucion);
+    }
 }

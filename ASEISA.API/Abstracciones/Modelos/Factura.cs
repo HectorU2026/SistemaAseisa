@@ -11,6 +11,13 @@ namespace Abstracciones.Modelos
 
         [StringLength(200)]
         public string? NombreCliente { get; set; }
+
+        [StringLength(50, ErrorMessage = "El número de factura no puede superar 50 caracteres.")]
+        public string? NumeroFactura { get; set; }
+
+        public DateTime? FechaEmisionDesde { get; set; }
+
+        public DateTime? FechaEmisionHasta { get; set; }
     }
 
     public class FacturaListado
@@ -26,6 +33,12 @@ namespace Abstracciones.Modelos
         public int? IdTerminoPago { get; set; }
         public string? TerminoPagoNombre { get; set; }
         public decimal Total { get; set; }
+    }
+
+    public class EstadoFactura
+    {
+        public int IdEstadoFactura { get; set; }
+        public string NombreEstado { get; set; } = string.Empty;
     }
 
     public class FacturaProducto

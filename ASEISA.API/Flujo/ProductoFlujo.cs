@@ -19,9 +19,10 @@ namespace Flujo
             _productoDA = productoDA;
         }
 
-        public async Task<int> RegistrarProducto(Producto producto)
+        public async Task<int> RegistrarProducto(Producto producto, int idEmpresa)
         {
             if (producto == null
+                || idEmpresa <= 0
                 || !producto.IdEmpresa.HasValue
                 || producto.IdEmpresa <= 0
                 || string.IsNullOrWhiteSpace(producto.Codigo)
@@ -70,12 +71,13 @@ namespace Flujo
             producto.TipoProducto = tipo;
             producto.PoliticaFacturacion = politica;
 
-            return await _productoDA.RegistrarProducto(producto);
+            return await _productoDA.RegistrarProducto(producto, idEmpresa);
         }
 
-        public async Task<int> EditarProducto(Producto producto)
+        public async Task<int> EditarProducto(Producto producto, int idEmpresa)
         {
             if (producto == null
+                || idEmpresa <= 0
                 || !producto.IdProducto.HasValue
                 || producto.IdProducto <= 0
                 || string.IsNullOrWhiteSpace(producto.Nombre)
@@ -121,19 +123,20 @@ namespace Flujo
             producto.TipoProducto = tipo;
             producto.PoliticaFacturacion = politica;
 
-            return await _productoDA.EditarProducto(producto);
+            return await _productoDA.EditarProducto(producto, idEmpresa);
         }
 
-        public async Task<int> InhabilitarProducto(ProductoInhabilitar producto)
+        public async Task<int> InhabilitarProducto(ProductoInhabilitar producto, int idEmpresa)
         {
             if (producto == null
                 || !producto.IdProducto.HasValue
-                || producto.IdProducto <= 0)
+                || producto.IdProducto <= 0
+                || idEmpresa <= 0)
             {
                 return 0;
             }
 
-            return await _productoDA.InhabilitarProducto(producto.IdProducto.Value);
+            return await _productoDA.InhabilitarProducto(producto.IdProducto.Value, idEmpresa);
         }
 
         public async Task<ProductoCatalogoRespuesta> ObtenerProductos(ProductoFiltro filtro)
