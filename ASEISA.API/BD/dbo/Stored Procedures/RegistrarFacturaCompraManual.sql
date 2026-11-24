@@ -1,7 +1,4 @@
 ﻿
-
-
-
 CREATE   PROCEDURE [dbo].[RegistrarFacturaCompraManual]
     @id_orden_compra          INT,
     @id_empresa               INT,
@@ -104,6 +101,9 @@ BEGIN
     DECLARE @id_cuenta_pagar INT;
     DECLARE @numero_asiento  VARCHAR(50);
     DECLARE @id_asiento      INT;
+    DECLARE @id_cuenta_cxp           INT;
+    DECLARE @id_cuenta_iva_compras   INT;
+    DECLARE @id_cuenta_gasto_defecto INT;
 
     BEGIN TRY
         BEGIN TRANSACTION;
@@ -149,8 +149,17 @@ BEGIN
 
         SET @id_asiento = SCOPE_IDENTITY();
 
+        -- Cuentas desde CONFIGURACION_CONTABLE
+        SELECT @id_cuenta_cxp = id_cuenta_contable FROM dbo.CONFIGURACION_CONTABLE WHERE id_empresa = @id_empresa AND clave = 'CUENTA_CXP';
+        SELECT @id_cuenta_iva_compras = id_cuenta_contable FROM dbo.CONFIGURACION_CONTABLE WHERE id_empresa = @id_empresa AND clave = 'CUENTA_IVA_COMPRAS';
+        SELECT @id_cuenta_gasto_defecto = id_cuenta_contable FROM dbo.CONFIGURACION_CONTABLE WHERE id_empresa = @id_empresa AND clave = 'CUENTA_GASTO_COMPRAS';
+
+        IF @id_cuenta_cxp IS NULL
+            THROW 50029, 'No está configurada la cuenta CUENTA_CXP en CONFIGURACION_CONTABLE.', 1;
+
         -- 3.1 DEBE: Gasto (una línea por cada cuenta de gasto distinta)
-        IF EXISTS (
+        IF @id_cuenta_gasto_defecto IS NULL
+           AND EXISTS (
             SELECT 1 
             FROM DETALLE_ORDEN_COMPRA d
             INNER JOIN PRODUCTO p ON p.id_producto = d.id_producto
@@ -158,29 +167,35 @@ BEGIN
         )
             THROW 50028, 'Uno o más productos no tienen configurada la cuenta de gasto.', 1;
 
+        -- Si hay cuenta de IVA compras, el impuesto se separa del gasto
         INSERT INTO dbo.DETALLE_ASIENTO (id_asiento, id_cuenta_contable, descripcion, debe, haber)
         SELECT 
             @id_asiento,
-            p.id_cuenta_gasto,
+            COALESCE(p.id_cuenta_gasto, @id_cuenta_gasto_defecto),
             CONCAT('Gasto por compra OC ', @id_orden_compra),
-            SUM(ISNULL(doc.total, doc.subtotal)),
+            SUM(ISNULL(doc.total, doc.subtotal))
+                - CASE WHEN @id_cuenta_iva_compras IS NOT NULL THEN SUM(ISNULL(doc.impuesto, 0)) ELSE 0 END,
             0
         FROM DETALLE_ORDEN_COMPRA doc
         INNER JOIN PRODUCTO p ON p.id_producto = doc.id_producto
         WHERE doc.id_orden_compra = @id_orden_compra
-        GROUP BY p.id_cuenta_gasto
-        HAVING SUM(ISNULL(doc.total, doc.subtotal)) > 0;
+        GROUP BY COALESCE(p.id_cuenta_gasto, @id_cuenta_gasto_defecto)
+        HAVING SUM(ISNULL(doc.total, doc.subtotal))
+                - CASE WHEN @id_cuenta_iva_compras IS NOT NULL THEN SUM(ISNULL(doc.impuesto, 0)) ELSE 0 END > 0;
+
+        -- 3.1.b DEBE: IVA compras
+        IF @id_cuenta_iva_compras IS NOT NULL
+           AND EXISTS (SELECT 1 FROM DETALLE_ORDEN_COMPRA WHERE id_orden_compra = @id_orden_compra AND ISNULL(impuesto, 0) > 0)
+        BEGIN
+            INSERT INTO dbo.DETALLE_ASIENTO (id_asiento, id_cuenta_contable, descripcion, debe, haber)
+            SELECT @id_asiento, @id_cuenta_iva_compras, CONCAT('IVA compra OC ', @id_orden_compra), SUM(ISNULL(impuesto, 0)), 0
+            FROM DETALLE_ORDEN_COMPRA
+            WHERE id_orden_compra = @id_orden_compra;
+        END;
 
         -- 3.2 HABER: Cuentas por Pagar
         INSERT INTO dbo.DETALLE_ASIENTO (id_asiento, id_cuenta_contable, descripcion, debe, haber)
-        SELECT 
-            @id_asiento,
-            id_cuenta_contable,
-            CONCAT('Cuenta por pagar OC ', @id_orden_compra),
-            0,
-            @total
-        FROM dbo.CUENTA_CONTABLE
-        WHERE id_empresa = @id_empresa AND nombre LIKE '%Cuentas por Pagar%';
+        VALUES (@id_asiento, @id_cuenta_cxp, CONCAT('Cuenta por pagar OC ', @id_orden_compra), 0, @total);
 
         -- 4. Bitácora
         INSERT INTO dbo.BITACORA

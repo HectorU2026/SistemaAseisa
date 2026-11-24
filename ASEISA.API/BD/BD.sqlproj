@@ -211,6 +211,7 @@
     <Build Include="dbo\Stored Procedures\ObtenerFlujoEfectivo.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerReporteCuentasPorPagar.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerLibroMayor.sql" />
+    <Build Include="dbo\Tables\CONFIGURACION_CONTABLE.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
