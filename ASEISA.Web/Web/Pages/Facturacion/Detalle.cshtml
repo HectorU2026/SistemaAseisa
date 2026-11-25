@@ -4,6 +4,16 @@
 @{
     ViewData["Title"] = "Detalle de factura";
     var factura = Model.Factura;
+    var esContador = User.IsInRole("Contador");
+    var puedeConfirmar = factura is not null
+        && esContador
+        && string.Equals(factura.Estado, "Borrador", StringComparison.Ordinal);
+    var puedeRestablecer = factura is not null
+        && esContador
+        && string.Equals(factura.Estado, "Emitida", StringComparison.Ordinal);
+    var versionFila = factura?.VersionFila is { Length: 8 }
+        ? Convert.ToBase64String(factura.VersionFila)
+        : string.Empty;
 }
 
 <link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
@@ -19,10 +29,38 @@
             <h1>@(factura?.NumeroFactura ?? "Detalle de factura")</h1>
             <p>Consulte la información de la factura de su empresa.</p>
         </div>
-        <a asp-page="/Facturacion/Listado" class="btn btn-contacto-outline">
-            Volver al listado
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            @if (puedeConfirmar)
+            {
+                <button type="button"
+                        class="btn btn-contacto-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalConfirmarFactura">
+                    Confirmar factura
+                </button>
+            }
+            @if (puedeRestablecer)
+            {
+                <button type="button"
+                        class="btn btn-contacto-outline"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalRestablecerFactura">
+                    Restablecer factura
+                </button>
+            }
+            <a asp-page="/Facturacion/Listado" class="btn btn-contacto-outline">
+                Volver al listado
+            </a>
+        </div>
     </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeExito))
+    {
+        <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+            @Model.MensajeExito
+        </div>
+    }
 
     @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
     {
@@ -245,3 +283,90 @@
         }
     }
 </div>
+
+@if (puedeConfirmar)
+{
+    <div class="modal fade"
+         id="modalConfirmarFactura"
+         tabindex="-1"
+         aria-labelledby="modalConfirmarFacturaTitulo"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content contacto-modal">
+                <div class="modal-body text-center">
+                    <div class="contacto-modal-icono activar">
+                        <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                    </div>
+                    <h3 id="modalConfirmarFacturaTitulo">Confirmar factura</h3>
+                    <p class="contacto-modal-descripcion">
+                        ¿Está seguro de que desea confirmar esta factura? La factura pasará al estado Emitida.
+                    </p>
+                    <form method="post" asp-page-handler="Confirmar" data-cambio-estado>
+                        <input type="hidden" name="versionFila" value="@versionFila" />
+                        <div class="contacto-modal-acciones">
+                            <button type="button"
+                                    class="btn btn-contacto-outline"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-contacto-confirmar activar">
+                                Confirmar factura
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (puedeRestablecer)
+{
+    <div class="modal fade"
+         id="modalRestablecerFactura"
+         tabindex="-1"
+         aria-labelledby="modalRestablecerFacturaTitulo"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content contacto-modal">
+                <div class="modal-body text-center">
+                    <div class="contacto-modal-icono desactivar">
+                        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                    </div>
+                    <h3 id="modalRestablecerFacturaTitulo">Restablecer factura</h3>
+                    <p class="contacto-modal-descripcion">
+                        ¿Está seguro de que desea restablecer esta factura? La factura volverá al estado Borrador.
+                    </p>
+                    <form method="post" asp-page-handler="Restablecer" data-cambio-estado>
+                        <input type="hidden" name="versionFila" value="@versionFila" />
+                        <div class="contacto-modal-acciones">
+                            <button type="button"
+                                    class="btn btn-contacto-outline"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-contacto-confirmar desactivar">
+                                Restablecer factura
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (puedeConfirmar || puedeRestablecer)
+{
+    <script>
+        document.querySelectorAll("[data-cambio-estado]").forEach(function (formulario) {
+            formulario.addEventListener("submit", function () {
+                window.setTimeout(function () {
+                    var boton = formulario.querySelector("[type='submit']");
+                    if (boton)
+                        boton.disabled = true;
+                }, 0);
+            });
+        });
+    </script>
+}
