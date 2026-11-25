@@ -5,7 +5,7 @@ Modificar tablas y procedimientos en ese directorio; Seguridad.API accede a la m
 base de datos y no tiene un esquema independiente.
 
 `Seguridad/Seguridad.API/BD/BD.sqlproj` permanece en la solucion como proyecto
-de navegacion. Sus 24 elementos `None` enlazan los archivos originales mediante
+de navegacion. Sus 29 elementos `None` enlazan los archivos originales mediante
 `Link`. No importa SSDT, no compila SQL ni genera DACPAC. Los destinos Build,
 Rebuild, SqlBuild, Publish, Deploy y sus variantes fallan expresamente con
 `ASEISA_SQL_REFERENCE_ONLY`. La solucion conserva el proyecto pero no selecciona
@@ -38,7 +38,7 @@ producir un DACPAC secundario.
 
 1. Editar el archivo original en ASEISA.API/BD. No copiarlo a Seguridad.
 2. Si se agrega otro enlace de navegacion, actualizar de forma revisada el
-   inventario esperado del comprobador (actualmente 24).
+   inventario esperado del comprobador (actualmente 29).
 3. Ejecutar la comprobacion y las pruebas de contratos/API afectadas.
 4. Compilar el proyecto SQL autoritativo con SSDT compatible cuando este disponible.
 5. Cualquier publicacion requiere autorizacion separada y revision del plan,
