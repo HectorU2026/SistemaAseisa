@@ -24,6 +24,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<SesionCookieEvents>();
 builder.Services.AddHttpClient("SesionSeguridad",c=>c.Timeout=TimeSpan.FromSeconds(10))
     .ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler {AllowAutoRedirect=false});
+builder.Services.AddHttpClient<PlataformaApiService>().ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler {AllowAutoRedirect=false});
 builder.Services.AddHttpClient<UsuariosApiService>()
     .ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler {AllowAutoRedirect=false});
 builder.Services.AddHttpClient<ContactoApiService>();
@@ -70,6 +71,12 @@ app.Use(async(context,next)=>
         context.Response.StatusCode=503;context.Response.Headers.CacheControl="no-store";
         await context.Response.WriteAsync("No fue posible verificar la sesion. Intente nuevamente mas tarde.");return;
     }
+    await next(context);
+});
+app.Use(async(context,next)=>{
+    if(context.User.IsInRole("Superadministrador") && !context.Request.Path.StartsWithSegments("/Plataforma")
+       && context.GetEndpoint()?.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>()==null)
+    {context.Response.Redirect("/Plataforma");return;}
     await next(context);
 });
 app.UseAuthorization();

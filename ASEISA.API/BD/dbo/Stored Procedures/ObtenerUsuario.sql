@@ -37,7 +37,6 @@ BEGIN
        AND LTRIM(RTRIM(estadoRol.nombre_estado)) = 'Activo'
     WHERE u.correo = @correo
       AND u.estado_aprobacion = 'Aprobado'
-      AND EXISTS(SELECT 1 FROM dbo.EMPRESA E INNER JOIN dbo.ESTADO EE ON EE.id_estado=E.id_estado
-          WHERE E.id_empresa=u.id_empresa AND LTRIM(RTRIM(EE.nombre_estado))='Activo')
+      AND dbo.UsuarioVigente(u.id_usuario)=1
     ORDER BY r.id_rol;
 END;

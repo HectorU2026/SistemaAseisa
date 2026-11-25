@@ -1,7 +1,8 @@
-﻿CREATE TABLE [dbo].[BITACORA] (
+CREATE TABLE [dbo].[BITACORA] (
     [id_bitacora]    INT           IDENTITY (1, 1) NOT NULL,
     [id_usuario]     INT           NOT NULL,
-    [id_empresa]     INT           NOT NULL,
+    [id_empresa]     INT           NULL,
+    [id_empresa_objetivo] INT NULL CONSTRAINT FK_BITACORA_EmpresaObjetivo REFERENCES dbo.EMPRESA(id_empresa),
     [tabla_afectada] VARCHAR (150) NOT NULL,
     [registro_id]    VARCHAR (100) NULL,
     [accion]         VARCHAR (100) NOT NULL,

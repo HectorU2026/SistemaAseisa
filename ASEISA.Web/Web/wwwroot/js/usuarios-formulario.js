@@ -50,6 +50,16 @@
             if (telefono) validar(telefono, reglas.telefonoValido(telefono.value) ? '' : 'El teléfono debe contener 8 dígitos.');
             if (!form.checkValidity()) { evento.preventDefault(); form.reportValidity(); }
         });
+        const cedulaEmpresa = campo('CedulaJuridica');
+        if (cedulaEmpresa) {
+            cedulaEmpresa.inputMode = 'numeric'; cedulaEmpresa.maxLength = 12;
+            cedulaEmpresa.placeholder = '3-101-123456';
+            if (reglas.identificacionValida(cedulaEmpresa.value, 'Persona jurídica')) cedulaEmpresa.value = reglas.formatearIdentificacion(cedulaEmpresa.value, 'Persona jurídica');
+            cedulaEmpresa.addEventListener('input', () => {
+                cedulaEmpresa.value = reglas.formatearIdentificacion(cedulaEmpresa.value, 'Persona jurídica');
+                validar(cedulaEmpresa, reglas.identificacionValida(cedulaEmpresa.value, 'Persona jurídica') ? '' : 'Ingrese la cédula jurídica completa (3-101-123456).');
+            });
+        }
         actualizarTipo(false);
     });
 })();

@@ -235,5 +235,33 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dbo\Functions\" />
+    <Folder Include="dbo\Triggers\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Referencia de sistema de SSDT; no agrega objetos de master al despliegue. -->
+    <SystemDatabaseSchemaVersion Condition="'$(SystemDatabaseSchemaVersion)' == '' and '$(DSP)' == 'Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider'">160</SystemDatabaseSchemaVersion>
+    <SystemDatabaseSchemaVersion Condition="'$(SystemDatabaseSchemaVersion)' == ''">170</SystemDatabaseSchemaVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\$(SystemDatabaseSchemaVersion)\SQLSchemas\master.dacpac">
+      <HintPath>$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\$(SystemDatabaseSchemaVersion)\SQLSchemas\master.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
+    </ArtifactReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Functions\EsSuperadministradorActivo.sql" />
+    <Build Include="dbo\Functions\UsuarioVigente.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoEmpresaPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\ConsultarPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\GestionarAdministradorPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\GuardarEmpresaPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\InicializarSuperadministrador.sql" />
+    <Build Include="dbo\Stored Procedures\ProtegerAdministradorEmpresa.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarAdministradorPlataforma.sql" />
+    <Build Include="dbo\Triggers\ProtegerRolesUsuario.sql" />
+    <Build Include="dbo\Triggers\ProtegerRolPlataforma.sql" />
+    <Build Include="dbo\Triggers\ProtegerUsuarioPlataforma.sql" />
+    <Build Include="dbo\Triggers\ValidarAmbitoBitacora.sql" />
   </ItemGroup>
 </Project>

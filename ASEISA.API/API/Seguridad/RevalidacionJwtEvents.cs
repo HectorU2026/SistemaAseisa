@@ -22,11 +22,13 @@ namespace API.Seguridad
             var usuarios = context.Principal?.FindAll(ClaimTypes.NameIdentifier).ToArray();
             var versiones = context.Principal?.FindAll("VersionCredencial").ToArray();
             var empresas = context.Principal?.FindAll("Empresa").ToArray();
+            var plataforma=context.Principal?.FindAll("Ambito").Select(c=>c.Value).SequenceEqual(new[]{"Plataforma"})==true;
+            int? empresa=null;
+            if(!plataforma && empresas?.Length==1 && int.TryParse(empresas[0].Value,NumberStyles.None,CultureInfo.InvariantCulture,out var valorEmpresa) && valorEmpresa>0)empresa=valorEmpresa;
             if (versiones?.Length != 1 || !long.TryParse(versiones[0].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var version) || version < 0
-                || usuarios?.Length != 1 || empresas?.Length != 1
+                || usuarios?.Length != 1 || (plataforma ? empresas?.Length!=0 : empresa==null)
                 || !int.TryParse(usuarios[0].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var idUsuario)
-                || !int.TryParse(empresas[0].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var idEmpresa)
-                || idUsuario <= 0 || idEmpresa <= 0)
+                || idUsuario <= 0)
             {
                 context.Fail("Identidad no disponible.");
                 return;
@@ -34,7 +36,7 @@ namespace API.Seguridad
 
             try
             {
-                var vigente = await _contextoFlujo.Obtener(idUsuario, idEmpresa, context.HttpContext.RequestAborted);
+                var vigente = await _contextoFlujo.Obtener(idUsuario, empresa, context.HttpContext.RequestAborted);
                 if (vigente == null || vigente.VersionCredencial != version)
                 {
                     context.Fail("Identidad no disponible.");
@@ -45,10 +47,11 @@ namespace API.Seguridad
                 {
                     new("VersionCredencial", vigente.VersionCredencial.Value.ToString(CultureInfo.InvariantCulture)),
                     new(ClaimTypes.NameIdentifier, vigente.IdUsuario.ToString(CultureInfo.InvariantCulture)),
-                    new("Empresa", vigente.IdEmpresa.ToString(CultureInfo.InvariantCulture)),
                     new(ClaimTypes.Name, vigente.NombreUsuario),
                     new(ClaimTypes.Email, vigente.Correo)
                 };
+                if(vigente.IdEmpresa.HasValue)claims.Add(new Claim("Empresa",vigente.IdEmpresa.Value.ToString(CultureInfo.InvariantCulture)));
+                else claims.Add(new Claim("Ambito","Plataforma"));
                 foreach (var rol in vigente.Roles.Select(r => r.NombreRol).Distinct(StringComparer.OrdinalIgnoreCase))
                     claims.Add(new Claim(ClaimTypes.Role, rol));
 

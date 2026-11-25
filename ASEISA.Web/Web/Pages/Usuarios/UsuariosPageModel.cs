@@ -21,6 +21,7 @@ namespace Web.Pages.Usuarios
                 if(e.Estado==HttpStatusCode.Forbidden)return Forbid();
                 if(e.Estado==HttpStatusCode.NotFound)return NotFound();
                 var mensaje=e.Codigo switch {
+                    "ULTIMO_ADMINISTRADOR"=>"La empresa activa debe conservar al menos un administrador habilitado.",
                     "ULTIMO_ROL"=>"No es posible retirar este rol. El usuario debe conservar al menos un rol activo.",
                     "USUARIO_INMUTABLE"=>"El nombre de usuario no puede modificarse.",
                     "CORREO_DUPLICADO"=>"El correo electrónico ya está registrado.",

@@ -12,12 +12,13 @@ internal static class PruebasCookies
     public static async Task<int> Ejecutar()
     {
         var casos=0;
-        async Task Caso(HttpStatusCode estado,string contenido,bool revocada,bool temporal,string[] roles)
+        async Task Caso(HttpStatusCode estado,string contenido,bool revocada,bool temporal,string[] roles,bool plataforma=false)
         {
             var servicios=new ServiceCollection();servicios.AddLogging();servicios.AddAuthentication().AddCookie();
             await using var proveedor=servicios.BuildServiceProvider();
             var http=new DefaultHttpContext{RequestServices=proveedor};
             var principal=new ClaimsPrincipal(new ClaimsIdentity(new[]{new Claim(ClaimTypes.NameIdentifier,"7"),new Claim("Empresa","8"),new Claim(ClaimTypes.Role,"RolAntiguo"),new Claim("Token","token-sintetico")},"Cookies"));
+            if(plataforma)principal=new ClaimsPrincipal(new ClaimsIdentity(new[]{new Claim(ClaimTypes.NameIdentifier,"7"),new Claim("Ambito","Plataforma"),new Claim(ClaimTypes.Role,"RolAntiguo"),new Claim("Token","token-sintetico")},"Cookies"));
             var props=new AuthenticationProperties{ExpiresUtc=DateTimeOffset.UtcNow.AddMinutes(1)};var limite=props.ExpiresUtc;
             var contexto=new CookieValidatePrincipalContext(http,new AuthenticationScheme("Cookies",null,typeof(CookieAuthenticationHandler)),new CookieAuthenticationOptions(),new AuthenticationTicket(principal,props,"Cookies"));
             var eventos=new SesionCookieEvents(new ClientesFake(estado,contenido),new ConfigFake());
@@ -33,6 +34,8 @@ internal static class PruebasCookies
         await Caso(HttpStatusCode.Unauthorized,"",true,false,[]);
         await Caso(HttpStatusCode.ServiceUnavailable,"",false,true,[]);
         await Caso(HttpStatusCode.OK,"{}",false,true,[]);
+        await Caso(HttpStatusCode.OK,"{\"idUsuario\":7,\"idEmpresa\":null,\"nombreUsuario\":\"actual\",\"correo\":\"actual@example.invalid\",\"roles\":[\"Superadministrador\"],\"expiraUtc\":\""+fecha+"\"}",false,false,["Superadministrador"],true);
+        await Caso(HttpStatusCode.OK,"{\"idUsuario\":7,\"idEmpresa\":null,\"nombreUsuario\":\"actual\",\"correo\":\"actual@example.invalid\",\"roles\":[\"Administrador\"],\"expiraUtc\":\""+fecha+"\"}",false,true,[],true);
         return casos;
     }
     private sealed class ConfigFake:IConfiguracion

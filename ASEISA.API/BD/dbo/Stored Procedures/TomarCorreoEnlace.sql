@@ -18,11 +18,11 @@ BEGIN
         SELECT @vigente=1 FROM dbo.SOLICITUD_CONTRASENA S WITH(UPDLOCK,HOLDLOCK)
         INNER JOIN dbo.USUARIO U ON U.id_usuario=S.id_usuario
         INNER JOIN dbo.ESTADO EU ON EU.id_estado=U.id_estado
-        INNER JOIN dbo.EMPRESA E ON E.id_empresa=U.id_empresa
-        INNER JOIN dbo.ESTADO EE ON EE.id_estado=E.id_estado
+        LEFT JOIN dbo.EMPRESA E ON E.id_empresa=U.id_empresa
+        LEFT JOIN dbo.ESTADO EE ON EE.id_estado=E.id_estado
         WHERE S.id_solicitud=@solicitud AND S.fecha_consumo IS NULL AND S.fecha_expiracion>SYSUTCDATETIME()
-          AND S.id_empresa=@empresa AND S.correo=@correo AND S.version_credencial=U.version_credencial AND U.estado_aprobacion='Aprobado'
-          AND LTRIM(RTRIM(EU.nombre_estado))='Activo' AND LTRIM(RTRIM(EE.nombre_estado))='Activo';
+          AND (S.id_empresa=@empresa OR (S.id_empresa IS NULL AND @empresa IS NULL)) AND S.correo=@correo AND S.version_credencial=U.version_credencial AND U.estado_aprobacion='Aprobado'
+          AND LTRIM(RTRIM(EU.nombre_estado))='Activo' AND dbo.UsuarioVigente(U.id_usuario)=1;
         DECLARE @reserva UNIQUEIDENTIFIER=NEWID();
         DECLARE @tomado TABLE(IdCorreo BIGINT,Reserva UNIQUEIDENTIFIER,TokenCifrado VARCHAR(500));
         UPDATE dbo.CORREO_ENLACE WITH(UPDLOCK,ROWLOCK)

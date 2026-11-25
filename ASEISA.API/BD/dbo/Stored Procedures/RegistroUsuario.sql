@@ -157,8 +157,10 @@ BEGIN
                 THROW 51035,
                     'Debe indicar el administrador responsable.', 1;
 
+            IF dbo.EsSuperadministradorActivo(@id_usuario_accion)=1 AND EXISTS(SELECT 1 FROM @roles S JOIN dbo.ROL R ON R.id_rol=S.id_rol WHERE R.nombre<>'Administrador')
+                THROW 51025,'La plataforma solo puede registrar administradores de empresas.',1;
             -- Verificar administrador activo de la empresa.
-            IF NOT EXISTS (
+            IF dbo.EsSuperadministradorActivo(@id_usuario_accion)=0 AND NOT EXISTS (
                 SELECT 1
                 FROM dbo.USUARIO U
                 INNER JOIN dbo.ROL_USUARIO RU
@@ -258,8 +260,8 @@ BEGIN
         END;
 
         IF @registro_publico=0
-            INSERT dbo.BITACORA(id_usuario,id_empresa,tabla_afectada,registro_id,accion)
-                VALUES(@id_usuario_accion,@id_empresa,'USUARIO',CONVERT(VARCHAR(100),@nuevo_id),'REGISTRAR_USUARIO');
+            INSERT dbo.BITACORA(id_usuario,id_empresa,id_empresa_objetivo,tabla_afectada,registro_id,accion)
+                VALUES(@id_usuario_accion,CASE WHEN dbo.EsSuperadministradorActivo(@id_usuario_accion)=1 THEN NULL ELSE @id_empresa END,CASE WHEN dbo.EsSuperadministradorActivo(@id_usuario_accion)=1 THEN @id_empresa ELSE NULL END,'USUARIO',CONVERT(VARCHAR(100),@nuevo_id),'REGISTRAR_USUARIO');
         COMMIT TRANSACTION;
 
         SELECT @nuevo_id AS id_usuario;
