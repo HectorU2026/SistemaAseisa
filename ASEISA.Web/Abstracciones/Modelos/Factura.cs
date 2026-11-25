@@ -100,3 +100,17 @@ public class FacturaDetalle
     public List<FacturaProducto> Productos { get; set; } = new();
     public FacturaAsiento? Asiento { get; set; }
 }
+
+public class FacturaCambioEstadoRequest
+{
+    public byte[] VersionFila { get; set; } = Array.Empty<byte>();
+}
+
+public class FacturaCambioEstadoRespuesta
+{
+    public int? IdFactura { get; set; }
+    public string? NumeroFactura { get; set; }
+    public string? Estado { get; set; }
+    public byte[]? VersionFila { get; set; }
+    public string? Mensaje { get; set; }
+}
