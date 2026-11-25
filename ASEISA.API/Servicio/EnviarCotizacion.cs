@@ -32,7 +32,7 @@ namespace Servicio
             if (cotizacion == null)
                 return new NotFoundObjectResult("Cotización no encontrada");
 
-            if (!string.Equals(cotizacion.NombreEstado, "Cotización", StringComparison.Ordinal))
+            if (!string.Equals(cotizacion.NombreEstado, "Cotización Enviada", StringComparison.Ordinal))
                 return new BadRequestObjectResult(
                     $"La cotización debe estar en estado 'Cotización'. Actual: {cotizacion.NombreEstado}");
 

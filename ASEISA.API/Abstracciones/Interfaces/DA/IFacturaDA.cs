@@ -6,8 +6,23 @@ namespace Abstracciones.Interfaces.DA
     public interface IFacturaDA
     {
         Task<IEnumerable<FacturaListado>> ObtenerFacturas(int idEmpresa, FacturaFiltro? filtro);
+        Task<IEnumerable<EstadoFactura>> ObtenerEstadosFactura();
+        Task<IEnumerable<FlujoFacturaListado>> ObtenerFlujoFacturas(int idEmpresa, FlujoFacturaFiltro? filtro);
+        Task<ReporteFacturacionResultado> ObtenerReporteFacturacion(int idEmpresa, ReporteFacturacionFiltro? filtro);
+        Task<IEnumerable<ReporteNotaCredito>> ObtenerNotasCreditoReporteFacturacion(int idEmpresa, int idFactura);
+        Task<ReporteFacturacionDetalle?> ObtenerDetalleReporteFacturacion(int idEmpresa, int idFactura);
+        Task<IEnumerable<FacturaPagadaListado>> ObtenerFacturasPagadas(int idEmpresa, FacturaPagadaFiltro? filtro);
+        Task<IEnumerable<FacturaPagadaPago>> ObtenerPagosFacturaPagada(int idEmpresa, int idFactura);
+        Task<FacturaPagadaDetalle?> ObtenerFacturaPagada(int idEmpresa, int idFactura);
         Task<FacturaDetalle?> ObtenerFactura(int idEmpresa, int idFactura);
-        Task<FacturaCambioEstadoResultado> Confirmar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
+        Task<FacturaCambioEstadoResultado> Confirmar(
+            int idEmpresa,
+            int idUsuario,
+            int idFactura,
+            byte[] versionFila,
+            byte[] xmlFirmado,
+            string huellaContenido,
+            string algoritmoFirma);
         Task<FacturaCambioEstadoResultado> Restablecer(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);
         Task<FacturaCambioEstadoResultado> Inactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila, string motivoAnulacion);
         Task<FacturaCambioEstadoResultado> Reactivar(int idEmpresa, int idUsuario, int idFactura, byte[] versionFila);

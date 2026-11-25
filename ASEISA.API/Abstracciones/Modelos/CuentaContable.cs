@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Abstracciones.Modelos;
+
 public class CuentaContableResponse
 {
     public int IdCuentaContable { get; set; }
@@ -22,8 +21,12 @@ public abstract class CuentaContableDatos : IValidatableObject
     [StringLength(500)]
     public string? Descripcion { get; set; }
 
-    public IEnumerable<ValidationResult> Validate(
-        ValidationContext validationContext)
+    [StringLength(20)]
+    [RegularExpression("Efectivo|Operacion|Inversion|Financiamiento",
+        ErrorMessage = "La categoría de flujo no es válida.")]
+    public string? CategoriaFlujo { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (Impuestos is decimal valor &&
             (valor < -99999.9999m ||
@@ -86,4 +89,5 @@ public class CuentaContableDetalleResponse
     public bool ConciliacionPagos { get; set; }
     public decimal? Impuestos { get; set; }
     public string? Descripcion { get; set; }
+    public string? CategoriaFlujo { get; set; }
 }

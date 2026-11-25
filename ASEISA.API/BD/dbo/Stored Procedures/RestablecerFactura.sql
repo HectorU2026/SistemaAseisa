@@ -315,6 +315,10 @@ BEGIN
             @valor_nuevo
         );
 
+        DELETE FROM dbo.FACTURA_XML_ACADEMICO
+        WHERE id_factura = @id_factura
+          AND id_empresa = @id_empresa;
+
         COMMIT TRANSACTION;
 
         SELECT

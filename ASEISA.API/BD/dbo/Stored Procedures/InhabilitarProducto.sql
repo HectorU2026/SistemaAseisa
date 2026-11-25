@@ -1,10 +1,11 @@
 CREATE PROCEDURE InhabilitarProducto
-    @id_producto INT
+    @id_producto INT,
+    @id_empresa  INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Códigos: 1 éxito (incluye ya inactivo); 3 no existe; 8 catálogo ESTADO inválido.
+    -- Códigos: 1 éxito (incluye ya inactivo); 3 no existe o de otra empresa; 8 catálogo ESTADO inválido.
     BEGIN TRY
         BEGIN TRANSACTION;
 
@@ -13,7 +14,8 @@ BEGIN
 
         SELECT @id_estado_actual = id_estado
         FROM PRODUCTO WITH (UPDLOCK, HOLDLOCK)
-        WHERE id_producto = @id_producto;
+        WHERE id_producto = @id_producto
+          AND id_empresa = @id_empresa;
 
         IF @id_estado_actual IS NULL
         BEGIN
@@ -54,7 +56,8 @@ BEGIN
         UPDATE PRODUCTO
         SET id_estado = @id_inactivo,
             fecha_modificacion = SYSDATETIME()
-        WHERE id_producto = @id_producto;
+        WHERE id_producto = @id_producto
+          AND id_empresa = @id_empresa;
 
         COMMIT TRANSACTION;
         SELECT 1;

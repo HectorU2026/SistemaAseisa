@@ -77,6 +77,7 @@
     <Build Include="dbo\Tables\MOVIMIENTO_INVENTARIO.sql" />
     <Build Include="dbo\Tables\MOVIMIENTO_BANCARIO.sql" />
     <Build Include="dbo\Tables\FACTURA.sql" />
+    <Build Include="dbo\Tables\FACTURA_XML_ACADEMICO.sql" />
     <Build Include="dbo\Tables\EXISTENCIA.sql" />
     <Build Include="dbo\Tables\INVENTARIO_FISICO.sql" />
     <Build Include="dbo\Tables\INGRESO_PRODUCTO.sql" />
@@ -143,7 +144,14 @@
     <Build Include="dbo\Stored Procedures\ObtenerCotizacionesCanceladasRechazadas.sql" />
     <Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFacturas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEstadosFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFlujoFacturas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerReporteFacturacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerNotasCreditoReporteFacturacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFacturasPagadas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerPagosFacturaPagada.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerXmlAcademicoFactura.sql" />
     <Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
     <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
     <Build Include="dbo\Stored Procedures\InactivarFactura.sql" />
@@ -199,6 +207,12 @@
     <Build Include="dbo\Stored Procedures\HabilitarCuentaContable.sql" />
     <Build Include="dbo\Stored Procedures\AgregarCuentaContableRaiz.sql" />
     <Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralTotales.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralDetalle.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFlujoEfectivo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerReporteCuentasPorPagar.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerLibroMayor.sql" />
+    <Build Include="dbo\Tables\CONFIGURACION_CONTABLE.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />

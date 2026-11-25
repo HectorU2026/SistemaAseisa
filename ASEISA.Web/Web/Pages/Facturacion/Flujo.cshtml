@@ -1,0 +1,158 @@
+@page
+@model Web.Pages.Facturacion.FlujoModel
+
+@{
+    ViewData["Title"] = "Flujo de facturación";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+                <a asp-page="/Facturacion/Listado">Facturación</a>
+                <span>/ Flujo</span>
+            </div>
+            <h1>Cotización, venta y factura</h1>
+            <p>Consulte la relación entre la cotización, la orden de venta y la factura.</p>
+        </div>
+        <a asp-page="/Facturacion/Listado" class="btn btn-contacto-outline">
+            Volver al listado
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    <section class="contactos-panel">
+        <div class="contactos-panel-header">
+            <div>
+                <h2>Flujo de facturación</h2>
+                <p>El número de factura se compara de forma exacta.</p>
+            </div>
+            @if (string.IsNullOrWhiteSpace(Model.MensajeError))
+            {
+                <span class="contactos-count">@Model.Items.Count registros</span>
+            }
+        </div>
+
+        <form method="get" class="contactos-filtros">
+            <div>
+                <label class="form-label" for="idCotizacion">Cotización</label>
+                <input id="idCotizacion"
+                       class="form-control"
+                       type="number"
+                       min="1"
+                       name="IdCotizacion"
+                       value="@Model.IdCotizacion"
+                       placeholder="Id de cotización"
+                       aria-label="Identificador de cotización" />
+            </div>
+
+            <div>
+                <label class="form-label" for="numeroFactura">Número de factura</label>
+                <input id="numeroFactura"
+                       class="form-control"
+                       type="text"
+                       name="NumeroFactura"
+                       value="@Model.NumeroFactura"
+                       maxlength="50"
+                       placeholder="Número exacto"
+                       aria-label="Número de factura" />
+            </div>
+
+            <div>
+                <label class="form-label" for="ordenarPor">Ordenar por</label>
+                <select id="ordenarPor"
+                        class="form-select"
+                        name="OrdenarPor"
+                        aria-label="Orden de los resultados">
+                    <option value="id_cotizacion" selected="@(Model.OrdenarPor == "id_cotizacion")">Cotización</option>
+                    <option value="numeroFactura" selected="@(Model.OrdenarPor == "numeroFactura")">Número de factura</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-contacto-primary">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Consultar
+            </button>
+
+            <a asp-page="/Facturacion/Flujo" class="btn btn-contacto-outline">Limpiar</a>
+        </form>
+
+        @if (string.IsNullOrWhiteSpace(Model.MensajeError))
+        {
+            <div class="table-responsive">
+                <table class="table contactos-table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Cotización</th>
+                            <th scope="col">Estado de cotización</th>
+                            <th scope="col">Orden de venta</th>
+                            <th scope="col">Factura</th>
+                            <th scope="col">Estado de factura</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Emisión</th>
+                            <th scope="col" class="text-end">Total de la orden</th>
+                            <th scope="col" class="text-end">Total facturado</th>
+                            <th scope="col" class="text-end">Cobrado de la orden</th>
+                            <th scope="col" class="text-end">Saldo de la orden</th>
+                            <th scope="col" class="text-end">Total de la factura</th>
+                            <th scope="col" class="text-end">Saldo de la factura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="13" class="contactos-empty text-center">
+                                    <i class="bi bi-inbox" aria-hidden="true"></i>
+                                    <strong>@(Model.Mensaje ?? "No hay registros disponibles")</strong>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.NumeroCotizacion</td>
+                                <td>@item.EstadoCotizacion</td>
+                                <td>@item.IdVenta</td>
+                                <td>
+                                    <a asp-page="/Facturacion/Detalle"
+                                       asp-route-idFactura="@item.IdFactura">
+                                        @item.NumeroFactura
+                                    </a>
+                                    <div>
+                                        <a asp-page="/Facturacion/Flujo/Detalle"
+                                           asp-route-idFactura="@item.IdFactura"
+                                           asp-route-IdCotizacion="@Model.IdCotizacion"
+                                           asp-route-NumeroFactura="@Model.NumeroFactura"
+                                           asp-route-OrdenarPor="@Model.OrdenarPor">
+                                            Ver trazabilidad
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>@item.EstadoFactura</td>
+                                <td>@item.NombreCliente</td>
+                                <td>@item.FechaEmision.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">@item.TotalOrden.ToString("N2")</td>
+                                <td class="text-end">@item.TotalFacturado.ToString("N2")</td>
+                                <td class="text-end">@item.TotalCobradoOrden.ToString("N2")</td>
+                                <td class="text-end">@item.SaldoPendienteOrden.ToString("N2")</td>
+                                <td class="text-end">@item.TotalFactura.ToString("N2")</td>
+                                <td class="text-end">@item.SaldoPendienteFactura.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

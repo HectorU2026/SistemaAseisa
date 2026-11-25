@@ -1,0 +1,197 @@
+﻿@page
+@model Web.Pages.Banco.MovimientosModel
+@{
+    ViewData["Title"] = "Movimientos Bancarios";
+    int inicioRegistro = Model.TotalRegistros == 0 ? 0 : ((Model.Pagina - 1) * Model.TamanoPagina) + 1;
+    int finRegistro = Math.Min(Model.Pagina * Model.TamanoPagina, Model.TotalRegistros);
+}
+
+<link rel="stylesheet" href="~/css/bancos.css" asp-append-version="true" />
+
+<div class="container mt-4 mb-5 bancos-page">
+
+    <!-- ENCABEZADO -->
+    <div class="bancos-header">
+        <div>
+            <div class="bancos-breadcrumb">
+                <i class="bi bi-bank"></i>
+                <span>Finanzas / Bancos / Movimientos</span>
+            </div>
+            <h1>Historial de movimientos</h1>
+            <p>Consulte todos los ingresos y egresos registrados en sus cuentas bancarias.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/Banco/RegistrarPago" class="btn-banco-primary shadow-sm">
+                <i class="bi bi-cash-coin"></i> Registrar pago
+            </a>
+            <a href="/Banco/Bancos" class="btn-banco-outline">
+                <i class="bi bi-arrow-left"></i> Volver a Bancos
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @Model.MensajeError
+        </div>
+    }
+
+    <!-- FILTROS -->
+    <div class="banco-panel mb-4">
+        <form method="get" class="p-3 p-md-4">
+            <input type="hidden" name="Pagina" value="1" />
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label for="filtroCuenta" class="form-label small fw-semibold">Cuenta bancaria</label>
+                    <select id="filtroCuenta" name="IdCuentaBancaria" class="form-select">
+                        <option value="">Todas las cuentas</option>
+                        @foreach (var cuenta in Model.CuentasBancarias)
+                        {
+                            <option value="@cuenta.IdCuentaBancaria" selected="@(Model.IdCuentaBancaria == cuenta.IdCuentaBancaria)">
+                                @cuenta.NumeroCuenta — @cuenta.TipoCuenta (@cuenta.Moneda)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="filtroTamano" class="form-label small fw-semibold">Registros por página</label>
+                    <select id="filtroTamano" name="TamanoPagina" class="form-select">
+                        <option value="10" selected="@(Model.TamanoPagina == 10)">10 registros</option>
+                        <option value="20" selected="@(Model.TamanoPagina == 20)">20 registros</option>
+                        <option value="50" selected="@(Model.TamanoPagina == 50)">50 registros</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 d-flex gap-2 justify-content-md-end">
+                    <button type="submit" class="btn-banco-primary">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <a href="/Banco/Movimientos" class="btn-banco-outline">
+                        Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- TABLA DE MOVIMIENTOS -->
+    <div class="banco-panel">
+        <div class="banco-panel-header">
+            <div>
+                <h6>Movimientos registrados</h6>
+                <p>Ordenados del más reciente al más antiguo</p>
+            </div>
+            <span class="badge-soft is-neutro">Total: @Model.TotalRegistros</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table banco-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cuenta bancaria</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Referencia</th>
+                        <th>Estado</th>
+                        <th class="text-end">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Movimientos != null && Model.Movimientos.Any())
+                    {
+                        foreach (var m in Model.Movimientos)
+                        {
+                            bool esIngreso = string.Equals(m.TipoMovimiento, "Ingreso", StringComparison.OrdinalIgnoreCase);
+                            bool esActivo = string.Equals(m.Estado, "Activo", StringComparison.OrdinalIgnoreCase);
+                            string montoClase = esIngreso ? "monto-in" : "monto-out";
+                            string signo = esIngreso ? "+" : "-";
+
+                            <tr>
+                                <td class="fw-semibold text-muted">#@m.IdMovimientoBancario</td>
+                                <td class="text-muted">@m.FechaMovimiento.ToString("dd/MM/yyyy")</td>
+                                <td class="fw-semibold text-dark">@m.NumeroCuenta</td>
+                                <td>
+                                    <span class="badge-soft @(esIngreso ? "is-activa" : "is-inactiva")">
+                                        @m.TipoMovimiento
+                                    </span>
+                                </td>
+                                <td class="text-muted">@(string.IsNullOrWhiteSpace(m.Descripcion) ? "-" : m.Descripcion)</td>
+                                <td class="text-muted small">@(string.IsNullOrWhiteSpace(m.Referencia) ? "-" : m.Referencia)</td>
+                                <td>
+                                    <span class="badge-soft @(esActivo ? "is-activa" : "is-inactiva")">
+                                        @m.Estado
+                                    </span>
+                                </td>
+                                <td class="text-end @montoClase">@signo ₡@m.Monto.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-3" style="color: #c8ced8;"></i>
+                                <strong class="d-block mb-1 text-dark">No se encontraron movimientos bancarios</strong>
+                                <span class="small">Ajuste los filtros o registre un pago de factura para generar movimientos.</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PIE CON PAGINACIÓN -->
+        <div class="banco-panel-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <i class="bi bi-info-circle me-1"></i>
+                Mostrando @inicioRegistro – @finRegistro de @Model.TotalRegistros movimiento(s).
+            </div>
+
+            @if (Model.TotalPaginas > 1)
+            {
+                <nav aria-label="Paginación de movimientos">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.Pagina <= 1 ? "disabled" : "")">
+                            <a class="page-link text-dark"
+                               asp-page="/Banco/Movimientos"
+                               asp-route-Pagina="@(Model.Pagina - 1)"
+                               asp-route-TamanoPagina="@Model.TamanoPagina"
+                               asp-route-IdCuentaBancaria="@Model.IdCuentaBancaria">
+                                Anterior
+                            </a>
+                        </li>
+
+                        @for (int i = 1; i <= Model.TotalPaginas; i++)
+                        {
+                            bool activa = i == Model.Pagina;
+                            <li class="page-item @(activa ? "active" : "")">
+                                <a class="page-link @(activa ? "border-0 text-white" : "text-dark")"
+                                   style="@(activa ? "background-color: #F2382F;" : "")"
+                                   asp-page="/Banco/Movimientos"
+                                   asp-route-Pagina="@i"
+                                   asp-route-TamanoPagina="@Model.TamanoPagina"
+                                   asp-route-IdCuentaBancaria="@Model.IdCuentaBancaria">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.Pagina >= Model.TotalPaginas ? "disabled" : "")">
+                            <a class="page-link text-dark"
+                               asp-page="/Banco/Movimientos"
+                               asp-route-Pagina="@(Model.Pagina + 1)"
+                               asp-route-TamanoPagina="@Model.TamanoPagina"
+                               asp-route-IdCuentaBancaria="@Model.IdCuentaBancaria">
+                                Siguiente
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

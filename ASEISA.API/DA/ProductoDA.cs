@@ -16,14 +16,14 @@ namespace DA
             _sqlConnection = _repositorioDapper.ObtenerRepositorio();
         }
 
-        public async Task<int> RegistrarProducto(Producto producto)
+        public async Task<int> RegistrarProducto(Producto producto, int idEmpresa)
         {
             var sql = @"RegistrarProducto";
 
             var resultado = await _sqlConnection.QueryAsync<int>(sql,
                 new
                 {
-                    id_empresa = producto.IdEmpresa,
+                    id_empresa = idEmpresa,
                     codigo = producto.Codigo,
                     nombre = producto.Nombre,
                     descripcion = producto.Descripcion,
@@ -46,7 +46,7 @@ namespace DA
             return resultado.FirstOrDefault();
         }
 
-        public async Task<int> EditarProducto(Producto producto)
+        public async Task<int> EditarProducto(Producto producto, int idEmpresa)
         {
             var sql = @"EditarProducto";
 
@@ -54,6 +54,7 @@ namespace DA
                 new
                 {
                     id_producto = producto.IdProducto,
+                    id_empresa = idEmpresa,
                     nombre = producto.Nombre,
                     descripcion = producto.Descripcion,
                     tipo_producto = producto.TipoProducto,
@@ -74,14 +75,15 @@ namespace DA
             return resultado.FirstOrDefault();
         }
 
-        public async Task<int> InhabilitarProducto(int idProducto)
+        public async Task<int> InhabilitarProducto(int idProducto, int idEmpresa)
         {
             var sql = @"InhabilitarProducto";
 
             var resultado = await _sqlConnection.QueryAsync<int>(sql,
                 new
                 {
-                    id_producto = idProducto
+                    id_producto = idProducto,
+                    id_empresa = idEmpresa
                 });
 
             return resultado.FirstOrDefault();
