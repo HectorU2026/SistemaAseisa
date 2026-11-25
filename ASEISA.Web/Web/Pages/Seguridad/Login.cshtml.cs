@@ -105,6 +105,7 @@ namespace Web.Pages.Seguridad
                     new ClaimsPrincipal(identidad),
                     propiedadesAutenticacion
                 );
+                if(identidad.HasClaim(ClaimTypes.Role,"Superadministrador"))return RedirectToPage("/Plataforma/Index");
                 await EjecutarSinBloquearLogin(() => ActualizarUltimoAcceso(correo));
 
                 var returnUrl = Request.Query["ReturnUrl"].ToString();

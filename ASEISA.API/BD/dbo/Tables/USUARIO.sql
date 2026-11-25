@@ -1,6 +1,8 @@
 CREATE TABLE [dbo].[USUARIO] (
     [id_usuario]         INT           IDENTITY (1, 1) NOT NULL,
-    [id_empresa]         INT           NOT NULL,
+    [id_empresa]         INT           NULL,
+    [es_plataforma] BIT CONSTRAINT DF_USUARIO_Plataforma DEFAULT 0 NOT NULL,
+    CONSTRAINT CK_USUARIO_Ambito CHECK ((es_plataforma=1 AND id_empresa IS NULL) OR (es_plataforma=0 AND id_empresa IS NOT NULL)),
     [tipo_cliente]       VARCHAR (50)  NULL,
     [nombre]             VARCHAR (100) NOT NULL,
     [primer_apellido]    VARCHAR (100) NOT NULL,

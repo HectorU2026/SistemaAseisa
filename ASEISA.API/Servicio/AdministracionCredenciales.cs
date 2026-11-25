@@ -13,6 +13,8 @@ namespace Servicio
         private readonly IConfiguration _configuracion;
         public AdministracionCredenciales(IHttpClientFactory clientes,IHttpContextAccessor contexto,IConfiguration configuracion)
         { _clientes=clientes;_contexto=contexto;_configuracion=configuracion; }
+        public Task<ResultadoInvitacion> RegistrarPlataforma(int empresa,ASEISA.Plataforma.PersonaPlataforma datos,CancellationToken ct)=>Enviar($"Plataforma/empresas/{empresa}/administradores",datos,ct);
+        public Task<ResultadoInvitacion> RestablecerPlataforma(int empresa,int usuario,CancellationToken ct)=>Enviar($"Plataforma/empresas/{empresa}/administradores/{usuario}/enlace",null,ct);
         public Task<ResultadoInvitacion> Registrar(UsuarioRequest solicitud,CancellationToken ct)=>Enviar("AdministracionUsuarios/Registrar",solicitud,ct);
         public Task<ResultadoInvitacion> Restablecer(int idUsuario,CancellationToken ct)=>Enviar($"AdministracionUsuarios/Restablecer/{idUsuario}",null,ct);
         private async Task<ResultadoInvitacion> Enviar(string ruta,object? cuerpo,CancellationToken ct)

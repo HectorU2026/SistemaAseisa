@@ -1,0 +1,9 @@
+@page
+@model Web.Pages.Plataforma.BitacoraModel
+@{ViewData["Title"]="Bitácora de plataforma";}
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+<div class="contactos-page usuarios-page">
+<div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+@if(TempData["Mensaje"] is string mensaje){<div class="alert alert-success" role="status">@mensaje</div>}<div class="contactos-header"><div><div class="contactos-breadcrumb"><a asp-page="Index">Plataforma</a> / Bitácora</div><h1>Bitácora de plataforma</h1><p>Últimos 200 eventos de plataforma. Sin credenciales ni contenido de enlaces.</p></div></div>
+<section class="contactos-panel"><div class="table-responsive"><table class="table"><thead><tr><th>Fecha</th><th>Actor</th><th>Empresa objetivo</th><th>Objeto</th><th>Acción</th></tr></thead><tbody>@foreach(var e in Model.Datos.Eventos){<tr><td>@e.Fecha</td><td>@e.IdUsuario</td><td>@e.IdEmpresaObjetivo</td><td>@e.Tabla · @e.Registro</td><td>@e.Accion</td></tr>}</tbody></table></div></section></div>

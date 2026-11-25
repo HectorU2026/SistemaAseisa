@@ -27,7 +27,7 @@ foreach ($target in @('Build','Rebuild','Publish','Deploy','SqlBuild','SqlPublis
 $buildIncludes = @($main.Project.ItemGroup.Build | Where-Object { $_.Include } | ForEach-Object { $_.Include.Replace('\','/') })
 Assert-Contract (@($buildIncludes | Sort-Object -Unique).Count -eq $buildIncludes.Count) 'Hay objetos SQL duplicados en el proyecto autoritativo.'
 $links = @($reference.SelectNodes('//m:None', $ns))
-Assert-Contract ($links.Count -eq 24) 'Deben mantenerse las 24 referencias SQL compartidas.'
+Assert-Contract ($links.Count -eq 29) 'Deben mantenerse las 29 referencias SQL compartidas.'
 $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($link in $links) {
     $relative = $link.Link.Replace('\','/')
@@ -59,4 +59,4 @@ foreach ($file in Get-ChildItem -LiteralPath $authority -Recurse -File -Filter '
 $solution = Get-Content -LiteralPath (Join-Path $root 'Seguridad/Seguridad.API/Seguridad.sln') -Raw
 Assert-Contract ($solution -match 'BD\\BD.sqlproj') 'El proyecto secundario debe conservarse en la solucion.'
 Assert-Contract ($solution -notmatch '(?im)^\s*\{73E61DD7-788A-4AEB-9BA5-44525D2E996B\}[^\r\n]*\.(Build|Deploy)\.0\s*=') 'El proyecto secundario no debe compilarse ni desplegarse desde la solucion.'
-Write-Output 'OK: 24 enlaces, fuente SQL unica, destinos bloqueados y sin copias ni DACPAC secundarios.'
+Write-Output 'OK: 29 enlaces, fuente SQL unica, destinos bloqueados y sin copias ni DACPAC secundarios.'

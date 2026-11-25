@@ -5,6 +5,7 @@ BEGIN
     SET NOCOUNT ON; SET XACT_ABORT ON;
     BEGIN TRY
         BEGIN TRANSACTION;
+        EXEC dbo.ProtegerAdministradorEmpresa @id_empresa;
         IF @agregar IS NULL OR dbo.EsAdministradorActivo(@id_usuario_accion,@id_empresa)=0
             THROW 51025,'Operacion no autorizada.',1;
         IF @id_usuario=@id_usuario_accion THROW 51027,'No puede modificar sus propios roles.',1;

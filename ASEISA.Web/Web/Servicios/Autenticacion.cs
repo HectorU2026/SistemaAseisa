@@ -60,8 +60,9 @@ namespace Web.Servicios
             foreach (var rol in roles)
                 claims.Add(new Claim(ClaimTypes.Role, rol!));
 
-            claims.Add(new Claim("Empresa", 
-                jwtToken.Claims.First(c => c.Type == "Empresa").Value));
+            var plataforma=roles.Count==1 && roles[0]=="Superadministrador" && jwtToken.Claims.Any(c=>c.Type=="Ambito" && c.Value=="Plataforma");
+            if(plataforma)claims.Add(new Claim("Ambito","Plataforma"));
+            else claims.Add(new Claim("Empresa",jwtToken.Claims.Single(c=>c.Type=="Empresa").Value));
             claims.Add(new Claim("Token", accessToken));
             return claims;
         }

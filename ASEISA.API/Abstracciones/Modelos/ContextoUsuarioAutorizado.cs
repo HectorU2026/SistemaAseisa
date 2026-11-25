@@ -5,7 +5,7 @@ namespace Abstracciones.Modelos
     {
         public long? VersionCredencial { get; set; }
         public int IdUsuario { get; set; }
-        public int IdEmpresa { get; set; }
+        public int? IdEmpresa { get; set; }
         public string NombreUsuario { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
         public List<RolUsuarioAutorizado> Roles { get; set; } = new();
