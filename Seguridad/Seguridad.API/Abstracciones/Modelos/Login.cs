@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Abstracciones.Modelos
 {
@@ -13,6 +13,10 @@ namespace Abstracciones.Modelos
 
     public class LoginAutenticado : LoginBase
     {
+        public string EstadoAprobacion {get;set;}="";
+        public bool UsuarioActivo {get;set;}
+        public bool EmpresaActiva {get;set;}
+        public long? VersionCredencial { get; set; }
         public int id { get; set; }
 
         public int IdUsuario { get => id; set => id = value; }

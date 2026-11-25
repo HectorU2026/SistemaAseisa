@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -16,4 +16,5 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.2" />
   </ItemGroup>
 
+  <ItemGroup><Compile Include="../../Compartido/Usuarios/ReglasRegistroUsuario.cs" Link="Usuarios/ReglasRegistroUsuario.cs" /></ItemGroup>
 </Project>

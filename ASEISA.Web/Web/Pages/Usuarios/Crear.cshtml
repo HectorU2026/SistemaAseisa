@@ -1,0 +1,28 @@
+@page
+@model Web.Pages.Usuarios.CrearModel
+@{ViewData["Title"]="Nuevo usuario";}
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+<div class="contactos-page usuarios-page">
+ <div class="contactos-header"><div><div class="contactos-breadcrumb"><a asp-page="Index">Usuarios</a> / Nuevo usuario</div><h1>Nuevo usuario</h1><p>Los campos marcados con * son obligatorios.</p></div><a asp-page="Index" class="btn btn-contacto-outline"><i class="bi bi-arrow-left"></i> Volver al listado</a></div>
+ <form method="post" data-formulario-usuario><div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+ <section class="contactos-panel usuarios-panel"><h2><i class="bi bi-person"></i> Datos personales</h2><div class="row g-3">
+ <div class="col-md-6"><label for="empresaAsociada" class="form-label">Empresa asociada</label><input id="empresaAsociada" value="@Model.Catalogos.NombreEmpresa" class="form-control" readonly aria-describedby="ayudaEmpresa" /><small id="ayudaEmpresa" class="text-muted">Se asigna automáticamente desde tu sesión. No puede cambiarse en este formulario.</small></div>
+<div class="col-md-6"><label asp-for="Formulario.Nombre" class="form-label">Nombre *</label><input asp-for="Formulario.Nombre" maxlength="80" type="text" class="form-control" /><span asp-validation-for="Formulario.Nombre"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.PrimerApellido" class="form-label">Primer apellido *</label><input asp-for="Formulario.PrimerApellido" maxlength="80" type="text" class="form-control" /><span asp-validation-for="Formulario.PrimerApellido"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.SegundoApellido" class="form-label">Segundo apellido</label><input asp-for="Formulario.SegundoApellido" maxlength="80" type="text" class="form-control" /><span asp-validation-for="Formulario.SegundoApellido"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.Correo" class="form-label">Correo electrónico *</label><input asp-for="Formulario.Correo" maxlength="150" type="email" class="form-control" /><span asp-validation-for="Formulario.Correo"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.TipoCliente" class="form-label">Tipo de identificación *</label><select asp-for="Formulario.TipoCliente" class="form-select" required><option value="">Seleccione</option><option>Persona física</option><option>Persona jurídica</option></select><span asp-validation-for="Formulario.TipoCliente"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.Identificacion" class="form-label">Identificación *</label><input asp-for="Formulario.Identificacion" type="text" inputmode="numeric" maxlength="12" autocomplete="off" class="form-control" /><span asp-validation-for="Formulario.Identificacion"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.NombreRazonSocial" class="form-label">Razón social (obligatoria para persona jurídica)</label><input asp-for="Formulario.NombreRazonSocial" maxlength="200" type="text" class="form-control" /><span asp-validation-for="Formulario.NombreRazonSocial"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.Telefono" class="form-label">Teléfono</label><input asp-for="Formulario.Telefono" type="tel" inputmode="numeric" maxlength="9" placeholder="XXXX-XXXX" pattern="[0-9]{4}-[0-9]{4}" class="form-control" /><span asp-validation-for="Formulario.Telefono"></span></div>
+<div class="col-md-6"><label asp-for="Formulario.Direccion" class="form-label">Dirección</label><input asp-for="Formulario.Direccion" maxlength="250" type="text" class="form-control" /><span asp-validation-for="Formulario.Direccion"></span></div>
+
+ 
+ </div><p class="text-muted mt-3 mb-0">El nombre de usuario se genera automáticamente con la inicial, el primer apellido y los últimos cuatro dígitos de la identificación. No cambiará después de crear la cuenta.</p></section>
+ <section class="contactos-panel usuarios-panel"><h2><i class="bi bi-shield-check"></i> Acceso y roles</h2>
+ <div class="row g-3 mb-4"><div class="col-md-6"><label asp-for="Formulario.IdEstado" class="form-label">Estado inicial *</label><select asp-for="Formulario.IdEstado" class="form-select"><option value="">Seleccione</option>@foreach(var e in Model.Catalogos.Estados){<option value="@e.Id">@e.Nombre</option>}</select><span asp-validation-for="Formulario.IdEstado"></span></div></div>
+ <fieldset><legend class="fs-6">Roles activos * · Seleccione uno o varios</legend><div class="usuarios-roles">@foreach(var r in Model.Catalogos.Roles.OrderBy(r=>r.Nombre)){<label class="rol-opcion"><input type="checkbox" name="Formulario.IdsRoles" value="@r.Id" checked="@(Model.Formulario.IdsRoles.Contains(r.Id))" class="form-check-input me-2" />@r.Nombre</label>}</div><span asp-validation-for="Formulario.IdsRoles"></span></fieldset>
+ <div class="alert alert-info mt-4 mb-0"><i class="bi bi-envelope"></i> Al crear una cuenta activa se programará una invitación para que el usuario establezca su propia contraseña. Un envío programado no confirma su entrega. Para una cuenta inactiva, active el acceso y solicite el enlace desde su detalle.</div></section>
+ <div class="d-flex flex-wrap gap-2"><button class="btn btn-contacto-primary" type="submit"><i class="bi bi-person-plus"></i> Crear e invitar</button><a asp-page="Index" class="btn btn-contacto-outline">Cancelar</a></div></form></div>
+@section Scripts {<partial name="_ValidationScriptsPartial" /><script src="~/js/registro-campos.js" asp-append-version="true"></script><script src="~/js/usuarios-formulario.js" asp-append-version="true"></script>}

@@ -1,4 +1,5 @@
-﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,11 +9,16 @@ namespace Abstracciones.Modelos
     {
         public int? IdCliente { get; set; }
         public int? IdEmpresa { get; set; }
+        [StringLength(50)]
         public string TipoCliente { get; set; }
+        [StringLength(200)]
         public string NombreRazonSocial { get; set; }
+        [StringLength(50)]
         public string Identificacion { get; set; }
         public string? Correo { get; set; }
+        [ASEISA.Usuarios.TelefonoUsuario]
         public string? Telefono { get; set; }
+        [StringLength(250,ErrorMessage="La dirección no puede superar los 250 caracteres.")]
         public string? Direccion { get; set; }
         public decimal? LimiteCredito { get; set; }
         public int? DiasCredito { get; set; }

@@ -1,19 +1,12 @@
-﻿CREATE PROCEDURE [dbo].[EditarUsuario]
-    @id_usuario            INT,
-    @id_empresa            INT,
-    @tipo_cliente          VARCHAR(50)  = NULL,
-    @nombre                VARCHAR(100),
-    @primer_apellido       VARCHAR(100),
-    @segundo_apellido      VARCHAR(100) = NULL,
-    @correo                VARCHAR(150),
-    @nombre_usuario        VARCHAR(100),
-    @contrasena_hash       VARCHAR(500) = NULL, -- Si viene NULL o vacío, se conserva la contraseña actual
-    @id_estado             INT,
-    @telefono              VARCHAR(30)  = NULL,
-    @direccion             VARCHAR(300) = NULL,
-    @identificacion        VARCHAR(50)  = NULL,
-    @nombre_razon_social   VARCHAR(200) = NULL,
-    @id_rol                INT
+CREATE   PROCEDURE [dbo].[EditarUsuario]
+    @id_usuario        INT,
+    @id_empresa        INT,
+    @nombre            VARCHAR(100),
+    @primer_apellido   VARCHAR(100),
+    @segundo_apellido  VARCHAR(100) = NULL,
+    @correo            VARCHAR(150),
+    @nombre_usuario    VARCHAR(100),
+    @id_usuario_accion INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -21,76 +14,69 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
+        IF dbo.EsAdministradorActivo(@id_usuario_accion,@id_empresa)=0
+            THROW 51025,'Operacion no autorizada.',1;
+        IF EXISTS(SELECT 1 FROM dbo.ROL_USUARIO RU INNER JOIN dbo.ROL R ON R.id_rol=RU.id_rol
+            WHERE RU.id_usuario=@id_usuario AND R.nombre='Superadministrador') THROW 51025,'Operacion no autorizada.',1;
+        DECLARE @anterior VARCHAR(MAX),@nuevo VARCHAR(MAX);
+        SELECT @anterior=(SELECT nombre,primer_apellido,segundo_apellido,correo,nombre_usuario
+            FROM dbo.USUARIO WHERE id_usuario=@id_usuario AND id_empresa=@id_empresa FOR JSON PATH,WITHOUT_ARRAY_WRAPPER);
 
-        -- 1. Actualizar la tabla principal USUARIO
+        -- 1. Verificar que el usuario pertenece a la empresa.
+        IF NOT EXISTS (
+            SELECT 1
+            FROM dbo.USUARIO WITH (UPDLOCK, HOLDLOCK)
+            WHERE id_usuario = @id_usuario
+              AND id_empresa = @id_empresa
+        )
+        BEGIN
+            THROW 51015,
+                'El usuario no existe en la empresa indicada.', 1;
+        END;
+
+        -- 2. Verificar que el correo no esté registrado
+        -- por otro usuario.
+        IF EXISTS (
+            SELECT 1
+            FROM dbo.USUARIO
+            WHERE correo = @correo
+              AND id_usuario <> @id_usuario
+        )
+        BEGIN
+            THROW 51016,
+                'El correo ya esta registrado por otro usuario.', 1;
+        END;
+
+        -- Identidad inmutable, incluso ante solicitudes directas.
+        IF EXISTS(SELECT 1 FROM dbo.USUARIO WHERE id_usuario=@id_usuario
+            AND (nombre_usuario COLLATE Latin1_General_100_BIN2 <> @nombre_usuario COLLATE Latin1_General_100_BIN2
+                 OR DATALENGTH(nombre_usuario)<>DATALENGTH(@nombre_usuario)))
+            THROW 51210,'El nombre de usuario no puede modificarse.',1;
+        -- 4. Actualizar únicamente los datos personales.
         UPDATE dbo.USUARIO
-        SET 
-            tipo_cliente       = ISNULL(@tipo_cliente, tipo_cliente),
-            nombre             = @nombre,
-            primer_apellido    = @primer_apellido,
-            segundo_apellido   = @segundo_apellido,
-            correo             = @correo,
-            nombre_usuario     = @nombre_usuario,
-            contrasena_hash    = ISNULL(NULLIF(@contrasena_hash, ''), contrasena_hash),
-            id_estado          = @id_estado,
-			fecha_modificacion = SYSDATETIME()
-        WHERE id_usuario = @id_usuario AND id_empresa = @id_empresa;
+        SET
+            nombre = @nombre,
+            primer_apellido = @primer_apellido,
+            segundo_apellido = @segundo_apellido,
+            correo = @correo,
+            fecha_modificacion = SYSDATETIME()
+        WHERE id_usuario = @id_usuario
+          AND id_empresa = @id_empresa;
 
-        -- 2. Actualizar o asegurar el rol en ROL_USUARIO
-        IF EXISTS (SELECT 1 FROM dbo.ROL_USUARIO WHERE id_usuario = @id_usuario)
-        BEGIN
-            UPDATE dbo.ROL_USUARIO
-            SET id_rol = @id_rol,
-                id_estado = @id_estado
-            WHERE id_usuario = @id_usuario;
-        END
-        ELSE
-        BEGIN
-            INSERT INTO dbo.ROL_USUARIO (id_usuario, id_rol, id_estado)
-            VALUES (@id_usuario, @id_rol, @id_estado);
-        END;
-
-        -- 3. Actualizar o insertar el registro en CLIENTE 
-        IF EXISTS (SELECT 1 FROM dbo.CLIENTE WHERE id_empresa = @id_empresa AND (correo = @correo OR identificacion = ISNULL(@identificacion, @correo)))
-        BEGIN
-            UPDATE dbo.CLIENTE
-            SET 
-                tipo_cliente          = ISNULL(@tipo_cliente, tipo_cliente),
-                nombre_razon_social   = ISNULL(@nombre_razon_social, @nombre + ' ' + @primer_apellido),
-                identificacion        = ISNULL(@identificacion, identificacion),
-                correo                = @correo,
-                telefono              = @telefono,
-                direccion             = @direccion,
-                id_estado             = @id_estado
-            WHERE id_empresa = @id_empresa AND (correo = @correo OR identificacion = ISNULL(@identificacion, @correo));
-        END
-        ELSE
-        BEGIN
-            INSERT INTO dbo.CLIENTE
-            (
-                id_empresa, tipo_cliente, nombre_razon_social, identificacion,
-                correo, telefono, direccion, id_estado
-            )
-            VALUES
-            (
-                @id_empresa,
-                ISNULL(@tipo_cliente, 'Persona física'),
-                ISNULL(@nombre_razon_social, @nombre + ' ' + @primer_apellido),
-                ISNULL(@identificacion, @correo),
-                @correo,
-                @telefono,
-                @direccion,
-                @id_estado
-            );
-        END;
-
+        SELECT @nuevo=(SELECT nombre,primer_apellido,segundo_apellido,correo,nombre_usuario
+            FROM dbo.USUARIO WHERE id_usuario=@id_usuario AND id_empresa=@id_empresa FOR JSON PATH,WITHOUT_ARRAY_WRAPPER);
+        INSERT dbo.BITACORA(id_usuario,id_empresa,tabla_afectada,registro_id,accion,valor_anterior,valor_nuevo)
+            VALUES(@id_usuario_accion,@id_empresa,'USUARIO',CONVERT(VARCHAR(100),@id_usuario),'EDITAR_USUARIO',@anterior,@nuevo);
         COMMIT TRANSACTION;
 
-        -- Retornar el ID del usuario editado
-        SELECT @id_usuario;
+        -- 5. Retornar el usuario editado.
+        SELECT @id_usuario AS id_usuario;
+
     END TRY
     BEGIN CATCH
-        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        IF XACT_STATE() <> 0
+            ROLLBACK TRANSACTION;
+
         THROW;
     END CATCH;
 END;

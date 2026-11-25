@@ -20,7 +20,7 @@ BEGIN
     INNER JOIN ORDEN_COMPRA oc ON oc.id_orden_compra = cxp.id_orden_compra
     INNER JOIN PROVEEDOR prov ON prov.id_proveedor = cxp.id_proveedor
     INNER JOIN ESTADO e ON e.id_estado = cxp.id_estado
-    WHERE cxp.id_empresa = @id_empresa
+    WHERE oc.id_empresa = @id_empresa
 
       AND (
           @busqueda IS NULL 
