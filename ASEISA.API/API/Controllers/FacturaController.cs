@@ -32,6 +32,20 @@ namespace API.Controllers
             return await _facturaFlujo.ObtenerFacturas(idUsuario, filtro);
         }
 
+        [HttpGet("estados")]
+        public async Task<IActionResult> ObtenerEstados()
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.ObtenerEstadosFactura(idUsuario);
+        }
+
         [HttpGet("{idFactura:int}")]
         public async Task<IActionResult> ObtenerDetalle([FromRoute] int idFactura)
         {
@@ -159,6 +173,21 @@ namespace API.Controllers
                 request.Motivo,
                 request.Monto,
                 request.DescripcionAdicional);
+        }
+
+        [HttpGet("{idFactura:int}/pdf")]
+        [Authorize(Roles = "Contador")]
+        public async Task<IActionResult> DescargarPdf([FromRoute] int idFactura)
+        {
+            var idUsuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idUsuarioClaim) ||
+                !int.TryParse(idUsuarioClaim, out int idUsuario))
+            {
+                return Unauthorized("No se pudo identificar al usuario.");
+            }
+
+            return await _facturaFlujo.DescargarPdf(idUsuario, idFactura);
         }
 
         [HttpGet("{idFactura:int}/xml")]

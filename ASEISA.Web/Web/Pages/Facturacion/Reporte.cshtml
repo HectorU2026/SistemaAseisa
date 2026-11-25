@@ -1,0 +1,464 @@
+@page
+@model Web.Pages.Facturacion.ReporteModel
+
+@{
+    ViewData["Title"] = "Reporte de facturación";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<style>
+    .reporte-consulta.contactos-panel {
+        position: relative;
+        z-index: 5;
+        overflow: visible;
+    }
+
+    .reporte-periodo {
+        position: relative;
+        min-width: 220px;
+    }
+
+    .reporte-periodo-boton {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .reporte-periodo-boton.vacio {
+        color: #8a909e;
+    }
+
+    .reporte-periodo-boton i {
+        color: #F2382F;
+    }
+
+    .reporte-periodo-boton:focus-visible,
+    .reporte-periodo-anio button:focus-visible,
+    .reporte-periodo-mes:focus-visible,
+    .reporte-periodo-quitar:focus-visible {
+        outline: 2px solid #202535;
+        outline-offset: 2px;
+    }
+
+    .reporte-periodo-panel {
+        position: absolute;
+        z-index: 30;
+        top: calc(100% + 6px);
+        left: 0;
+        width: min(280px, calc(100vw - 48px));
+        padding: 12px;
+        background: #fff;
+        border: 1px solid #e2e5eb;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(32, 37, 53, .12);
+    }
+
+    .reporte-periodo-anio {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .reporte-periodo-anio button,
+    .reporte-periodo-quitar {
+        border: 1px solid #e2e5eb;
+        background: #fff;
+        color: #202535;
+        border-radius: 8px;
+        font-weight: 700;
+    }
+
+    .reporte-periodo-anio button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .reporte-periodo-anio span {
+        font-weight: 700;
+        color: #202535;
+    }
+
+    .reporte-periodo-meses {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .reporte-periodo-mes {
+        border: 0;
+        background: transparent;
+        border-radius: 8px;
+        padding: 8px 4px;
+        color: #202535;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .reporte-periodo-mes:hover {
+        background: rgba(242, 56, 47, .08);
+    }
+
+    .reporte-periodo-mes[aria-selected="true"] {
+        background: #F2382F;
+        color: #fff;
+    }
+
+    .reporte-periodo-quitar {
+        width: 100%;
+        margin-top: 10px;
+        padding: 8px;
+        font-size: 13px;
+    }
+</style>
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+                <a asp-page="/Facturacion/Listado">Facturación</a>
+                <span>/ Reporte</span>
+            </div>
+            <h1>Reporte de facturación</h1>
+            <p>Facturas emitidas y pagadas, agrupadas por período, tipo y moneda.</p>
+        </div>
+        <a asp-page="/Facturacion/Listado" class="btn btn-contacto-outline">
+            Volver al listado
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    <section class="contactos-panel reporte-consulta mb-4">
+        <div class="contactos-panel-header">
+            <div>
+                <h2>Consulta</h2>
+                <p>El tipo de factura se compara de forma exacta.</p>
+            </div>
+            @if (string.IsNullOrWhiteSpace(Model.MensajeError))
+            {
+                <span class="contactos-count">@(Model.Grupos.Count == 1 ? "1 grupo" : $"{Model.Grupos.Count} grupos")</span>
+            }
+        </div>
+
+        <form method="get" class="contactos-filtros">
+            <div class="reporte-periodo" data-reporte-periodo>
+                <label class="form-label" id="periodo-etiqueta" for="periodo-boton">Período</label>
+                <input type="hidden" name="Periodo" value="@Model.Periodo" />
+                <button id="periodo-boton"
+                        type="button"
+                        class="form-control reporte-periodo-boton vacio"
+                        aria-haspopup="dialog"
+                        aria-expanded="false"
+                        aria-controls="periodo-panel">
+                    <span data-periodo-texto>Mes y año</span>
+                    <i class="bi bi-calendar3" aria-hidden="true"></i>
+                </button>
+                <div id="periodo-panel"
+                     class="reporte-periodo-panel"
+                     role="dialog"
+                     aria-modal="false"
+                     aria-labelledby="periodo-etiqueta"
+                     hidden>
+                    <div class="reporte-periodo-anio">
+                        <button type="button" data-cambiar-anio="-1" aria-label="Año anterior">‹</button>
+                        <span data-anio tabindex="-1"></span>
+                        <button type="button" data-cambiar-anio="1" aria-label="Año siguiente">›</button>
+                    </div>
+                    <div class="reporte-periodo-meses" role="grid" aria-label="Meses"></div>
+                    <button type="button" class="reporte-periodo-quitar" data-quitar-periodo>
+                        Quitar período
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label" for="tipoFactura">Tipo de factura</label>
+                <input id="tipoFactura"
+                       class="form-control"
+                       type="text"
+                       name="TipoFactura"
+                       value="@Model.TipoFactura"
+                       maxlength="50"
+                       placeholder="Coincidencia exacta"
+                       aria-label="Tipo de factura" />
+            </div>
+
+            <div>
+                <label class="form-label" for="ordenarPor">Ordenar por</label>
+                <select id="ordenarPor"
+                        class="form-select"
+                        name="OrdenarPor"
+                        aria-label="Orden de los grupos">
+                    <option value="periodo" selected="@(Model.OrdenarPor == "periodo")">Período</option>
+                    <option value="tipo_factura" selected="@(Model.OrdenarPor == "tipo_factura")">Tipo de factura</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-contacto-primary">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Consultar
+            </button>
+
+            <a asp-page="/Facturacion/Reporte" class="btn btn-contacto-outline">Limpiar</a>
+        </form>
+    </section>
+
+    @if (string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        @if (Model.Grupos.Count == 0)
+        {
+            <section class="contactos-panel">
+                <div class="contactos-empty text-center p-4">
+                    <i class="bi bi-inbox" aria-hidden="true"></i>
+                    <strong>@(Model.Mensaje ?? "No hay registros disponibles")</strong>
+                </div>
+            </section>
+        }
+
+        @foreach (var grupo in Model.Grupos)
+        {
+            <section class="contactos-panel mb-4">
+                <div class="contactos-panel-header">
+                    <div>
+                        <h2>@grupo.Periodo</h2>
+                        <p>
+                            @(string.IsNullOrWhiteSpace(grupo.TipoFactura) ? "—" : grupo.TipoFactura)
+                            · @(string.IsNullOrWhiteSpace(grupo.Moneda) ? "—" : grupo.Moneda)
+                        </p>
+                    </div>
+                    <span class="contactos-count">@(grupo.CantidadFacturas == 1 ? "1 factura" : $"{grupo.CantidadFacturas} facturas")</span>
+                </div>
+                <div class="row g-3 px-4 pb-3">
+                    <div class="col-md-4">
+                        <span class="text-muted small d-block">Total facturado</span>
+                        <strong>@grupo.TotalFacturado.ToString("N2")</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-muted small d-block">Notas de crédito</span>
+                        <strong>@grupo.TotalNotasCredito.ToString("N2")</strong>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table contactos-table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Número de factura</th>
+                                <th scope="col">Cliente</th>
+                                <th scope="col">Emisión</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col" class="text-end">Subtotal</th>
+                                <th scope="col" class="text-end">Impuesto</th>
+                                <th scope="col" class="text-end">Descuento</th>
+                                <th scope="col" class="text-end">Total</th>
+                                <th scope="col" class="text-end">Saldo pendiente</th>
+                                <th scope="col" class="text-end">Notas de crédito</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var factura in grupo.Facturas)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-page="/Facturacion/Detalle"
+                                           asp-route-idFactura="@factura.IdFactura">
+                                            <strong>@factura.NumeroFactura</strong>
+                                        </a>
+                                        <div>
+                                            <a asp-page="/Facturacion/Reporte/Detalle"
+                                               asp-route-idFactura="@factura.IdFactura"
+                                               asp-route-Periodo="@Model.Periodo"
+                                               asp-route-TipoFactura="@Model.TipoFactura"
+                                               asp-route-OrdenarPor="@Model.OrdenarPor">
+                                                Ver detalle del reporte
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>@factura.NombreCliente</td>
+                                    <td>@factura.FechaEmision.ToString("dd/MM/yyyy")</td>
+                                    <td>@factura.Estado</td>
+                                    <td class="text-end">@factura.Subtotal.ToString("N2")</td>
+                                    <td class="text-end">@factura.Impuesto.ToString("N2")</td>
+                                    <td class="text-end">@factura.Descuento.ToString("N2")</td>
+                                    <td class="text-end">@factura.Total.ToString("N2")</td>
+                                    <td class="text-end">@factura.SaldoPendiente.ToString("N2")</td>
+                                    <td class="text-end">@factura.TotalNotasCreditoFactura.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    }
+</div>
+
+<script>
+    (function () {
+        const raiz = document.querySelector("[data-reporte-periodo]");
+        if (!raiz) return;
+
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const oculto = raiz.querySelector("input[name='Periodo']");
+        const boton = raiz.querySelector("#periodo-boton");
+        const texto = raiz.querySelector("[data-periodo-texto]");
+        const panel = raiz.querySelector("#periodo-panel");
+        const anioTexto = raiz.querySelector("[data-anio]");
+        const grilla = raiz.querySelector(".reporte-periodo-meses");
+        const anioMinimo = 1900;
+        const anioMaximo = 2100;
+        let anio = new Date().getFullYear();
+        let mesSeleccionado = 0;
+
+        function periodoValido(valor) {
+            return /^(\d{4})-(0[1-9]|1[0-2])$/.test(valor || "");
+        }
+
+        function leerSeleccion() {
+            if (!periodoValido(oculto.value)) return null;
+            return {
+                anio: Number(oculto.value.slice(0, 4)),
+                mes: Number(oculto.value.slice(5, 7))
+            };
+        }
+
+        function pintarCampo() {
+            const seleccion = leerSeleccion();
+            if (!seleccion) {
+                texto.textContent = "Mes y año";
+                boton.classList.add("vacio");
+                boton.setAttribute("aria-label", "Período, sin seleccionar");
+                return;
+            }
+
+            texto.textContent = meses[seleccion.mes - 1] + " de " + seleccion.anio;
+            boton.classList.remove("vacio");
+            boton.setAttribute("aria-label", "Período, " + texto.textContent);
+        }
+
+        function pintarMeses() {
+            const seleccion = leerSeleccion();
+            anioTexto.textContent = String(anio);
+            grilla.replaceChildren();
+
+            meses.forEach(function (nombre, indice) {
+                const mes = indice + 1;
+                const celda = document.createElement("button");
+                celda.type = "button";
+                celda.className = "reporte-periodo-mes";
+                celda.role = "gridcell";
+                celda.textContent = nombre;
+                celda.dataset.mes = String(mes);
+                celda.setAttribute("aria-label", nombre + " de " + anio);
+                const elegido = seleccion && seleccion.anio === anio && seleccion.mes === mes;
+                celda.setAttribute("aria-selected", elegido ? "true" : "false");
+                celda.tabIndex = elegido || (!seleccion && mes === 1) || (seleccion && seleccion.anio !== anio && mes === 1) ? 0 : -1;
+                if (elegido) mesSeleccionado = indice;
+                celda.addEventListener("click", function () { elegir(mes); });
+                grilla.appendChild(celda);
+            });
+
+            if (![...grilla.children].some(function (celda) { return celda.tabIndex === 0; })) {
+                grilla.children[0].tabIndex = 0;
+            }
+        }
+
+        function elegir(mes) {
+            oculto.value = anio + "-" + String(mes).padStart(2, "0");
+            mesSeleccionado = mes - 1;
+            pintarCampo();
+            cerrar(true);
+        }
+
+        function abrir() {
+            const seleccion = leerSeleccion();
+            if (seleccion) anio = seleccion.anio;
+            pintarMeses();
+            panel.hidden = false;
+            boton.setAttribute("aria-expanded", "true");
+            const activo = grilla.querySelector("[aria-selected='true']") || grilla.children[0];
+            activo.focus();
+        }
+
+        function cerrar(devolverFoco) {
+            panel.hidden = true;
+            boton.setAttribute("aria-expanded", "false");
+            if (devolverFoco) boton.focus();
+        }
+
+        function mover(desde, delta) {
+            const destino = (desde + delta + 12) % 12;
+            grilla.children[desde].tabIndex = -1;
+            grilla.children[destino].tabIndex = 0;
+            grilla.children[destino].focus();
+            mesSeleccionado = destino;
+        }
+
+        boton.addEventListener("click", function () {
+            if (panel.hidden) abrir();
+            else cerrar(false);
+        });
+
+        raiz.querySelector("[data-cambiar-anio='-1']").addEventListener("click", function () {
+            anio = Math.max(anioMinimo, anio - 1);
+            pintarMeses();
+        });
+
+        raiz.querySelector("[data-cambiar-anio='1']").addEventListener("click", function () {
+            anio = Math.min(anioMaximo, anio + 1);
+            pintarMeses();
+        });
+
+        raiz.querySelector("[data-quitar-periodo]").addEventListener("click", function () {
+            oculto.value = "";
+            pintarCampo();
+            pintarMeses();
+            cerrar(true);
+        });
+
+        grilla.addEventListener("keydown", function (evento) {
+            const actual = [...grilla.children].findIndex(function (celda) { return celda === document.activeElement; });
+            if (actual < 0) return;
+            const movimientos = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 3, ArrowUp: -3 };
+            if (evento.key in movimientos) {
+                evento.preventDefault();
+                mover(actual, movimientos[evento.key]);
+            } else if (evento.key === "Home") {
+                evento.preventDefault();
+                mover(actual, -actual);
+            } else if (evento.key === "End") {
+                evento.preventDefault();
+                mover(actual, 11 - actual);
+            } else if (evento.key === "Enter" || evento.key === " ") {
+                evento.preventDefault();
+                elegir(actual + 1);
+            }
+        });
+
+        document.addEventListener("keydown", function (evento) {
+            if (evento.key === "Escape" && !panel.hidden) {
+                evento.preventDefault();
+                cerrar(true);
+            }
+        });
+
+        document.addEventListener("click", function (evento) {
+            if (!panel.hidden && !raiz.contains(evento.target)) cerrar(false);
+        });
+
+        pintarCampo();
+    })();
+</script>

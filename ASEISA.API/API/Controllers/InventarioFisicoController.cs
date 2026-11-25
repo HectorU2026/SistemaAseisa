@@ -4,25 +4,52 @@ using API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Administrador,Contador,Auxiliar")]
+    [Authorize(Roles = "Administrador,Contador,Comprador")]
     [InventarioFisicoModelStateFilter]
     public class InventarioFisicoController : Controller
     {
         private IInventarioFisicoFlujo inventarioFisicoFlujo;
+        private IUsuarioFlujo usuarioFlujo;
 
-        public InventarioFisicoController(IInventarioFisicoFlujo inventarioFisicoFlujo)
+        public InventarioFisicoController(IInventarioFisicoFlujo inventarioFisicoFlujo, IUsuarioFlujo usuarioFlujo)
         {
             this.inventarioFisicoFlujo = inventarioFisicoFlujo;
+            this.usuarioFlujo = usuarioFlujo;
         }
 
         [HttpPost("RegistrarInventarioFisico")]
         public async Task<ActionResult> RegistrarInventarioFisico(InventarioFisico inventario)
         {
+            var identidad = await ObtenerIdentidadEmpresaActiva();
+            if (identidad.Result != null)
+                return identidad.Result;
+
+            if (inventario == null)
+            {
+                return BadRequest("Complete todos los campos primero");
+            }
+
+            if (inventario.IdEmpresa.HasValue
+                && inventario.IdEmpresa.Value != identidad.IdEmpresa)
+            {
+                return Forbid();
+            }
+
+            if (inventario.IdUsuario.HasValue
+                && inventario.IdUsuario.Value != identidad.IdUsuario)
+            {
+                return Forbid();
+            }
+
+            inventario.IdEmpresa = identidad.IdEmpresa;
+            inventario.IdUsuario = identidad.IdUsuario;
+
             var resultado = await inventarioFisicoFlujo.RegistrarInventarioFisico(inventario);
 
             if (resultado == 0)
@@ -71,6 +98,10 @@ namespace API.Controllers
         [HttpGet("ObtenerExistencia")]
         public async Task<ActionResult<ExistenciaConsulta>> ObtenerExistencia([FromQuery] ExistenciaFiltro filtro)
         {
+            var identidad = await ObtenerIdentidadEmpresaActiva();
+            if (identidad.Result != null)
+                return identidad.Result;
+
             if (filtro == null
                 || !filtro.IdEmpresa.HasValue
                 || filtro.IdEmpresa <= 0
@@ -82,6 +113,11 @@ namespace API.Controllers
                 return BadRequest("Complete todos los campos primero");
             }
 
+            if (filtro.IdEmpresa.Value != identidad.IdEmpresa)
+            {
+                return Forbid();
+            }
+
             var resultado = await inventarioFisicoFlujo.ObtenerExistencia(filtro);
 
             if (resultado == null)
@@ -90,6 +126,21 @@ namespace API.Controllers
             }
 
             return Ok(resultado);
+        }
+
+        private async Task<(ActionResult? Result, int IdUsuario, int IdEmpresa)> ObtenerIdentidadEmpresaActiva()
+        {
+            var valor = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(valor, out var idUsuario) || idUsuario <= 0)
+                return (Unauthorized(), 0, 0);
+
+            var idEmpresa = await usuarioFlujo.ObtenerEmpresaUsuarioActivo(idUsuario);
+
+            if (!idEmpresa.HasValue || idEmpresa.Value <= 0)
+                return (Forbid(), 0, 0);
+
+            return (null, idUsuario, idEmpresa.Value);
         }
     }
 }

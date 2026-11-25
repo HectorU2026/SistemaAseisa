@@ -29,9 +29,7 @@ namespace Web.Pages.Ventas
 
         public async Task OnGetAsync(string? busqueda, int? idEstado)
         {
-            var idEmpresaClaim = User.FindFirst("Empresa")?.Value;
-
-            if (string.IsNullOrEmpty(idEmpresaClaim))
+            if (User.FindFirst("Empresa") is null)
             {
                 RedirectToPage("/Seguridad/Login");
                 return;
@@ -41,13 +39,15 @@ namespace Web.Pages.Ventas
 
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCotizacionesFlujo");
 
-            string url = $"{endpointBase}?idEmpresa={idEmpresaClaim}";
-
+            var queryParams = new List<string>();
             if (!string.IsNullOrWhiteSpace(busqueda))
-                url += $"&busqueda={Uri.EscapeDataString(busqueda)}";
-
+                queryParams.Add($"busqueda={Uri.EscapeDataString(busqueda)}");
             if (idEstado.HasValue)
-                url += $"&idEstado={idEstado}";
+                queryParams.Add($"idEstado={idEstado}");
+
+            string url = queryParams.Any()
+                ? $"{endpointBase}?{string.Join("&", queryParams)}"
+                : endpointBase;
 
             var respuesta = await cliente.GetAsync(url);
 
@@ -55,7 +55,6 @@ namespace Web.Pages.Ventas
             {
                 var contenido = await respuesta.Content.ReadAsStringAsync();
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
                 var resultado = JsonSerializer.Deserialize<RespuestaPaginadaCotizacion>(contenido, opciones);
                 Cotizaciones = resultado?.items ?? new();
             }
@@ -70,13 +69,26 @@ namespace Web.Pages.Ventas
             }
         }
 
+        public async Task<IActionResult> OnPostAvanzarAsync(int idCotizacion)
+        {
+            string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "AvanzarCotizacionEnviadaFlujo");
+            string url = $"{endpointBase}?idCotizacion={idCotizacion}";
+
+            var cliente = ObtenerClienteConToken();
+            var respuesta = await cliente.PutAsync(url, null);
+
+            if (respuesta.IsSuccessStatusCode)
+                TempData["Exito"] = "Cotización avanzada a 'Cotización Enviada'.";
+            else
+                TempData["Error"] = "Error al avanzar la cotización.";
+
+            return RedirectToPage();
+        }
+
         public async Task<IActionResult> OnPostCancelarAsync(int idCotizacion)
         {
-            var idEmpresa = User.FindFirst("Empresa")?.Value;
-            var idUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "CancelarCotizacionFlujo");
-            string url = $"{endpointBase}?idEmpresa={idEmpresa}&idUsuario={idUsuario}&idCotizacion={idCotizacion}";
+            string url = $"{endpointBase}?idCotizacion={idCotizacion}";
 
             var cliente = ObtenerClienteConToken();
             var respuesta = await cliente.PutAsync(url, null);
@@ -123,27 +135,16 @@ namespace Web.Pages.Ventas
 
         public async Task<IActionResult> OnPostEnviarAsync(int idCotizacion, string correoDestino)
         {
-            var idEmpresa = User.FindFirst("Empresa")?.Value;
-            var idUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             var cliente = ObtenerClienteConToken();
 
             string endpointEnviar = _configuracion.ObtenerMetodo("ApiEndPoints", "EnviarCotizacionPorCorreo");
-            string urlEnviar = $"{endpointEnviar}?idCotizacion={idCotizacion}&correo={correoDestino}";
+            string urlEnviar = $"{endpointEnviar}?idCotizacion={idCotizacion}&correo={Uri.EscapeDataString(correoDestino)}";
             var respEnviar = await cliente.PutAsync(urlEnviar, null);
 
             if (respEnviar.IsSuccessStatusCode)
-            {
-                string endpointAvanzar = _configuracion.ObtenerMetodo("ApiEndPoints", "AvanzarCotizacionEnviadaFlujo");
-                string urlAvanzar = $"{endpointAvanzar}?idEmpresa={idEmpresa}&idUsuario={idUsuario}&idCotizacion={idCotizacion}";
-                await cliente.PutAsync(urlAvanzar, null);
-
-                TempData["Exito"] = "Cotización enviada y estado actualizado.";
-            }
+                TempData["Exito"] = "Cotización enviada por correo exitosamente.";
             else
-            {
-                TempData["Error"] = "Error al enviar la cotización.";
-            }
+                TempData["Error"] = "Error al enviar la cotización por correo.";
 
             return RedirectToPage();
         }
@@ -151,14 +152,24 @@ namespace Web.Pages.Ventas
         public async Task<IActionResult> OnPostFacturarAsync(int idCotizacion, FacturarRequest request)
         {
             if (request.FechaFactura == null)
-            {
                 request.FechaFactura = DateTime.Now;
+
+            request.CondicionVenta = request.CondicionVenta switch
+            {
+                "01" => "Contado",
+                "02" => "Crédito",
+                _ => request.CondicionVenta
+            };
+
+            if (request.CondicionVenta == "Crédito"
+                && (!request.IdTerminoPago.HasValue || request.IdTerminoPago.Value <= 0))
+            {
+                TempData["Error"] = "Debe seleccionar un término de pago para crédito.";
+                return RedirectToPage();
             }
 
-            if (request.CondicionVenta == "01")
-            {
-                request.IdTerminoPago = 0;
-            }
+            if (request.CondicionVenta == "Contado")
+                request.IdTerminoPago = null; 
 
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "FacturarOrdenDeVenta");
             string url = $"{endpointBase}/{idCotizacion}";
@@ -167,9 +178,7 @@ namespace Web.Pages.Ventas
             var respuesta = await cliente.PostAsJsonAsync(url, request);
 
             if (respuesta.IsSuccessStatusCode)
-            {
                 TempData["Exito"] = "Comprobante generado correctamente.";
-            }
             else
             {
                 var error = await respuesta.Content.ReadAsStringAsync();

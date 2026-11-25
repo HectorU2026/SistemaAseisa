@@ -46,8 +46,20 @@ namespace Web.Servicios
                 jwtToken.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value));
             claims.Add(new Claim(ClaimTypes.Email,
                 jwtToken.Claims.First(c => c.Type == ClaimTypes.Email).Value));
-            claims.AddRange(jwtToken.Claims.Where(c=>c.Type==ClaimTypes.Role).Select(c=>c.Value)
-                .Distinct(StringComparer.OrdinalIgnoreCase).Select(r=>new Claim(ClaimTypes.Role,r)));
+
+            var roles = jwtToken.Claims
+                .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+                .Select(c => c.Value?.Trim())
+                .Where(rol => !string.IsNullOrWhiteSpace(rol))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (roles.Count == 0)
+                throw new InvalidOperationException("El token no contiene roles válidos.");
+
+            foreach (var rol in roles)
+                claims.Add(new Claim(ClaimTypes.Role, rol!));
+
             claims.Add(new Claim("Empresa", 
                 jwtToken.Claims.First(c => c.Type == "Empresa").Value));
             claims.Add(new Claim("Token", accessToken));

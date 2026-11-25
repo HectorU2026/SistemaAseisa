@@ -1,0 +1,176 @@
+@page
+@model Web.Pages.Facturacion.ListadoModel
+
+@{
+    ViewData["Title"] = "Facturación";
+}
+
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+
+<div class="contactos-page">
+    <div class="contactos-header">
+        <div>
+            <div class="contactos-breadcrumb">
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+                <span>Gestión comercial / Facturación</span>
+            </div>
+            <h1>Facturas</h1>
+            <p>Consulte las facturas de su empresa.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            @if (User.IsInRole("Contador"))
+            {
+                <a asp-page="/Facturacion/Pagadas" class="btn btn-contacto-outline">
+                    Facturas pagadas
+                </a>
+                <a asp-page="/Facturacion/Reporte" class="btn btn-contacto-outline">
+                    Reporte
+                </a>
+            }
+            <a asp-page="/Facturacion/Flujo" class="btn btn-contacto-outline">
+                Ver flujo
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+            @Model.MensajeError
+        </div>
+    }
+
+    <section class="contactos-panel">
+        <div class="contactos-panel-header">
+            <div>
+                <h2>Listado de facturas</h2>
+                <p>La búsqueda se aplica en el servicio.</p>
+            </div>
+            @if (string.IsNullOrWhiteSpace(Model.MensajeError))
+            {
+                <span class="contactos-count">@Model.Facturas.Count registros</span>
+            }
+        </div>
+
+        <form method="get" class="contactos-filtros">
+            <div>
+                <label class="form-label" for="numeroFactura">Número de factura</label>
+                <input id="numeroFactura"
+                       class="form-control"
+                       type="text"
+                       name="NumeroFactura"
+                       value="@Model.NumeroFactura"
+                       maxlength="50"
+                       placeholder="Número de factura"
+                       aria-label="Número de factura" />
+            </div>
+
+            <div>
+                <label class="form-label" for="nombreCliente">Nombre del cliente</label>
+                <input id="nombreCliente"
+                       class="form-control"
+                       type="text"
+                       name="NombreCliente"
+                       value="@Model.NombreCliente"
+                       maxlength="200"
+                       placeholder="Nombre del cliente"
+                       aria-label="Nombre del cliente" />
+            </div>
+
+            <div>
+                <label class="form-label" for="idEstadoFactura">Estado</label>
+                <select id="idEstadoFactura"
+                        class="form-select"
+                        name="IdEstadoFactura"
+                        aria-label="Estado de la factura">
+                    <option value="">Todos los estados</option>
+                    @foreach (var estado in Model.Estados)
+                    {
+                        <option value="@estado.IdEstadoFactura"
+                                selected="@(Model.IdEstadoFactura == estado.IdEstadoFactura)">
+                            @estado.NombreEstado
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" for="fechaEmisionDesde">Emisión desde</label>
+                <input id="fechaEmisionDesde"
+                       class="form-control"
+                       type="date"
+                       name="FechaEmisionDesde"
+                       value="@Model.FechaEmisionDesde?.ToString("yyyy-MM-dd")"
+                       aria-label="Fecha de emisión desde" />
+            </div>
+
+            <div>
+                <label class="form-label" for="fechaEmisionHasta">Emisión hasta</label>
+                <input id="fechaEmisionHasta"
+                       class="form-control"
+                       type="date"
+                       name="FechaEmisionHasta"
+                       value="@Model.FechaEmisionHasta?.ToString("yyyy-MM-dd")"
+                       aria-label="Fecha de emisión hasta" />
+            </div>
+
+            <button type="submit" class="btn btn-contacto-primary">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Buscar
+            </button>
+
+            <a asp-page="/Facturacion/Listado" class="btn btn-contacto-outline">Limpiar</a>
+        </form>
+
+        @if (string.IsNullOrWhiteSpace(Model.MensajeError))
+        {
+            <div class="table-responsive">
+                <table class="table contactos-table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Número de factura</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Condición de venta</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Fecha de emisión</th>
+                            <th scope="col">Fecha de vencimiento</th>
+                            <th scope="col">Término de pago</th>
+                            <th scope="col" class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Facturas.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="8" class="contactos-empty text-center">
+                                    <i class="bi bi-inbox" aria-hidden="true"></i>
+                                    <strong>No se encontraron facturas</strong>
+                                    <span>No hay facturas que coincidan con la búsqueda.</span>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var factura in Model.Facturas)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-page="/Facturacion/Detalle"
+                                       asp-route-idFactura="@factura.IdFactura">
+                                        <strong>@factura.NumeroFactura</strong>
+                                    </a>
+                                </td>
+                                <td>@factura.NombreCliente</td>
+                                <td>@(string.IsNullOrWhiteSpace(factura.CondicionVenta) ? "—" : factura.CondicionVenta)</td>
+                                <td>@factura.Estado</td>
+                                <td>@factura.FechaEmision.ToString("dd/MM/yyyy")</td>
+                                <td>@(factura.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                <td>@(string.IsNullOrWhiteSpace(factura.TerminoPagoNombre) ? "—" : factura.TerminoPagoNombre)</td>
+                                <td class="text-end">@factura.Total.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

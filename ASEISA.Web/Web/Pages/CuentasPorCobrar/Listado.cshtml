@@ -1,0 +1,212 @@
+﻿@page
+@model Web.Pages.CuentasPorCobrar.ListadoModel
+@{
+    ViewData["Title"] = "Cuentas por Cobrar";
+    var gruposPorCliente = Model.CuentasFiltradas
+        .GroupBy(c => c.NombreCliente)
+        .ToList();
+}
+
+<link rel="stylesheet" href="~/css/cuentas-por-cobrar.css" asp-append-version="true" />
+
+<div class="container mt-4 mb-5 cxc-page">
+
+    <!-- ENCABEZADO -->
+    <div class="cxc-header">
+        <div>
+            <div class="cxc-breadcrumb">
+                <i class="bi bi-receipt-cutoff"></i>
+                <span>Finanzas / Cuentas por cobrar</span>
+            </div>
+            <h1>Cuentas por cobrar</h1>
+            <p>Seguimiento de facturas a crédito agrupadas por cliente, estado de morosidad y días de atraso.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/Banco/RegistrarPago" class="btn-cxc-primary shadow-sm">
+                <i class="bi bi-cash-coin"></i> Registrar pago
+            </a>
+            <a href="/Banco/Bancos" class="btn-cxc-outline">
+                <i class="bi bi-bank"></i> Ir a Bancos
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @Model.MensajeError
+        </div>
+    }
+
+    <!-- TARJETAS KPI -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="cxc-kpi">
+                <div class="cxc-kpi-icon is-brand">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div>
+                    <p class="cxc-kpi-label">Saldo total por cobrar</p>
+                    <h4 class="cxc-kpi-value">₡@Model.SaldoTotalPendiente.ToString("N2")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="cxc-kpi">
+                <div class="cxc-kpi-icon is-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div>
+                    <p class="cxc-kpi-label">Facturas al día</p>
+                    <h4 class="cxc-kpi-value">@Model.TotalFacturasAlDia</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="cxc-kpi">
+                <div class="cxc-kpi-icon is-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <div>
+                    <p class="cxc-kpi-label">Facturas en atraso</p>
+                    <h4 class="cxc-kpi-value">@Model.TotalFacturasAtrasadas</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTRO -->
+    <div class="cxc-panel mb-4">
+        <form method="get" class="p-3 p-md-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label for="busqueda" class="form-label small fw-semibold">Buscar cliente o factura</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+                        <input id="busqueda" name="Busqueda" value="@Model.Busqueda" class="form-control border-start-0"
+                               placeholder="Nombre del cliente o número de factura..." />
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="estadoFiltro" class="form-label small fw-semibold">Estado de cuenta</label>
+                    <select id="estadoFiltro" name="EstadoMorosidad" class="form-select">
+                        <option value="" selected="@(string.IsNullOrEmpty(Model.EstadoMorosidad))">Todos los estados</option>
+                        <option value="Al día" selected="@(Model.EstadoMorosidad == "Al día")">Al día</option>
+                        <option value="Atrasado" selected="@(Model.EstadoMorosidad == "Atrasado")">Atrasado</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 d-flex gap-2 justify-content-md-end">
+                    <button type="submit" class="btn-cxc-primary">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <a href="/CuentasPorCobrar/Listado" class="btn-cxc-outline">
+                        Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTADO AGRUPADO POR CLIENTE -->
+    @if (gruposPorCliente.Any())
+    {
+        foreach (var grupo in gruposPorCliente)
+        {
+            var facturasCliente = grupo.ToList();
+            decimal saldoCliente = facturasCliente.Sum(f => f.SaldoPendiente);
+            int atrasadasCliente = facturasCliente.Count(f => string.Equals(f.EstadoMorosidad, "Atrasado", StringComparison.OrdinalIgnoreCase));
+
+            <div class="cxc-panel mb-4">
+                <div class="cxc-client-header">
+                    <div class="cxc-client-title">
+                        <div class="cxc-client-avatar">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <h6>@grupo.Key</h6>
+                            <span class="sub">
+                                @facturasCliente.Count factura(s) pendiente(s)
+                                @if (atrasadasCliente > 0)
+                                {
+                                    <span class="text-danger fw-semibold ms-2">• @atrasadasCliente en atraso</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="text-md-end">
+                        <span class="d-block text-uppercase fw-bold" style="font-size: 10px; color: #89909d; letter-spacing: .45px;">
+                            Saldo pendiente del cliente
+                        </span>
+                        <span class="fw-bold text-dark" style="font-size: 16px;">
+                            ₡@saldoCliente.ToString("N2")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table cxc-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>N° Factura</th>
+                                <th>Fecha emisión</th>
+                                <th>Vencimiento</th>
+                                <th class="text-end">Monto original</th>
+                                <th class="text-end">Saldo pendiente</th>
+                                <th class="text-center">Días de atraso</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in facturasCliente)
+                            {
+                                bool esAtrasado = string.Equals(f.EstadoMorosidad, "Atrasado", StringComparison.OrdinalIgnoreCase);
+
+                                <tr>
+                                    <td class="fw-bold text-dark">@f.NumeroFactura</td>
+                                    <td class="text-muted">@f.FechaEmision.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-muted">@f.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end text-muted">₡@f.MontoOriginal.ToString("N2")</td>
+                                    <td class="text-end fw-bold text-dark">₡@f.SaldoPendiente.ToString("N2")</td>
+                                    <td class="text-center">
+                                        @if (f.DiasAtraso > 0)
+                                        {
+                                            <span class="badge-soft is-inactiva">
+                                                <i class="bi bi-clock-history"></i> @f.DiasAtraso día(s)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">0 días</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge-soft @(esAtrasado ? "is-inactiva" : "is-activa")">
+                                            @f.EstadoMorosidad
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="/Banco/RegistrarPago" class="btn-cxc-outline py-1 px-2" style="font-size: 12px;" title="Registrar pago de factura">
+                                            <i class="bi bi-cash-coin"></i> Cobrar
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="cxc-empty">
+            <i class="bi bi-inbox"></i>
+            <strong>No hay facturas pendientes por cobrar</strong>
+            <span>No se encontraron cuentas por cobrar a crédito con los filtros seleccionados.</span>
+        </div>
+    }
+</div>

@@ -1,0 +1,200 @@
+﻿@page
+@model Web.Pages.ActivosFijos.ListadoModel
+@{
+    ViewData["Title"] = "Activos Fijos";
+    var ultimoRegistro = Model.Historial.FirstOrDefault();
+}
+
+<link rel="stylesheet" href="~/css/activos-fijos.css" asp-append-version="true" />
+
+<div class="container mt-4 mb-5 activos-page">
+
+    <!-- ENCABEZADO -->
+    <div class="activos-header">
+        <div>
+            <div class="activos-breadcrumb">
+                <i class="bi bi-building"></i>
+                <span>Operaciones / Activos fijos</span>
+            </div>
+            <h1>Activos fijos</h1>
+            <p>Registre bienes de la empresa, calcule su depreciación mensual y consulte su historial en libros.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/ActivosFijos/RegistrarActivo" class="btn-activo-primary shadow-sm">
+                <i class="bi bi-plus-lg"></i> Registrar activo
+            </a>
+            <a href="/ActivosFijos/CalcularDepreciacion@(Model.IdActivoFijo.HasValue ? $"?IdActivoFijo={Model.IdActivoFijo}" : "")" class="btn-activo-outline">
+                <i class="bi bi-calculator"></i> Calcular depreciación
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @Model.MensajeError
+        </div>
+    }
+
+    <!-- CONSULTA DE HISTORIAL POR ACTIVO (ACT-003) -->
+    <div class="activo-panel mb-4">
+        <form method="get" class="p-3 p-md-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label for="idActivoInput" class="form-label small fw-semibold">ID del Activo Fijo a consultar</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-hash"></i></span>
+                        <input id="idActivoInput" name="IdActivoFijo" type="number" min="1"
+                               value="@Model.IdActivoFijo" class="form-control border-start-0"
+                               placeholder="Ej. 1" required />
+                    </div>
+                </div>
+                <div class="col-12 col-md-7 d-flex gap-2 justify-content-md-end">
+                    <button type="submit" class="btn-activo-primary">
+                        <i class="bi bi-search"></i> Consultar historial
+                    </button>
+                    @if (Model.IdActivoFijo.HasValue)
+                    {
+                        <a href="/ActivosFijos/Listado" class="btn-activo-outline">Limpiar</a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (Model.IdActivoFijo.HasValue && Model.IdActivoFijo > 0)
+    {
+        <!-- INDICADORES DE VALOR REAL ACTUAL -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+                <div class="activo-kpi">
+                    <div class="activo-kpi-icon is-success">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div>
+                        <p class="activo-kpi-label">Valor real actual en libros</p>
+                        <h4 class="activo-kpi-value">
+                            @(ultimoRegistro != null ? $"₡{ultimoRegistro.ValorEnLibros:N2}" : "—")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="activo-kpi">
+                    <div class="activo-kpi-icon is-danger">
+                        <i class="bi bi-graph-down-arrow"></i>
+                    </div>
+                    <div>
+                        <p class="activo-kpi-label">Depreciación acumulada</p>
+                        <h4 class="activo-kpi-value">
+                            @(ultimoRegistro != null ? $"₡{ultimoRegistro.DepreciacionAcumulada:N2}" : "₡0.00")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="activo-kpi">
+                    <div class="activo-kpi-icon is-brand">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                        <p class="activo-kpi-label">Costo de adquisición</p>
+                        <h4 class="activo-kpi-value">
+                            @(ultimoRegistro != null ? $"₡{ultimoRegistro.CostoAdquisicion:N2}" : "—")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE HISTORIAL DE DEPRECIACIÓN -->
+        <div class="activo-panel">
+            <div class="activo-panel-header">
+                <div>
+                    <h6>
+                        Historial de depreciación — @(ultimoRegistro != null && !string.IsNullOrWhiteSpace(ultimoRegistro.NombreActivo) ? $"{ultimoRegistro.NombreActivo} (#{Model.IdActivoFijo})" : $"Activo #{Model.IdActivoFijo}")
+                    </h6>
+                    <p>Detalle cronológico de montos depreciados y saldo en libros</p>
+                </div>
+                <a href="/ActivosFijos/CalcularDepreciacion?IdActivoFijo=@Model.IdActivoFijo" class="btn-activo-outline">
+                    <i class="bi bi-calculator"></i> Calcular nuevo periodo
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table activo-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Periodo</th>
+                            <th>Fecha de cálculo</th>
+                            <th class="text-end">Monto depreciación</th>
+                            <th class="text-end">Depreciación acumulada</th>
+                            <th class="text-end">Valor en libros</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Historial.Any())
+                        {
+                            foreach (var item in Model.Historial)
+                            {
+                                bool esActivo = string.Equals(item.Estado, "Activo", StringComparison.OrdinalIgnoreCase);
+
+                                <tr>
+                                    <td class="fw-bold text-dark">@item.Periodo</td>
+                                    <td class="text-muted">@item.FechaCalculo.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="text-end text-danger fw-semibold">- ₡@item.MontoDespreciacion.ToString("N2")</td>
+                                    <td class="text-end text-muted">₡@item.DepreciacionAcumulada.ToString("N2")</td>
+                                    <td class="text-end fw-bold text-dark">₡@item.ValorEnLibros.ToString("N2")</td>
+                                    <td>
+                                        <span class="badge-soft @(esActivo ? "is-activa" : "is-neutro")">
+                                            @(string.IsNullOrWhiteSpace(item.Estado) ? "Activo" : item.Estado)
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-1 d-block mb-3" style="color: #c8ced8;"></i>
+                                    <strong class="d-block mb-1 text-dark">No hay depreciaciones registradas para el activo #@Model.IdActivoFijo</strong>
+                                    <span class="small">Utilice "Calcular nuevo periodo" para generar la primera depreciación o verifique el ID del activo.</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="activo-panel-footer">
+                <i class="bi bi-info-circle me-1"></i> Mostrando @Model.Historial.Count registro(s) de depreciación.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="activo-panel p-5 text-center text-muted">
+            <i class="bi bi-building fs-1 d-block mb-3" style="color: #c8ced8;"></i>
+            <strong class="d-block mb-1 text-dark" style="font-size: 15px;">Consulta de historial y valor en libros</strong>
+            <p class="small mb-3">Ingrese el <strong>ID del Activo Fijo</strong> arriba para visualizar su depreciación acumulada y valor real actual, o registre un nuevo bien.</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <a href="/ActivosFijos/RegistrarActivo" class="btn-activo-primary">
+                    <i class="bi bi-plus-lg"></i> Registrar nuevo activo
+                </a>
+                <a href="/ActivosFijos/CalcularDepreciacion" class="btn-activo-outline">
+                    <i class="bi bi-calculator"></i> Calcular depreciación
+                </a>
+            </div>
+        </div>
+    }
+</div>
