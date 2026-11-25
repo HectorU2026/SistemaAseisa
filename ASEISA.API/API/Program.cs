@@ -1,3 +1,4 @@
+using API.Seguridad;
 using Abstracciones.Interfaces.DA;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Interfaces.Servicio;
@@ -68,22 +69,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.Zero
         };
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = context =>
-            {
-                var valor = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!int.TryParse(valor, out var idUsuario) || idUsuario <= 0)
-                    context.Fail("El token no contiene un IdUsuario valido.");
-                return Task.CompletedTask;
-            }
-        };
+        options.IncludeErrorDetails = false;
+        options.EventsType = typeof(RevalidacionJwtEvents);
     });
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<IContextoUsuarioDA, ContextoUsuarioDA>();
+builder.Services.AddScoped<IContextoUsuarioFlujo, ContextoUsuarioFlujo>();
+builder.Services.AddScoped<RevalidacionJwtEvents>();
 
 builder.Services.AddScoped<IRepositorioDapper, RepositorioDapper>();
 builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient("CredencialesSeguridad",c=>c.Timeout=TimeSpan.FromSeconds(15))
+    .ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler {AllowAutoRedirect=false});
+builder.Services.AddScoped<IAdministracionCredenciales, AdministracionCredenciales>();
 builder.Services.AddScoped<IBitacoraDA, BitacoraDA>();
 builder.Services.AddScoped<IBitacoraFlujo, BitacoraFlujo>();
 builder.Services.AddScoped<IBodegaDA, BodegaDA>();
@@ -134,6 +134,7 @@ builder.Services.AddScoped<IActivoFijoDA, ActivoFijoDA>();
 builder.Services.AddScoped<IActivoFijoFlujo, ActivoFijoFlujo>();
 
 var app = builder.Build();
+app.UseMiddleware<API.Seguridad.ErroresUsuariosMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

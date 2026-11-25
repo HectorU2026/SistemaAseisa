@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[USUARIO] (
+CREATE TABLE [dbo].[USUARIO] (
     [id_usuario]         INT           IDENTITY (1, 1) NOT NULL,
     [id_empresa]         INT           NOT NULL,
     [tipo_cliente]       VARCHAR (50)  NULL,
@@ -12,7 +12,11 @@
     [id_estado]          INT           NOT NULL,
     [fecha_creacion]     DATETIME2 (7) DEFAULT (sysdatetime()) NOT NULL,
     [fecha_modificacion] DATETIME2 (7) NULL,
+    [version_credencial] BIGINT CONSTRAINT [DF_USUARIO_VersionCredencial] DEFAULT (0) NOT NULL,
+    CONSTRAINT [CK_USUARIO_VersionCredencial] CHECK ([version_credencial] >= 0),
+    [estado_aprobacion]  VARCHAR (20)  CONSTRAINT [DF_USUARIO_EstadoAprobacion] DEFAULT ('Aprobado') NOT NULL,
     CONSTRAINT [PK_USUARIO] PRIMARY KEY CLUSTERED ([id_usuario] ASC),
+    CONSTRAINT [CK_USUARIO_EstadoAprobacion] CHECK ([estado_aprobacion]='Rechazado' OR [estado_aprobacion]='Aprobado' OR [estado_aprobacion]='Pendiente'),
     CONSTRAINT [FK_USUARIO_EMPRESA] FOREIGN KEY ([id_empresa]) REFERENCES [dbo].[EMPRESA] ([id_empresa]),
     CONSTRAINT [FK_USUARIO_ESTADO] FOREIGN KEY ([id_estado]) REFERENCES [dbo].[ESTADO] ([id_estado]),
     CONSTRAINT [UQ_USUARIO_CORREO] UNIQUE NONCLUSTERED ([correo] ASC),

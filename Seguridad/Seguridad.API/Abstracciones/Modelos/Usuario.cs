@@ -1,4 +1,4 @@
-﻿using Abstracciones.Modelos;
+using Abstracciones.Modelos;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,9 +12,14 @@ namespace Abstracciones.Modelos
         public int? IdUsuario { get; set; }
         public int? IdEmpresa { get; set; }
         public string? TipoCliente { get; set; }
+        [Required(ErrorMessage="El nombre es obligatorio."),StringLength(80)]
         public string Nombre { get; set; }
+        [Required(ErrorMessage="El primer apellido es obligatorio."),StringLength(80)]
         public string PrimerApellido { get; set; }
+        [StringLength(80)]
         public string? SegundoApellido { get; set; }
+        [Required,EmailAddress,StringLength(150)]
+        [ASEISA.Usuarios.CorreoUsuario]
         public string Correo { get; set; }
         public string NombreUsuario { get; set; }
         public string ContrasenaHash { get; set; }

@@ -1,4 +1,4 @@
-﻿
+
 @page
 @model Web.Pages.Seguridad.LoginModel
 
@@ -136,6 +136,7 @@
                     </div>
                 }
 
+                @if(TempData["RegistroPendiente"] is string confirmacion){<div class="alert alert-success" role="status">@confirmacion</div>}
                 <form method="post" novalidate>
 
                     @Html.AntiForgeryToken()

@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     let pasoActual = 0;
 
@@ -53,9 +53,9 @@
             ? 'Cédula jurídica <span class="text-danger">*</span>'
             : 'Cédula de identidad <span class="text-danger">*</span>';
 
-        $("Formulario_Identificacion").placeholder = juridica
-            ? "3-101-123456"
-            : "1-1234-5678";
+        const configuracion = RegistroCampos.configuracion(tipoSeleccionado());
+        $("Formulario_Identificacion").placeholder = configuracion?.ejemplo || "Seleccione el tipo de identificación";
+        $("Formulario_Identificacion").maxLength = configuracion ? configuracion.longitud + 2 : 12;
 
         if (limpiarIdentificacion) {
             $("Formulario_Identificacion").value = "";
@@ -75,27 +75,9 @@
         actualizarUsuario();
     }
     function formatearCedula() {
-        const juridica = tipoSeleccionado() === "Persona jurídica";
-
-        const digitos = $("Formulario_Identificacion").value
-            .replace(/\D/g, "")
-            .slice(0, juridica ? 10 : 9);
-
-        const partes = juridica
-            ? [
-                digitos.slice(0, 1),
-                digitos.slice(1, 4),
-                digitos.slice(4, 10)
-            ]
-            : [
-                digitos.slice(0, 1),
-                digitos.slice(1, 5),
-                digitos.slice(5, 9)
-            ];
-
-        $("Formulario_Identificacion").value =
-            partes.filter(Boolean).join("-");
-
+        const tipo = tipoSeleccionado();
+        $("Formulario_Identificacion").value = RegistroCampos.formatearIdentificacion($("Formulario_Identificacion").value, tipo);
+        const digitos = $("Formulario_Identificacion").value.replace(/[^0-9]/g, "");
         actualizarUsuario();
 
         if (digitos.length > 0) {
@@ -106,14 +88,9 @@
     }
 
     function validarIdentificacion() {
-        const digitos = $("Formulario_Identificacion").value
-            .replace(/\D/g, "");
-
         const juridica = tipoSeleccionado() === "Persona jurídica";
 
-        const valido = juridica
-            ? /^3\d{9}$/.test(digitos)
-            : /^[1-9]\d{8}$/.test(digitos);
+        const valido = RegistroCampos.identificacionValida($("Formulario_Identificacion").value, tipoSeleccionado());
 
         mostrarMensaje(
             "identificacionFeedback",
@@ -155,15 +132,6 @@
 
         $("Formulario_NombreUsuario").value =
             `${inicial}${primerApellido}.${digitos.slice(-4)}`;
-    }
-    function formatearTelefono() {
-        const digitos = $("Formulario_Telefono").value
-            .replace(/\D/g, "")
-            .slice(0, 8);
-
-        $("Formulario_Telefono").value = digitos.length > 4
-            ? digitos.slice(0, 4) + "-" + digitos.slice(4)
-            : digitos;
     }
     function validarPaso1() {
         let valido = true;
@@ -236,7 +204,7 @@
 
         const telefono = $("Formulario_Telefono").value;
 
-        if (telefono && !/^\d{4}-\d{4}$/.test(telefono)) {
+        if (telefono && !RegistroCampos.telefonoValido(telefono)) {
             mostrarMensaje(
                 "telefonoFeedback",
                 "El teléfono debe contener 8 dígitos."
@@ -257,7 +225,7 @@
         const confirmar = $("Formulario_ConfirmarContrasena").value;
 
         const correoValido =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+            RegistroCampos.correoValido(correo);
 
         mostrarMensaje(
             "correoFeedback",
@@ -316,8 +284,7 @@
     $("Formulario_PrimerApellido")
         .addEventListener("input", actualizarUsuario);
 
-    $("Formulario_Telefono")
-        .addEventListener("input", formatearTelefono);
+    RegistroCampos.vincularTelefono($("Formulario_Telefono"), mensaje => mostrarMensaje("telefonoFeedback", mensaje));
 
     // Correo en tiempo real
     $("Formulario_Correo").addEventListener("input", () => {
@@ -329,7 +296,7 @@
         }
 
         const valido =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+            RegistroCampos.correoValido(correo);
 
         mostrarMensaje(
             "correoFeedback",

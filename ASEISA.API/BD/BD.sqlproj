@@ -55,6 +55,17 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
+    <Build Include="dbo\Stored Procedures\FinalizarCorreoEnlace.sql" />
+    <Build Include="dbo\Stored Procedures\MigrarHashAutenticacion.sql" />
+    <Build Include="dbo\Stored Procedures\TomarCorreoEnlace.sql" />
+    <Build Include="dbo\Tables\CORREO_ENLACE.sql" />
+    <Build Include="dbo\Functions\EsAdministradorActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ConsumirSolicitudContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\CrearSolicitudContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\GestionarRolUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCatalogosAdministracionUsuarios.sql" />
+    <Build Include="dbo\Stored Procedures\RetirarRolUsuario.sql" />
+    <Build Include="dbo\Tables\SOLICITUD_CONTRASENA.sql" />
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
@@ -136,6 +147,8 @@
     <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
     <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCandidatoAutenticacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerContextoUsuarioAutorizado.sql" />
     <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
     <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizacionPorId.sql" />
@@ -213,8 +226,14 @@
     <Build Include="dbo\Stored Procedures\ObtenerReporteCuentasPorPagar.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerLibroMayor.sql" />
     <Build Include="dbo\Tables\CONFIGURACION_CONTABLE.sql" />
+    <Build Include="dbo\Stored Procedures\HabilitarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerSolicitudesClientesPendientes.sql" />
+    <Build Include="dbo\Stored Procedures\AprobarRegistroCliente.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dbo\Functions\" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,17 @@
+CREATE TABLE dbo.CORREO_ENLACE (
+    id_correo BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_CORREO_ENLACE PRIMARY KEY,
+    id_solicitud BIGINT NOT NULL,
+    token_cifrado VARCHAR(500) NULL,
+    estado VARCHAR(12) NOT NULL CONSTRAINT DF_CORREO_ENLACE_Estado DEFAULT 'Pendiente',
+    intentos INT NOT NULL CONSTRAINT DF_CORREO_ENLACE_Intentos DEFAULT 0,
+    proximo_intento DATETIME2(7) NOT NULL CONSTRAINT DF_CORREO_ENLACE_Proximo DEFAULT SYSUTCDATETIME(),
+    reserva UNIQUEIDENTIFIER NULL,
+    reserva_hasta DATETIME2(7) NULL,
+    fecha_envio DATETIME2(7) NULL,
+    CONSTRAINT FK_CORREO_ENLACE_Solicitud FOREIGN KEY(id_solicitud) REFERENCES dbo.SOLICITUD_CONTRASENA(id_solicitud),
+    CONSTRAINT UQ_CORREO_ENLACE_Solicitud UNIQUE(id_solicitud),
+    CONSTRAINT CK_CORREO_ENLACE_Estado CHECK(estado IN ('Pendiente','Procesando','Enviado','Fallido','Anulado')),
+    CONSTRAINT CK_CORREO_ENLACE_Intentos CHECK(intentos BETWEEN 0 AND 5)
+);
+GO
+CREATE INDEX IX_CORREO_ENLACE_Despacho ON dbo.CORREO_ENLACE(estado,proximo_intento,reserva_hasta);

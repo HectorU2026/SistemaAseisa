@@ -1,5 +1,6 @@
-﻿
+
 using Abstracciones.Reglas;
+using Abstracciones.Flujo;
 using Abstracciones.DA;
 using Abstracciones.Modelos;
 using Microsoft.Extensions.Configuration;
@@ -16,13 +17,16 @@ namespace BC
     {
         private readonly IConfiguration _configuration;
         private readonly IUsuarioDA _usuarioDA;
+        private readonly IAuditoriaSeguridad _auditoria;
 
         public AutenticacionReglas(
             IConfiguration configuration,
-            IUsuarioDA usuarioDA)
+            IUsuarioDA usuarioDA,
+            IAuditoriaSeguridad auditoria)
         {
             _configuration = configuration;
             _usuarioDA = usuarioDA;
+            _auditoria = auditoria;
         }
 
         public async Task<Token> LoginAync(LoginBase login)
@@ -40,7 +44,7 @@ namespace BC
                 return resultado;
             }
 
-            var filasUsuario = (await _usuarioDA.ObtenerUsuarioConRoles(login))
+            var filasUsuario = (await _usuarioDA.ObtenerCandidatoAutenticacion(login))
                 .ToList();
 
             var usuario = filasUsuario.FirstOrDefault();
@@ -48,6 +52,8 @@ namespace BC
             if (usuario == null)
                 return resultado;
 
+            if(!usuario.VersionCredencial.HasValue || usuario.VersionCredencial.Value < 0)
+                throw new InvalidOperationException("Contrato interno de autenticacion invalido.");
             bool credencialesValidas = ContrasenasSeguras.Verificar(
                 login.ContrasenaHash,
                 usuario.ContrasenaHash,
@@ -56,16 +62,21 @@ namespace BC
             if (!credencialesValidas)
                 return resultado;
 
+            // Solo revelar el estado después de verificar el secreto. Sin JWT para cuentas no elegibles.
+            resultado.CodigoEstado=usuario.EstadoAprobacion switch {
+                "Pendiente"=>"PENDIENTE", "Rechazado"=>"RECHAZADO",
+                "Aprobado" when !usuario.UsuarioActivo=>"INACTIVO",
+                "Aprobado" when !usuario.EmpresaActiva=>"NO_DISPONIBLE",
+                "Aprobado" when !filasUsuario.Any(f=>!string.IsNullOrWhiteSpace(f.rol))=>"NO_DISPONIBLE",
+                "Aprobado"=>null, _=>"NO_DISPONIBLE" };
+            if(resultado.CodigoEstado!=null)return resultado;
+
             if (requiereMigracion)
             {
-                await _usuarioDA.CambiarContrasena(
-                    new CambiarContrasena
-                    {
-                        correo = usuario.Correo,
-                        ContrasenaHash = ContrasenasSeguras.Crear(
-                            login.ContrasenaHash),
-                        Token = string.Empty
-                    });
+                // Una migracion del formato del mismo secreto no revoca sesiones,
+                // pero tampoco puede sobrescribir un restablecimiento concurrente.
+                if (!await _usuarioDA.MigrarHashAutenticacion(usuario, ContrasenasSeguras.Crear(login.ContrasenaHash)))
+                    return resultado;
             }
 
             var cfg = _configuration
@@ -83,6 +94,7 @@ namespace BC
 
             var claims = new List<Claim>
             {
+                new Claim("VersionCredencial", usuario.VersionCredencial.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 new Claim(
                     ClaimTypes.NameIdentifier,
                     usuario.id.ToString()),
@@ -118,6 +130,7 @@ namespace BC
                 new JwtSecurityTokenHandler().WriteToken(jwt);
 
             resultado.ValidacionExitosa = true;
+            await _auditoria.RegistrarAsync(EventoAuditoriaSeguridad.LoginExitoso, usuario.IdUsuario);
 
             return resultado;
         }
