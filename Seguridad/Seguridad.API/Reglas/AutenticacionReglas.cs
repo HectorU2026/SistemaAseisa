@@ -71,6 +71,9 @@ namespace BC
                 "Aprobado"=>null, _=>"NO_DISPONIBLE" };
             if(resultado.CodigoEstado!=null)return resultado;
 
+            var rolesVigentes=filasUsuario.Select(f=>f.rol).Where(r=>!string.IsNullOrWhiteSpace(r)).Distinct().ToArray();
+            var plataforma=usuario.IdEmpresa==null;
+            if(plataforma ? rolesVigentes.Length!=1 || rolesVigentes[0]!="Superadministrador" : rolesVigentes.Contains("Superadministrador"))return resultado;
             if (requiereMigracion)
             {
                 // Una migracion del formato del mismo secreto no revoca sesiones,
@@ -106,7 +109,7 @@ namespace BC
                 new Claim(
                     ClaimTypes.Email,
                     usuario.Correo),
-                new Claim("Empresa", usuario.IdEmpresa.ToString(), ClaimValueTypes.String)
+                new Claim(plataforma?"Ambito":"Empresa",plataforma?"Plataforma":usuario.IdEmpresa!,ClaimValueTypes.String)
             };
 
             var rolesActivos = filasUsuario

@@ -6,7 +6,7 @@ BEGIN
     SELECT U.id_usuario IdUsuario,U.id_empresa IdEmpresa,U.correo Correo,U.nombre_usuario NombreUsuario,
         U.contrasena_hash ContrasenaHash,U.version_credencial VersionCredencial,U.estado_aprobacion EstadoAprobacion,
         CONVERT(BIT,CASE WHEN LTRIM(RTRIM(E.nombre_estado))='Activo' THEN 1 ELSE 0 END) UsuarioActivo,
-        CONVERT(BIT,CASE WHEN EXISTS(SELECT 1 FROM dbo.EMPRESA EM INNER JOIN dbo.ESTADO EE ON EE.id_estado=EM.id_estado
+        CONVERT(BIT,CASE WHEN dbo.EsSuperadministradorActivo(U.id_usuario)=1 OR EXISTS(SELECT 1 FROM dbo.EMPRESA EM INNER JOIN dbo.ESTADO EE ON EE.id_estado=EM.id_estado
             WHERE EM.id_empresa=U.id_empresa AND LTRIM(RTRIM(EE.nombre_estado))='Activo') THEN 1 ELSE 0 END) EmpresaActiva,
         Roles.Nombre Rol
     FROM dbo.USUARIO U

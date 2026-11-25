@@ -12,12 +12,12 @@ BEGIN
         IF @usuario IS NULL BEGIN COMMIT; SELECT CAST(0 AS BIT) Exito; RETURN; END;
         SELECT @version=U.version_credencial,@empresa=U.id_empresa,@correo=U.correo FROM dbo.USUARIO U WITH(UPDLOCK,HOLDLOCK)
         INNER JOIN dbo.ESTADO EU ON EU.id_estado=U.id_estado
-        INNER JOIN dbo.EMPRESA E ON E.id_empresa=U.id_empresa
-        INNER JOIN dbo.ESTADO EE ON EE.id_estado=E.id_estado
+        LEFT JOIN dbo.EMPRESA E ON E.id_empresa=U.id_empresa
+        LEFT JOIN dbo.ESTADO EE ON EE.id_estado=E.id_estado
         WHERE U.id_usuario=@usuario AND U.estado_aprobacion='Aprobado'
-            AND LTRIM(RTRIM(EU.nombre_estado))='Activo' AND LTRIM(RTRIM(EE.nombre_estado))='Activo';
-        IF @empresa IS NULL OR NOT EXISTS(SELECT 1 FROM dbo.SOLICITUD_CONTRASENA WITH(UPDLOCK,HOLDLOCK)
-            WHERE hash_token=@hash_token AND id_usuario=@usuario AND id_empresa=@empresa AND correo=@correo
+            AND LTRIM(RTRIM(EU.nombre_estado))='Activo' AND dbo.UsuarioVigente(U.id_usuario)=1;
+        IF @version IS NULL OR NOT EXISTS(SELECT 1 FROM dbo.SOLICITUD_CONTRASENA WITH(UPDLOCK,HOLDLOCK)
+            WHERE hash_token=@hash_token AND id_usuario=@usuario AND (id_empresa=@empresa OR (id_empresa IS NULL AND @empresa IS NULL)) AND correo=@correo
                 AND version_credencial=@version AND fecha_consumo IS NULL AND fecha_expiracion>SYSUTCDATETIME())
         BEGIN COMMIT; SELECT CAST(0 AS BIT) Exito; RETURN; END;
         UPDATE dbo.USUARIO SET contrasena_hash=@contrasena_hash,version_credencial=version_credencial+1,fecha_modificacion=SYSDATETIME() WHERE id_usuario=@usuario;

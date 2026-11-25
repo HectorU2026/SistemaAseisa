@@ -1,0 +1,12 @@
+@page
+@model Web.Pages.Plataforma.AdministradoresModel
+@{ViewData["Title"]="Administradores";}
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+<div class="contactos-page usuarios-page">
+<div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+@if(TempData["Mensaje"] is string mensaje){<div class="alert alert-success" role="status">@mensaje</div>}<div class="contactos-header"><div><div class="contactos-breadcrumb"><a asp-page="Index">Plataforma</a> / Administradores</div><h1>Administradores de empresas</h1><p>Para registrar uno nuevo, seleccione la empresa correspondiente.</p></div><a asp-page="Empresas" class="btn btn-contacto-outline">Empresas</a></div>
+<form method="get" class="d-flex gap-2 mb-3"><input asp-for="Busqueda" class="form-control" placeholder="Nombre, correo o empresa" aria-label="Buscar administrador" /><select asp-for="Estado" class="form-select" aria-label="Estado"><option value="">Todos los estados</option><option>Activo</option><option>Inactivo</option></select><button class="btn btn-contacto-primary">Filtrar</button></form>
+<section class="contactos-panel"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Administrador</th><th>Empresa</th><th>Estado</th><th>Aprobación</th><th>Acciones</th></tr></thead><tbody>
+@foreach(var u in Model.Datos.Administradores.Where(u=>(string.IsNullOrWhiteSpace(Model.Busqueda)||$"{u.Nombre} {u.PrimerApellido} {u.Correo} {Model.Datos.Empresas.FirstOrDefault(e=>e.IdEmpresa==u.IdEmpresa)?.RazonSocial}".Contains(Model.Busqueda,StringComparison.OrdinalIgnoreCase))&&(string.IsNullOrEmpty(Model.Estado)||u.Estado==Model.Estado))){<tr><td>@u.Nombre @u.PrimerApellido<br/>@u.Correo</td><td>@Model.Datos.Empresas.FirstOrDefault(e=>e.IdEmpresa==u.IdEmpresa)?.RazonSocial</td><td>@u.Estado</td><td>@u.EstadoAprobacion</td><td><a asp-page="Administrador" asp-route-empresa="@u.IdEmpresa" asp-route-id="@u.IdUsuario" class="btn btn-contacto-outline"><i class="bi bi-person-gear"></i> Administrar</a></td></tr>}
+</tbody></table></div></section></div>

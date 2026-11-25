@@ -18,6 +18,7 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
+        EXEC dbo.ProtegerAdministradorEmpresa @id_empresa;
         IF dbo.EsAdministradorActivo(@id_usuario_accion,@id_empresa)=0 THROW 51025,'Operacion no autorizada.',1;
         IF EXISTS(SELECT 1 FROM dbo.ROL_USUARIO RU INNER JOIN dbo.ROL R ON R.id_rol=RU.id_rol
             WHERE RU.id_usuario=@id_usuario AND R.nombre='Superadministrador') THROW 51025,'Operacion no autorizada.',1;

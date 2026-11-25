@@ -14,7 +14,7 @@ BEGIN
     DECLARE @saldo_inicial DECIMAL(18,2);
     -- Una CTE solo existe para la sentencia siguiente. Materializar para ambos resultados.
     DECLARE @flujo TABLE (categoria VARCHAR(20) NOT NULL, monto DECIMAL(18,2) NULL);
- 
+
     SELECT @saldo_inicial = ISNULL(SUM(da.debe - da.haber), 0)
     FROM dbo.DETALLE_ASIENTO da
     INNER JOIN dbo.ASIENTO_CONTABLE ac ON ac.id_asiento = da.id_asiento
@@ -55,10 +55,10 @@ BEGIN
         FROM Contra
         WHERE peso > 0
     )
- 
+
     INSERT INTO @flujo (categoria, monto)
     SELECT categoria, monto FROM Flujo;
- 
+
     SELECT
         cat.Categoria,
         ISNULL(SUM(CASE WHEN f.monto > 0 THEN f.monto END), 0) AS Entradas,

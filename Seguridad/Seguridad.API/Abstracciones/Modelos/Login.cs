@@ -22,6 +22,6 @@ namespace Abstracciones.Modelos
         public int IdUsuario { get => id; set => id = value; }
         public string NombreUsuario { get; set; }
         public string rol { get; set; }
-        public string IdEmpresa { get; set; }
+        public string? IdEmpresa { get; set; }
     }
 }

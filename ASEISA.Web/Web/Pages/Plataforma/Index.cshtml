@@ -1,0 +1,14 @@
+@page
+@model Web.Pages.Plataforma.IndexModel
+@{ViewData["Title"]="Plataforma ASEISA";}
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+<div class="contactos-page usuarios-page">
+<div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+@if(TempData["Mensaje"] is string mensaje){<div class="alert alert-success" role="status">@mensaje</div>}<div class="contactos-header"><div><div class="contactos-breadcrumb">PLATAFORMA ASEISA</div><h1>Superadministración</h1><p>Gestión de organizaciones y sus administradores. Sin acceso a operaciones empresariales.</p></div></div>
+<div class="contactos-stats">
+<div class="contacto-stat"><div><span>Empresas registradas</span><strong>@Model.Datos.Empresas.Count</strong></div></div>
+<div class="contacto-stat"><div><span>Empresas activas</span><strong>@Model.Datos.Empresas.Count(e=>e.Estado=="Activo")</strong></div></div>
+<div class="contacto-stat"><div><span>Empresas inactivas</span><strong>@Model.Datos.Empresas.Count(e=>e.Estado=="Inactivo")</strong></div></div>
+<div class="contacto-stat"><div><span>Administradores registrados</span><strong>@Model.Datos.Administradores.Count</strong></div></div>
+</div><section class="contactos-panel usuarios-panel"><h2>Empresas sin administradores habilitados: @Model.Datos.Empresas.Count(e=>e.AdministradoresHabilitados==0)</h2><p class="text-muted">Puede incorporar el primer administrador desde el detalle de una empresa activa.</p><div class="d-flex gap-2 flex-wrap"><a asp-page="Empresas" class="btn btn-contacto-primary"><i class="bi bi-buildings"></i> Empresas</a><a asp-page="Administradores" class="btn btn-contacto-outline"><i class="bi bi-people"></i> Administradores</a><a asp-page="Bitacora" class="btn btn-contacto-outline"><i class="bi bi-journal-text"></i> Bitácora</a></div></section></div>

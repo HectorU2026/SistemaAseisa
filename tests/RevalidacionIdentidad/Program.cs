@@ -28,10 +28,11 @@ void Comprobar(bool cumple, string mensaje)
 }
 string Token(string? usuario = "7", string? empresa = "8", string rol = "Administrador", string issuer = "pruebas",
     DateTime? vence = null, SecurityKey? key = null, string algoritmo = SecurityAlgorithms.HmacSha256,
-    bool duplicado = false, bool firmado = true, string audience = "pruebas-api", string? version = "0", bool duplicadoVersion = false)
+    bool duplicado = false, bool firmado = true, string audience = "pruebas-api", string? version = "0", bool duplicadoVersion = false, bool plataforma = false)
 {
     var claims = new List<Claim> { new(ClaimTypes.Role, rol), new(ClaimTypes.Name, "nombre-antiguo"),
         new(ClaimTypes.Email, "antiguo@example.invalid"), new("claim-antiguo", "descartar") };
+    if(plataforma)claims.Add(new Claim("Ambito","Plataforma"));
     if (usuario != null) claims.Add(new Claim(ClaimTypes.NameIdentifier, usuario));
     if (empresa != null) claims.Add(new Claim("Empresa", empresa));
     if(version!=null)claims.Add(new Claim("VersionCredencial",version));
@@ -91,8 +92,8 @@ async Task Caso(string nombre, string? token, ContextoUsuarioAutorizado? vigente
         {
             // Simular dos consumidores en la misma solicitud: no deben repetir la consulta.
             var servicio = context.RequestServices.GetRequiredService<IContextoUsuarioFlujo>();
-            await servicio.Obtener(7, 8, default);
-            await servicio.Obtener(7, 8, default);
+            await servicio.Obtener(7, vigente?.IdEmpresa, default);
+            await servicio.Obtener(7, vigente?.IdEmpresa, default);
         }
         context.Response.StatusCode = 200;
     });
@@ -152,6 +153,20 @@ await Caso("Fallo tecnico cierra acceso sin filtrar detalles", Token(), null, 50
 await Caso("Contrato de contexto invalido", Token(), new ContextoUsuarioAutorizado { IdUsuario = 7, IdEmpresa = 8 }, 503);
 await Caso("Endpoint anonimo permanece anonimo", null, null, 200, anonimo: true);
 
+var plataformaVigente=Vigente("Superadministrador");plataformaVigente.IdEmpresa=null;
+await Caso("Plataforma sin empresa autenticada",Token(empresa:null,plataforma:true),plataformaVigente,200,rolRequerido:"Superadministrador",verificar:p=>Comprobar(p.FindFirst("Empresa")==null && p.FindFirst("Ambito")?.Value=="Plataforma","Se invento una empresa"));
+await Caso("Plataforma no hereda Administrador",Token(empresa:null,plataforma:true),plataformaVigente,403);
+await Caso("Ambito plataforma con empresa rechazado",Token(plataforma:true),plataformaVigente,401);
+await Caso("Usuario ordinario sin empresa rechazado",Token(empresa:null),plataformaVigente,401);
+var plataformaMixta=Vigente("Superadministrador","Administrador");plataformaMixta.IdEmpresa=null;
+await Caso("Plataforma con roles ordinarios rechazada",Token(empresa:null,plataforma:true),plataformaMixta,401);
+await Caso("Superadministrador asociado a empresa rechazado",Token(),Vigente("Superadministrador"),401);
+var sinRoles=Vigente();sinRoles.IdEmpresa=null;
+await Caso("Plataforma sin rol valido rechazada",Token(empresa:null,plataforma:true),sinRoles,401);
+await Caso("Plataforma revocada rechazada",Token(empresa:null,plataforma:true),null,401);
+var plataformaVersion=Vigente("Superadministrador");plataformaVersion.IdEmpresa=null;plataformaVersion.VersionCredencial=1;
+await Caso("Password revoca JWT de plataforma",Token(empresa:null,plataforma:true),plataformaVersion,401);
+
 // Un token anterior se revalida en un scope nuevo despues de revocar permisos.
 {
     var fake = new ContextoDAFalso { Resultado = Vigente("Administrador") };
@@ -176,7 +191,7 @@ sealed class ContextoDAFalso : IContextoUsuarioDA
     public ContextoUsuarioAutorizado? Resultado { get; set; }
     public bool Fallar { get; set; }
     public int Consultas { get; private set; }
-    public Task<ContextoUsuarioAutorizado?> Obtener(int idUsuario, int idEmpresa, CancellationToken cancellationToken)
+    public Task<ContextoUsuarioAutorizado?> Obtener(int idUsuario, int? idEmpresa, CancellationToken cancellationToken)
     {
         Consultas++;
         if (Fallar) throw new InvalidOperationException("SECRETO_SQL: no mostrar");

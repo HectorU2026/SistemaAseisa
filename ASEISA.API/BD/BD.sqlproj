@@ -1,267 +1,267 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-<PropertyGroup>
-<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-<Name>BD</Name>
-<SchemaVersion>2.0</SchemaVersion>
-<ProjectVersion>4.1</ProjectVersion>
-<ProjectGuid>{b3028f32-c0bd-36f2-f1bb-292c5db930c4}</ProjectGuid>
-<DSP>Microsoft.Data.Tools.Schema.Sql.Sql170DatabaseSchemaProvider</DSP>
-<OutputType>Database</OutputType>
-<RootPath>
-</RootPath>
-<RootNamespace>BD</RootNamespace>
-<AssemblyName>BD</AssemblyName>
-<ModelCollation>1033, CI</ModelCollation>
-<DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
-<DeployToDatabase>True</DeployToDatabase>
-<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-<TargetLanguage>CS</TargetLanguage>
-<AppDesignerFolder>Properties</AppDesignerFolder>
-<SqlServerVerification>False</SqlServerVerification>
-<IncludeCompositeObjects>True</IncludeCompositeObjects>
-<TargetDatabaseSet>True</TargetDatabaseSet>
-</PropertyGroup>
-<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-<OutputPath>bin\Release\</OutputPath>
-<BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-<DebugType>pdbonly</DebugType>
-<Optimize>true</Optimize>
-<DefineDebug>false</DefineDebug>
-<DefineTrace>true</DefineTrace>
-<ErrorReport>prompt</ErrorReport>
-<WarningLevel>4</WarningLevel>
-</PropertyGroup>
-<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-<OutputPath>bin\Debug\</OutputPath>
-<BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-<DebugSymbols>true</DebugSymbols>
-<DebugType>full</DebugType>
-<Optimize>false</Optimize>
-<DefineDebug>true</DefineDebug>
-<DefineTrace>true</DefineTrace>
-<ErrorReport>prompt</ErrorReport>
-<WarningLevel>4</WarningLevel>
-</PropertyGroup>
-<PropertyGroup>
-<VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-<!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
-<SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
-<VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
-</PropertyGroup>
-<Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
-<Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
-<ItemGroup>
-<Build Include="dbo\Stored Procedures\FinalizarCorreoEnlace.sql" />
-<Build Include="dbo\Stored Procedures\MigrarHashAutenticacion.sql" />
-<Build Include="dbo\Stored Procedures\TomarCorreoEnlace.sql" />
-<Build Include="dbo\Tables\CORREO_ENLACE.sql" />
-<Build Include="dbo\Functions\EsAdministradorActivo.sql" />
-<Build Include="dbo\Stored Procedures\ConsumirSolicitudContrasena.sql" />
-<Build Include="dbo\Stored Procedures\CrearSolicitudContrasena.sql" />
-<Build Include="dbo\Stored Procedures\GestionarRolUsuario.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCatalogosAdministracionUsuarios.sql" />
-<Build Include="dbo\Stored Procedures\RetirarRolUsuario.sql" />
-<Build Include="dbo\Tables\SOLICITUD_CONTRASENA.sql" />
-<Folder Include="Properties" />
-<Folder Include="dbo\" />
-<Folder Include="dbo\Tables\" />
-<Folder Include="dbo\Stored Procedures\" />
-</ItemGroup>
-<ItemGroup>
-<Build Include="dbo\Tables\VENTAS.sql" />
-<Build Include="dbo\Tables\USUARIO.sql" />
-<Build Include="dbo\Tables\ROL_USUARIO.sql" />
-<Build Include="dbo\Tables\ROL_PERMISO.sql" />
-<Build Include="dbo\Tables\ROL.sql" />
-<Build Include="dbo\Tables\PROVEEDOR.sql" />
-<Build Include="dbo\Tables\PRODUCTO.sql" />
-<Build Include="dbo\Tables\PERMISO.sql" />
-<Build Include="dbo\Tables\PERIODO_CONTABLE.sql" />
-<Build Include="dbo\Tables\PAGO_PROVEEDOR.sql" />
-<Build Include="dbo\Tables\PAGO_CLIENTE.sql" />
-<Build Include="dbo\Tables\ORDEN_COMPRA.sql" />
-<Build Include="dbo\Tables\NOTA_CREDITO.sql" />
-<Build Include="dbo\Tables\MOVIMIENTO_INVENTARIO.sql" />
-<Build Include="dbo\Tables\MOVIMIENTO_BANCARIO.sql" />
-<Build Include="dbo\Tables\FACTURA.sql" />
-<Build Include="dbo\Tables\FACTURA_XML_ACADEMICO.sql" />
-<Build Include="dbo\Tables\EXISTENCIA.sql" />
-<Build Include="dbo\Tables\INVENTARIO_FISICO.sql" />
-<Build Include="dbo\Tables\INGRESO_PRODUCTO.sql" />
-<Build Include="dbo\Tables\ESTADO.sql" />
-<Build Include="dbo\Tables\ESTADO_FACTURA.sql" />
-<Build Include="dbo\Tables\EMPRESA.sql" />
-<Build Include="dbo\Tables\DISTRIBUCION_ANALITICA.sql" />
-<Build Include="dbo\Tables\DETALLE_VENTA.sql" />
-<Build Include="dbo\Tables\DETALLE_ORDEN_COMPRA.sql" />
-<Build Include="dbo\Tables\DETALLE_FACTURA.sql" />
-<Build Include="dbo\Tables\DETALLE_COTIZACION.sql" />
-<Build Include="dbo\Tables\DETALLE_CONCILIACION.sql" />
-<Build Include="dbo\Tables\DETALLE_ASIENTO.sql" />
-<Build Include="dbo\Tables\DEPRECIACION.sql" />
-<Build Include="dbo\Tables\CUENTA_POR_PAGAR.sql" />
-<Build Include="dbo\Tables\CUENTA_POR_COBRAR.sql" />
-<Build Include="dbo\Tables\CUENTA_CONTABLE.sql" />
-<Build Include="dbo\Tables\CUENTA_BANCARIA.sql" />
-<Build Include="dbo\Tables\COTIZACION.sql" />
-<Build Include="dbo\Tables\CONCILIACION_BANCARIA.sql" />
-<Build Include="dbo\Tables\CLIENTE.sql" />
-<Build Include="dbo\Tables\BODEGA.sql" />
-<Build Include="dbo\Tables\BITACORA.sql" />
-<Build Include="dbo\Tables\ASIENTO_CONTABLE.sql" />
-<Build Include="dbo\Tables\ACTIVO_FIJO.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
-<Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
-<Build Include="dbo\Stored Procedures\EditarProducto.sql" />
-<Build Include="dbo\Stored Procedures\InhabilitarProducto.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerProductos.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarInventarioFisico.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerExistencia.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarIngresoProducto.sql" />
-<Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
-<Build Include="dbo\Tables\TERMINO_PAGO.sql" />
-<Build Include="dbo\Tables\METODO_PAGO.sql" />
-<Build Include="dbo\Tables\CONTACTO.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerContactos.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerContacto.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCatalogosPagoContacto.sql" />
-<Build Include="dbo\Stored Procedures\AgregarContacto.sql" />
-<Build Include="dbo\Stored Procedures\EditarContacto.sql" />
-<Build Include="dbo\Stored Procedures\CambiarEstadoContacto.sql" />
-<Build Include="dbo\Stored Procedures\EditarUsuario.sql" />
-<Build Include="dbo\Stored Procedures\CambiarEstadoUsuario.sql" />
-<Build Include="dbo\Stored Procedures\InformacionUsuario.sql" />
-<Build Include="dbo\Stored Procedures\RestablecerContrasenaUsuario.sql" />
-<Build Include="dbo\Stored Procedures\AsignarRolUsuario.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerEmpresaUsuarioActivo.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarCotizacion.sql" />
-<Build Include="dbo\Stored Procedures\AvanzarCotizacionEnviada.sql" />
-<Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
-<Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
-<Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCandidatoAutenticacion.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerContextoUsuarioAutorizado.sql" />
-<Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
-<Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCotizacionPorId.sql" />
-<Build Include="dbo\Stored Procedures\RetrocederCotizacionEnviada.sql" />
-<Build Include="dbo\Stored Procedures\ValidarInventarioCotizacion.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCotizacionesCanceladasRechazadas.sql" />
-<Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerFacturas.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerEstadosFactura.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerFlujoFacturas.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerReporteFacturacion.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerNotasCreditoReporteFacturacion.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerFacturasPagadas.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerPagosFacturaPagada.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerXmlAcademicoFactura.sql" />
-<Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
-<Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
-<Build Include="dbo\Stored Procedures\InactivarFactura.sql" />
-<Build Include="dbo\Stored Procedures\ReactivarFactura.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarPagoFactura.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarNotaCredito.sql" />
-<Build Include="dbo\Stored Procedures\ContarEnviosFactura.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerEmpresaPorId.sql" />
-<Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
-<Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
-<Build Include="dbo\Stored Procedures\CancelarCotizacion.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCompras.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCompra.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCatalogosCompra.sql" />
-<Build Include="dbo\Stored Procedures\EditarCompra.sql" />
-<Build Include="dbo\Stored Procedures\AnularCompra.sql" />
-<Build Include="dbo\Stored Procedures\AgregarCompra.sql" />
-<Build Include="dbo\Tables\ESTADO_COTIZACION.sql" />
-<Build Include="dbo\Stored Procedures\RetrocederCotizacionAEnviada.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagas.sql" />
-<Build Include="dbo\Tables\TIPO_CUENTA.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarCuentaBancaria.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerTiposCuenta.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCuentasContables.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCuentasBancarias.sql" />
-<Build Include="dbo\Stored Procedures\FacturarOrdenCompra.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarActivoFijo.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerUsuarios.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerUsuarioPorId.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerTerminosPago.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerMetodosPago.sql" />
-<Build Include="dbo\Stored Procedures\EditarTerminoPago.sql" />
-<Build Include="dbo\Stored Procedures\EditarMetodoPago.sql" />
-<Build Include="dbo\Stored Procedures\CambiarEstadoTerminoPago.sql" />
-<Build Include="dbo\Stored Procedures\CambiarEstadoMetodoPago.sql" />
-<Build Include="dbo\Stored Procedures\AgregarTerminoPago.sql" />
-<Build Include="dbo\Stored Procedures\AgregarMetodoPago.sql" />
-<Build Include="dbo\Stored Procedures\CalcularDepreciacionActivo.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerHistorialDepreciacion.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagar.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerDistribucionesAnaliticas.sql" />
-<Build Include="dbo\Stored Procedures\InhabilitarDistribucionAnalitica.sql" />
-<Build Include="dbo\Stored Procedures\EditarDistribucionAnalitica.sql" />
-<Build Include="dbo\Stored Procedures\AgregarDistribucionAnalitica.sql" />
-<Build Include="dbo\Stored Procedures\InhabilitarCuentaContable.sql" />
-<Build Include="dbo\Stored Procedures\EditarCuentaContable.sql" />
-<Build Include="dbo\Stored Procedures\ConsultarCuentasContables.sql" />
-<Build Include="dbo\Stored Procedures\AgregarCuentaContable.sql" />
-<Build Include="dbo\Stored Procedures\HabilitarCuentaContable.sql" />
-<Build Include="dbo\Stored Procedures\AgregarCuentaContableRaiz.sql" />
-<Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralTotales.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralDetalle.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerFlujoEfectivo.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerReporteCuentasPorPagar.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerLibroMayor.sql" />
-<Build Include="dbo\Tables\CONFIGURACION_CONTABLE.sql" />
-<Build Include="dbo\Stored Procedures\HabilitarDistribucionAnalitica.sql" />
-<Build Include="dbo\Stored Procedures\ObtenerSolicitudesClientesPendientes.sql" />
-<Build Include="dbo\Stored Procedures\AprobarRegistroCliente.sql" />
-</ItemGroup>
-<ItemGroup>
-<PostDeploy Include="Script.PostDeployment.sql" />
-</ItemGroup>
-<ItemGroup>
-<Folder Include="dbo\Functions\" />
-<Folder Include="dbo\Triggers\" />
-</ItemGroup>
-<PropertyGroup>
-<!-- Referencia de sistema de SSDT; no agrega objetos de master al despliegue. -->
-<SystemDatabaseSchemaVersion Condition="'$(SystemDatabaseSchemaVersion)' == '' and '$(DSP)' == 'Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider'">160</SystemDatabaseSchemaVersion>
-<SystemDatabaseSchemaVersion Condition="'$(SystemDatabaseSchemaVersion)' == ''">170</SystemDatabaseSchemaVersion>
-</PropertyGroup>
-<ItemGroup>
-<ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\$(SystemDatabaseSchemaVersion)\SQLSchemas\master.dacpac">
-<HintPath>$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\$(SystemDatabaseSchemaVersion)\SQLSchemas\master.dacpac</HintPath>
-<SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
-<DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
-</ArtifactReference>
-</ItemGroup>
-<ItemGroup>
-<Build Include="dbo\Functions\EsSuperadministradorActivo.sql" />
-<Build Include="dbo\Functions\UsuarioVigente.sql" />
-<Build Include="dbo\Stored Procedures\CambiarEstadoEmpresaPlataforma.sql" />
-<Build Include="dbo\Stored Procedures\ConsultarPlataforma.sql" />
-<Build Include="dbo\Stored Procedures\GestionarAdministradorPlataforma.sql" />
-<Build Include="dbo\Stored Procedures\GuardarEmpresaPlataforma.sql" />
-<Build Include="dbo\Stored Procedures\InicializarSuperadministrador.sql" />
-<Build Include="dbo\Stored Procedures\ProtegerAdministradorEmpresa.sql" />
-<Build Include="dbo\Stored Procedures\ValidarAdministradorPlataforma.sql" />
-<Build Include="dbo\Triggers\ProtegerRolesUsuario.sql" />
-<Build Include="dbo\Triggers\ProtegerRolPlataforma.sql" />
-<Build Include="dbo\Triggers\ProtegerUsuarioPlataforma.sql" />
-<Build Include="dbo\Triggers\ValidarAmbitoBitacora.sql" />
-</ItemGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>BD</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{b3028f32-c0bd-36f2-f1bb-292c5db930c4}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql170DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>BD</RootNamespace>
+    <AssemblyName>BD</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Build Include="dbo\Stored Procedures\FinalizarCorreoEnlace.sql" />
+    <Build Include="dbo\Stored Procedures\MigrarHashAutenticacion.sql" />
+    <Build Include="dbo\Stored Procedures\TomarCorreoEnlace.sql" />
+    <Build Include="dbo\Tables\CORREO_ENLACE.sql" />
+    <Build Include="dbo\Functions\EsAdministradorActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ConsumirSolicitudContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\CrearSolicitudContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\GestionarRolUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCatalogosAdministracionUsuarios.sql" />
+    <Build Include="dbo\Stored Procedures\RetirarRolUsuario.sql" />
+    <Build Include="dbo\Tables\SOLICITUD_CONTRASENA.sql" />
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="dbo\Stored Procedures\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\VENTAS.sql" />
+    <Build Include="dbo\Tables\USUARIO.sql" />
+    <Build Include="dbo\Tables\ROL_USUARIO.sql" />
+    <Build Include="dbo\Tables\ROL_PERMISO.sql" />
+    <Build Include="dbo\Tables\ROL.sql" />
+    <Build Include="dbo\Tables\PROVEEDOR.sql" />
+    <Build Include="dbo\Tables\PRODUCTO.sql" />
+    <Build Include="dbo\Tables\PERMISO.sql" />
+    <Build Include="dbo\Tables\PERIODO_CONTABLE.sql" />
+    <Build Include="dbo\Tables\PAGO_PROVEEDOR.sql" />
+    <Build Include="dbo\Tables\PAGO_CLIENTE.sql" />
+    <Build Include="dbo\Tables\ORDEN_COMPRA.sql" />
+    <Build Include="dbo\Tables\NOTA_CREDITO.sql" />
+    <Build Include="dbo\Tables\MOVIMIENTO_INVENTARIO.sql" />
+    <Build Include="dbo\Tables\MOVIMIENTO_BANCARIO.sql" />
+    <Build Include="dbo\Tables\FACTURA.sql" />
+    <Build Include="dbo\Tables\FACTURA_XML_ACADEMICO.sql" />
+    <Build Include="dbo\Tables\EXISTENCIA.sql" />
+    <Build Include="dbo\Tables\INVENTARIO_FISICO.sql" />
+    <Build Include="dbo\Tables\INGRESO_PRODUCTO.sql" />
+    <Build Include="dbo\Tables\ESTADO.sql" />
+    <Build Include="dbo\Tables\ESTADO_FACTURA.sql" />
+    <Build Include="dbo\Tables\EMPRESA.sql" />
+    <Build Include="dbo\Tables\DISTRIBUCION_ANALITICA.sql" />
+    <Build Include="dbo\Tables\DETALLE_VENTA.sql" />
+    <Build Include="dbo\Tables\DETALLE_ORDEN_COMPRA.sql" />
+    <Build Include="dbo\Tables\DETALLE_FACTURA.sql" />
+    <Build Include="dbo\Tables\DETALLE_COTIZACION.sql" />
+    <Build Include="dbo\Tables\DETALLE_CONCILIACION.sql" />
+    <Build Include="dbo\Tables\DETALLE_ASIENTO.sql" />
+    <Build Include="dbo\Tables\DEPRECIACION.sql" />
+    <Build Include="dbo\Tables\CUENTA_POR_PAGAR.sql" />
+    <Build Include="dbo\Tables\CUENTA_POR_COBRAR.sql" />
+    <Build Include="dbo\Tables\CUENTA_CONTABLE.sql" />
+    <Build Include="dbo\Tables\CUENTA_BANCARIA.sql" />
+    <Build Include="dbo\Tables\COTIZACION.sql" />
+    <Build Include="dbo\Tables\CONCILIACION_BANCARIA.sql" />
+    <Build Include="dbo\Tables\CLIENTE.sql" />
+    <Build Include="dbo\Tables\BODEGA.sql" />
+    <Build Include="dbo\Tables\BITACORA.sql" />
+    <Build Include="dbo\Tables\ASIENTO_CONTABLE.sql" />
+    <Build Include="dbo\Tables\ACTIVO_FIJO.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarBitacora.sql" />
+    <Build Include="dbo\Stored Procedures\ActualizarUltimoAcceso.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarBodega.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\InhabilitarProducto.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerProductos.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarInventarioFisico.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerExistencia.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarIngresoProducto.sql" />
+    <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerNombreEmpresa.sql" />
+    <Build Include="dbo\Tables\TERMINO_PAGO.sql" />
+    <Build Include="dbo\Tables\METODO_PAGO.sql" />
+    <Build Include="dbo\Tables\CONTACTO.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerContactos.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerContacto.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCatalogosPagoContacto.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarContacto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarContacto.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoContacto.sql" />
+    <Build Include="dbo\Stored Procedures\EditarUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\InformacionUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\RestablecerContrasenaUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\AsignarRolUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEmpresaUsuarioActivo.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarCotizacion.sql" />
+    <Build Include="dbo\Stored Procedures\AvanzarCotizacionEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCandidatoAutenticacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerContextoUsuarioAutorizado.sql" />
+    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCotizacionPorId.sql" />
+    <Build Include="dbo\Stored Procedures\RetrocederCotizacionEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarInventarioCotizacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCotizacionesCanceladasRechazadas.sql" />
+    <Build Include="dbo\Stored Procedures\FacturarOrdenDeVenta.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFacturas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEstadosFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFlujoFacturas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerReporteFacturacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerNotasCreditoReporteFacturacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFacturasPagadas.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerPagosFacturaPagada.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerXmlAcademicoFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ConfirmarFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RestablecerFactura.sql" />
+    <Build Include="dbo\Stored Procedures\InactivarFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ReactivarFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarPagoFactura.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarNotaCredito.sql" />
+    <Build Include="dbo\Stored Procedures\ContarEnviosFactura.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerEmpresaPorId.sql" />
+    <Build Include="dbo\Stored Procedures\AvanzarCotizacionAOrdenDeVenta.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
+    <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
+    <Build Include="dbo\Stored Procedures\CancelarCotizacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCompras.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCompra.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCatalogosCompra.sql" />
+    <Build Include="dbo\Stored Procedures\EditarCompra.sql" />
+    <Build Include="dbo\Stored Procedures\AnularCompra.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarCompra.sql" />
+    <Build Include="dbo\Tables\ESTADO_COTIZACION.sql" />
+    <Build Include="dbo\Stored Procedures\RetrocederCotizacionAEnviada.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagas.sql" />
+    <Build Include="dbo\Tables\TIPO_CUENTA.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarCuentaBancaria.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerTiposCuenta.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasContables.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasBancarias.sql" />
+    <Build Include="dbo\Stored Procedures\FacturarOrdenCompra.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarActivoFijo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerUsuarioPorId.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerTerminosPago.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMetodosPago.sql" />
+    <Build Include="dbo\Stored Procedures\EditarTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\EditarMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarTerminoPago.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarMetodoPago.sql" />
+    <Build Include="dbo\Stored Procedures\CalcularDepreciacionActivo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerHistorialDepreciacion.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorCobrar.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarPagoCliente.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMovimientosBancarios.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerCuentasPorPagar.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerDistribucionesAnaliticas.sql" />
+    <Build Include="dbo\Stored Procedures\InhabilitarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\EditarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\InhabilitarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\EditarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\ConsultarCuentasContables.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\HabilitarCuentaContable.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarCuentaContableRaiz.sql" />
+    <Build Include="dbo\Stored Procedures\RegistrarFacturaCompraManual.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralTotales.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerBalanceGeneralDetalle.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerFlujoEfectivo.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerReporteCuentasPorPagar.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerLibroMayor.sql" />
+    <Build Include="dbo\Tables\CONFIGURACION_CONTABLE.sql" />
+    <Build Include="dbo\Stored Procedures\HabilitarDistribucionAnalitica.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerSolicitudesClientesPendientes.sql" />
+    <Build Include="dbo\Stored Procedures\AprobarRegistroCliente.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dbo\Functions\" />
+    <Folder Include="dbo\Triggers\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Referencia de sistema de SSDT; no agrega objetos de master al despliegue. -->
+    <SystemDatabaseSchemaVersion Condition="'$(SystemDatabaseSchemaVersion)' == '' and '$(DSP)' == 'Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider'">160</SystemDatabaseSchemaVersion>
+    <SystemDatabaseSchemaVersion Condition="'$(SystemDatabaseSchemaVersion)' == ''">170</SystemDatabaseSchemaVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\$(SystemDatabaseSchemaVersion)\SQLSchemas\master.dacpac">
+      <HintPath>$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\$(SystemDatabaseSchemaVersion)\SQLSchemas\master.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
+    </ArtifactReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Functions\EsSuperadministradorActivo.sql" />
+    <Build Include="dbo\Functions\UsuarioVigente.sql" />
+    <Build Include="dbo\Stored Procedures\CambiarEstadoEmpresaPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\ConsultarPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\GestionarAdministradorPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\GuardarEmpresaPlataforma.sql" />
+    <Build Include="dbo\Stored Procedures\InicializarSuperadministrador.sql" />
+    <Build Include="dbo\Stored Procedures\ProtegerAdministradorEmpresa.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarAdministradorPlataforma.sql" />
+    <Build Include="dbo\Triggers\ProtegerRolesUsuario.sql" />
+    <Build Include="dbo\Triggers\ProtegerRolPlataforma.sql" />
+    <Build Include="dbo\Triggers\ProtegerUsuarioPlataforma.sql" />
+    <Build Include="dbo\Triggers\ValidarAmbitoBitacora.sql" />
+  </ItemGroup>
 </Project>
