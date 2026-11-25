@@ -66,8 +66,8 @@ BEGIN
         FROM ESTADO
         WHERE nombre_estado = 'Emitida';
 
-        SELECT @id_estado_facturado = id_estado
-        FROM ESTADO
+        SELECT @id_estado_facturado = id_estado_cotizacion
+        FROM ESTADO_COTIZACION
         WHERE nombre_estado = 'Facturado';
 
         IF @id_estado_factura_borrador IS NULL
@@ -79,7 +79,7 @@ BEGIN
            OR (SELECT COUNT(*) FROM ESTADO_FACTURA WHERE nombre_estado = 'Emitida') <> 1
            OR (SELECT COUNT(*) FROM ESTADO WHERE nombre_estado = 'Borrador') <> 1
            OR (SELECT COUNT(*) FROM ESTADO WHERE nombre_estado = 'Emitida') <> 1
-           OR (SELECT COUNT(*) FROM ESTADO WHERE nombre_estado = 'Facturado') <> 1
+           OR (SELECT COUNT(*) FROM ESTADO_COTIZACION WHERE nombre_estado = 'Facturado') <> 1
         BEGIN
             ROLLBACK TRANSACTION;
 
