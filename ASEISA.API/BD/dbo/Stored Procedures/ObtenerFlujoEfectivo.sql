@@ -7,10 +7,10 @@ CREATE   PROCEDURE dbo.ObtenerFlujoEfectivo
 AS
 BEGIN
     SET NOCOUNT ON;
-
+ 
     IF @fecha_inicio IS NULL OR @fecha_fin IS NULL OR @fecha_inicio > @fecha_fin
         THROW 50001, 'Rango de fechas inválido.', 1;
-
+ 
     DECLARE @saldo_inicial DECIMAL(18,2);
     -- Una CTE solo existe para la sentencia siguiente. Materializar para ambos resultados.
     DECLARE @flujo TABLE (categoria VARCHAR(20) NOT NULL, monto DECIMAL(18,2) NULL);
@@ -22,7 +22,6 @@ BEGIN
     WHERE ac.id_empresa = @id_empresa
       AND ac.fecha_asiento < @fecha_inicio
       AND cc.categoria_flujo = 'Efectivo';
-      
     ;WITH Efectivo AS (
         SELECT 
             da.id_asiento,
@@ -36,7 +35,7 @@ BEGIN
         GROUP BY da.id_asiento
         HAVING SUM(da.debe - da.haber) <> 0
     ),
-
+ 
     Contra AS (
         SELECT 
             e.id_asiento,
@@ -48,7 +47,7 @@ BEGIN
         INNER JOIN dbo.CUENTA_CONTABLE cc ON cc.id_cuenta_contable = da.id_cuenta_contable
         WHERE cc.categoria_flujo IS NULL OR cc.categoria_flujo <> 'Efectivo'
     ),
-
+ 
     Flujo AS (
         SELECT 
             categoria,
@@ -74,7 +73,7 @@ BEGIN
     LEFT JOIN @flujo f ON f.categoria = cat.Categoria
     GROUP BY cat.Orden, cat.Categoria
     ORDER BY cat.Orden;
-
+ 
     -- 6. Resultado 2: saldo
     SELECT 
         @saldo_inicial AS SaldoInicial,

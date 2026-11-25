@@ -183,6 +183,19 @@
                                                     </button>
                                                 </form>
                                             </div>
+                                            <hr class="my-3 text-muted opacity-25" />
+
+                                            <div class="panel-titulo"><i class="bi bi-x-circle"></i> Cancelar Cotización</div>
+                                            <div class="row g-3 align-items-end">
+                                                <div class="col-md-auto">
+                                                    <form method="post" asp-page-handler="Cancelar" class="form-cancelar">
+                                                        <input type="hidden" name="idCotizacion" value="@item.IdCotizacion" />
+                                                        <button type="button" class="btn-venta-outline text-danger btn-confirmar-cancelar" onclick="event.stopPropagation();">
+                                                            Cancelar Cotización
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         }
 
                                         @if (item.Estado == "Orden de Venta")
@@ -459,4 +472,43 @@
             });
         });
     });
+
+
+    // --- FILTRADO INSTANTÁNEO EN CLIENTE (VEN-011) ---
+    (function () {
+        var inputBusqueda = document.querySelector('.ventas-search input[name="busqueda"]');
+        var selectEstado = document.querySelector('.ventas-filtros select[name="idEstado"]');
+        var mapaEstados = { '1': 'Cotización', '2': 'Cotización Enviada', '3': 'Orden de Venta' };
+
+        function filtrarTablaRapido() {
+            var texto = (inputBusqueda ? inputBusqueda.value : '').trim().toLowerCase();
+            var estadoId = selectEstado ? selectEstado.value : '';
+            var estadoTexto = mapaEstados[estadoId] || '';
+
+            document.querySelectorAll('#tbodyVentas tr.fila-principal').forEach(function (fila) {
+                var num = fila.getAttribute('data-numero') || '';
+                var cli = fila.getAttribute('data-cliente') || '';
+                var est = fila.getAttribute('data-estado') || '';
+                var panelSelector = fila.getAttribute('data-bs-target');
+                var panel = panelSelector ? document.querySelector(panelSelector) : null;
+
+                var coincideTexto = !texto || num.includes(texto) || cli.includes(texto);
+                var coincideEstado = !estadoTexto || est === estadoTexto;
+
+                if (coincideTexto && coincideEstado) {
+                    fila.style.display = '';
+                    if (panel) panel.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                    if (panel) {
+                        panel.classList.remove('show');
+                        panel.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        if (inputBusqueda) inputBusqueda.addEventListener('input', filtrarTablaRapido);
+        if (selectEstado) selectEstado.addEventListener('change', filtrarTablaRapido);
+    })();
 </script>
