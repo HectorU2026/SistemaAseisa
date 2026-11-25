@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <UseAppHost>false</UseAppHost>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants>$(DefineConstants);ASEISA</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+    <Compile Include="../Program.cs" Link="Program.cs" />
+    <Compile Include="../../../ASEISA.API/API/Seguridad/RevalidacionJwtEvents.cs" Link="Producto/RevalidacionJwtEvents.cs" />
+    <Compile Include="../../../ASEISA.API/Flujo/ContextoUsuarioFlujo.cs" Link="Producto/ContextoUsuarioFlujo.cs" />
+    <Compile Include="../../../ASEISA.API/Abstracciones/Modelos/ContextoUsuarioAutorizado.cs" Link="Producto/ContextoUsuarioAutorizado.cs" />
+    <Compile Include="../../../ASEISA.API/Abstracciones/Interfaces/DA/IContextoUsuarioDA.cs" Link="Producto/IContextoUsuarioDA.cs" />
+    <Compile Include="../../../ASEISA.API/Abstracciones/Interfaces/Flujo/IContextoUsuarioFlujo.cs" Link="Producto/IContextoUsuarioFlujo.cs" />
+    <Compile Include="../PruebasCookies.cs" Link="PruebasCookies.cs" />
+    <Compile Include="../../../ASEISA.Web/Web/Servicios/SesionCookieEvents.cs" Link="Producto/SesionCookieEvents.cs" />
+    <Compile Include="../../../ASEISA.Web/Abstracciones/Interfaces/Reglas/IConfiguracion.cs" Link="Producto/IConfiguracion.cs" />
+  </ItemGroup>
+  <ItemGroup><Compile Include="../../../Compartido/Usuarios/ReglasRegistroUsuario.cs" Link="Producto/ReglasRegistroUsuario.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../PruebasRegistroUsuarios.cs" Link="PruebasRegistroUsuarios.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../../ASEISA.API/Abstracciones/Modelos/Usuario.cs" Link="Producto/Usuario.cs" /><Compile Include="../../../ASEISA.Web/Web/Modelos/AdministracionUsuarios.cs" Link="Producto/AdministracionUsuarios.cs" /></ItemGroup>
+  <ItemGroup>
+    <Compile Include="../PruebasAutoadministracion.cs" Link="PruebasAutoadministracion.cs" />
+    <Compile Include="../../../ASEISA.API/API/Seguridad/ImpedirAutoadministracionAttribute.cs" Link="Producto/ImpedirAutoadministracionAttribute.cs" />
+  </ItemGroup>
+</Project>

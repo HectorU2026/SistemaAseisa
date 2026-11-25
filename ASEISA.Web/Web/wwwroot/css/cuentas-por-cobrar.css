@@ -1,0 +1,285 @@
+﻿/* ============================================================
+   CUENTAS POR COBRAR — mismo lenguaje visual que bancos.css
+   ============================================================ */
+
+.cxc-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+/* --- Encabezado --- */
+.cxc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.cxc-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8a909e;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.cxc-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    margin: 0 0 6px;
+    color: #202535;
+}
+
+.cxc-header p {
+    margin: 0;
+    color: #8a909e;
+    font-size: 13px;
+}
+
+/* --- Botones --- */
+.btn-cxc-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #F2382F;
+    border: 1px solid #F2382F;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+    .btn-cxc-primary:hover {
+        background: #d92e27;
+        border-color: #d92e27;
+        color: white;
+    }
+
+.btn-cxc-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #e2e5eb;
+    background: white;
+    color: #535c6c;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+    .btn-cxc-outline:hover {
+        background: #f8fafc;
+        color: #202535;
+        border-color: #d5dae2;
+    }
+
+/* --- Tarjetas KPI --- */
+.cxc-kpi {
+    background: white;
+    border: 1px solid #edf0f4;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 100%;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .cxc-kpi:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .06);
+    }
+
+.cxc-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+    .cxc-kpi-icon.is-brand {
+        background: #fff0ef;
+        color: #F2382F;
+    }
+
+    .cxc-kpi-icon.is-success {
+        background: #eaf8ef;
+        color: #16804b;
+    }
+
+    .cxc-kpi-icon.is-danger {
+        background: #fff0ed;
+        color: #a64d42;
+    }
+
+.cxc-kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .45px;
+    color: #89909d;
+    margin: 0 0 4px;
+}
+
+.cxc-kpi-value {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    color: #202535;
+    margin: 0;
+    line-height: 1.1;
+}
+
+/* --- Panel por cliente y tabla --- */
+.cxc-panel {
+    background: white;
+    border: 1px solid #edf0f4;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.cxc-client-header {
+    padding: 18px 24px;
+    background: #fafbfc;
+    border-bottom: 1px solid #edf0f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cxc-client-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cxc-client-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #fff0ef;
+    color: #F2382F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+}
+
+.cxc-client-header h6 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #202535;
+    margin: 0 0 2px;
+}
+
+.cxc-client-header span.sub {
+    font-size: 12px;
+    color: #8a909e;
+}
+
+.cxc-table {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+    .cxc-table thead th {
+        background: #ffffff;
+        color: #89909d;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+        padding: 12px 20px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .cxc-table tbody td {
+        padding: 14px 20px;
+        color: #535c6c;
+        font-size: 13px;
+        border-bottom: 1px solid #f0f2f5;
+        vertical-align: middle;
+    }
+
+    .cxc-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .cxc-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+/* --- Badges suaves --- */
+.badge-soft {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+    .badge-soft.is-neutro {
+        color: #535c6c;
+        background: #eef1f5;
+    }
+
+    .badge-soft.is-activa {
+        color: #16804b;
+        background: #eaf8ef;
+    }
+
+    .badge-soft.is-inactiva {
+        color: #a64d42;
+        background: #fff0ed;
+    }
+
+/* --- Estado vacío --- */
+.cxc-empty {
+    background: white;
+    border: 1px solid #edf0f4;
+    border-radius: 16px;
+    padding: 56px 24px;
+    text-align: center;
+    color: #8a909e;
+}
+
+    .cxc-empty i {
+        font-size: 2.5rem;
+        color: #c8ced8;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .cxc-empty strong {
+        display: block;
+        color: #202535;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .cxc-empty span {
+        font-size: 13px;
+    }

@@ -1,4 +1,4 @@
-﻿using Abstracciones.DA;
+using Abstracciones.DA;
 using Abstracciones.Modelos;
 using Dapper;
 using Helpers;
@@ -40,7 +40,7 @@ namespace DA
                     mensaje = "El nombre de usuario ya fue registrado"
                 };
             }
-            var sql = @"RegistroUsuario";
+            var sql = @"dbo.RegistroUsuario";
 
             var resultado = await _sqlConnection.ExecuteScalarAsync<int>(
                 sql,
@@ -54,19 +54,25 @@ namespace DA
                     correo = infoUsuario.Usuario.Correo,
                     nombre_usuario = infoUsuario.Usuario.NombreUsuario,
                     contrasena_hash = infoUsuario.Usuario.ContrasenaHash,
-                    id_estado = infoUsuario.Usuario.IdEstado,
-                    telefono = infoUsuario.Cliente.Telefono,
+                    id_estado = (int?)null, // SQL fuerza Inactivo para el registro publico.
+                    telefono = ASEISA.Usuarios.ReglasRegistroUsuario.NormalizarTelefono(infoUsuario.Cliente.Telefono),
                     direccion = infoUsuario.Cliente.Direccion,
-                    identificacion = infoUsuario.Cliente.Identificacion,
+                    identificacion = ASEISA.Usuarios.ReglasRegistroUsuario.NormalizarIdentificacion(infoUsuario.Cliente.Identificacion),
                     nombre_razon_social = infoUsuario.Cliente.NombreRazonSocial,
-                    id_rol = 3
-                });
+                    id_rol = (int?)null, // SQL resuelve exclusivamente Cliente.
+                    registro_publico = true,
+                    id_usuario_accion = (int?)null
+                }, commandType: CommandType.StoredProcedure);
             return new RegistroResponse
             {
                 IdUsuario = resultado,
                 mensaje = "Usuario registrado correctamente"
             }; ;
         }
+
+        public async Task<IEnumerable<LoginAutenticado>> ObtenerCandidatoAutenticacion(LoginBase login)
+            => await _sqlConnection.QueryAsync<LoginAutenticado>("dbo.ObtenerCandidatoAutenticacion",
+                new {correo=login.Correo},commandType:CommandType.StoredProcedure);
 
         public async Task<LoginAutenticado> ObtenerUsuario(LoginBase login)
         {
@@ -84,18 +90,14 @@ namespace DA
             return resultado;
         }
 
-        public async Task<ActionResult> CambiarContrasena(CambiarContrasena usuario)
+        public async Task<bool> MigrarHashAutenticacion(LoginAutenticado usuario, string hashNuevo)
         {
-            string sql = @"CambiarContrasena";
-            var resultado = await _sqlConnection.QueryAsync<CambiarContrasena>(sql,
-            new
-            {
-                correo = usuario.correo,
-                contrasena = usuario.ContrasenaHash
-            });
-            return new OkResult();
+            using var c=new SqlConnection(_sqlConnection.ConnectionString);
+            return await c.QuerySingleAsync<bool>("dbo.MigrarHashAutenticacion",new {
+                id_usuario=usuario.IdUsuario,version_credencial=usuario.VersionCredencial,
+                hash_anterior=usuario.ContrasenaHash,hash_nuevo=hashNuevo
+            },commandType:CommandType.StoredProcedure);
         }
-
         public async Task<UsuarioRecuperar> ValidarCorreoActivo(string correo)
         {
             string sql = @"ValidarCorreoActivo";
@@ -110,22 +112,22 @@ namespace DA
 
         private async Task<int> ValidarCorreo(string correo)
         {
-            string sql = @"ValidarCorreo";
+            string sql = @"dbo.ValidarCorreo";
             var resultado = await _sqlConnection.ExecuteScalarAsync<int>(sql,
                 new { 
                     correo = correo 
-                });
+                }, commandType: CommandType.StoredProcedure);
 
             return resultado;
         }
 
         private async Task<int> ValidarNombreUsuario(string nombreUsuario)
         {
-            string sql = @"ValidarNombreUsuario";
+            string sql = @"dbo.ValidarNombreUsuario";
             var resultado = await _sqlConnection.ExecuteScalarAsync<int>(sql,
                 new { 
                     nombre_usuario = nombreUsuario 
-                });
+                }, commandType: CommandType.StoredProcedure);
 
             return resultado;
         }

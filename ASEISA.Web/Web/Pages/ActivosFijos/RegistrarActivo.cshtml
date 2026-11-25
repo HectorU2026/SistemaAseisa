@@ -1,0 +1,129 @@
+﻿@page
+@model Web.Pages.ActivosFijos.RegistrarActivoModel
+@{
+    ViewData["Title"] = "Registrar Activo Fijo";
+}
+
+<div class="container mt-4 mb-5" style="max-width: 720px;">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/ActivosFijos/Listado" class="btn btn-light border shadow-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-arrow-left text-secondary"></i>
+        </a>
+        <div>
+            <h1 class="h3 fw-bold mb-0 text-dark">Registrar activo fijo</h1>
+            <p class="text-muted small mb-0">Ingrese los datos técnicos y contables del bien de la empresa.</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @Model.MensajeError
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form method="post">
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="Activo.Codigo" class="form-label small fw-semibold">Código <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-upc-scan"></i></span>
+                            <input asp-for="Activo.Codigo" class="form-control border-start-0" placeholder="AF-001" required />
+                        </div>
+                        <span asp-validation-for="Activo.Codigo" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="Activo.Nombre" class="form-label small fw-semibold">Nombre del activo <span class="text-danger">*</span></label>
+                        <input asp-for="Activo.Nombre" class="form-control" placeholder="Ej. Equipo de cómputo / Vehículo de reparto" required />
+                        <span asp-validation-for="Activo.Nombre" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Activo.Descripcion" class="form-label small fw-semibold">Descripción</label>
+                    <textarea asp-for="Activo.Descripcion" rows="2" class="form-control" placeholder="Serie, marca, modelo o ubicación física (opcional)"></textarea>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="Activo.FechaAdquisicion" class="form-label small fw-semibold">Fecha de adquisición <span class="text-danger">*</span></label>
+                        <input asp-for="Activo.FechaAdquisicion" type="date" class="form-control"
+                               value="@(Model.Activo.FechaAdquisicion?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))" required />
+                        <span asp-validation-for="Activo.FechaAdquisicion" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Activo.CostoAdquisicion" class="form-label small fw-semibold">Costo adquisición <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted">₡</span>
+                            <input asp-for="Activo.CostoAdquisicion" type="number" step="0.01" min="0.01" class="form-control border-start-0" placeholder="0.00" required />
+                        </div>
+                        <span asp-validation-for="Activo.CostoAdquisicion" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Activo.ValorResidual" class="form-label small fw-semibold">Valor residual <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted">₡</span>
+                            <input asp-for="Activo.ValorResidual" type="number" step="0.01" min="0" class="form-control border-start-0" placeholder="0.00" required />
+                        </div>
+                        <span asp-validation-for="Activo.ValorResidual" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Activo.VidaUtilMeses" class="form-label small fw-semibold">Vida útil (meses) <span class="text-danger">*</span></label>
+                        <input asp-for="Activo.VidaUtilMeses" type="number" min="1" class="form-control" placeholder="Ej. 36, 60, 120" required />
+                        <span asp-validation-for="Activo.VidaUtilMeses" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Activo.MetodoDepreciacion" class="form-label small fw-semibold">Método de depreciación <span class="text-danger">*</span></label>
+                        <select asp-for="Activo.MetodoDepreciacion" class="form-select" required>
+                            <option value="Línea Recta">Línea Recta</option>
+                            <option value="Suma de Dígitos">Suma de Dígitos</option>
+                            <option value="Saldos Decrecientes">Saldos Decrecientes</option>
+                        </select>
+                        <span asp-validation-for="Activo.MetodoDepreciacion" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Activo.IdCuentaActivo" class="form-label small fw-semibold">Cuenta contable del activo <span class="text-danger">*</span></label>
+                        <select asp-for="Activo.IdCuentaActivo" class="form-select" required>
+                            <option value="">Seleccione cuenta de activo</option>
+                            @foreach (var cuenta in Model.CuentasContables)
+                            {
+                                <option value="@cuenta.IdCuentaContable">@cuenta.NombreCompleto</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Activo.IdCuentaActivo" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Activo.IdCuentaDepreciacion" class="form-label small fw-semibold">Cuenta contable depreciación <span class="text-danger">*</span></label>
+                        <select asp-for="Activo.IdCuentaDepreciacion" class="form-select" required>
+                            <option value="">Seleccione cuenta de depreciación</option>
+                            @foreach (var cuenta in Model.CuentasContables)
+                            {
+                                <option value="@cuenta.IdCuentaContable">@cuenta.NombreCompleto</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Activo.IdCuentaDepreciacion" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-top d-flex justify-content-end gap-2">
+                    <a asp-page="/ActivosFijos/Listado" class="btn btn-light border fw-semibold">Cancelar</a>
+                    <button type="submit" class="btn text-white fw-semibold" style="background-color: #F2382F;">Guardar Activo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

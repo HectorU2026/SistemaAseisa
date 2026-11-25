@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Web.Pages.Seguridad.RegistroModel
 
 @{
@@ -294,9 +294,10 @@
 
                             <input asp-for="Formulario.Telefono"
                                    class="form-control"
-                                   inputmode="tel"
+                                   type="tel"
+                                   inputmode="numeric"
                                    maxlength="9"
-                                   placeholder="8888-8888" />
+                                   placeholder="XXXX-XXXX" pattern="[0-9]{4}-[0-9]{4}" />
 
                             <div id="telefonoFeedback"
                                  class="feedback-text"></div>
@@ -370,7 +371,7 @@
                         <input asp-for="Formulario.Correo"
                                type="email"
                                class="form-control"
-                               maxlength="254"
+                               maxlength="150"
                                autocomplete="email"
                                placeholder="nombre@correo.com" />
 
@@ -486,6 +487,7 @@
         </div>
     </div>
 
+    <script src="~/js/registro-campos.js" asp-append-version="true"></script>
     <script src="~/js/registro.js"
             asp-append-version="true"></script>
 

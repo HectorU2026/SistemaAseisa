@@ -1,0 +1,43 @@
+name: Comprobar fuente SQL unica
+
+on:
+  pull_request:
+    paths:
+      - 'ASEISA.API/BD/**'
+      - 'Seguridad/Seguridad.API/BD/**'
+      - 'Seguridad/Seguridad.API/Seguridad.sln'
+      - 'scripts/Comprobar-EsquemaSql.ps1'
+      - '.github/workflows/comprobar_esquema_sql.yml'
+  push:
+    paths:
+      - 'ASEISA.API/BD/**'
+      - 'Seguridad/Seguridad.API/BD/**'
+      - 'Seguridad/Seguridad.API/Seguridad.sln'
+      - 'scripts/Comprobar-EsquemaSql.ps1'
+      - '.github/workflows/comprobar_esquema_sql.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Comprobar referencias y bloqueo SQL
+        shell: pwsh
+        run: ./scripts/Comprobar-EsquemaSql.ps1
+
+
+      - name: Verificar rechazo de compilacion secundaria
+        shell: pwsh
+        run: |
+          $output = & dotnet msbuild ./Seguridad/Seguridad.API/BD/BD.sqlproj -t:Build -nologo -v:quiet 2>&1
+          if ($LASTEXITCODE -eq 0 -or ($output -join "\n") -notmatch 'ASEISA_SQL_REFERENCE_ONLY') {
+            throw 'El proyecto SQL secundario debe rechazar la generacion de artefactos.'
+          }
+          $global:LASTEXITCODE = 0

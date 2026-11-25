@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <UseAppHost>false</UseAppHost>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants>$(DefineConstants);SEGURIDAD</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.3" />
+    <Compile Include="../Program.cs" Link="Program.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/API/Seguridad/RevalidacionJwtEvents.cs" Link="Producto/RevalidacionJwtEvents.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Flujo/ContextoUsuarioFlujo.cs" Link="Producto/ContextoUsuarioFlujo.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/ContextoUsuarioAutorizado.cs" Link="Producto/ContextoUsuarioAutorizado.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/DA/IContextoUsuarioDA.cs" Link="Producto/IContextoUsuarioDA.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Flujo/IContextoUsuarioFlujo.cs" Link="Producto/IContextoUsuarioFlujo.cs" />
+    <Compile Include="../PruebasCredenciales.cs" Link="PruebasCredenciales.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Flujo/CredencialesFlujo.cs" Link="Producto/CredencialesFlujo.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/AdministracionUsuarios.cs" Link="Producto/AdministracionUsuarios.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/DA/ICredencialesDA.cs" Link="Producto/ICredencialesDA.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Flujo/ICredencialesFlujo.cs" Link="Producto/ICredencialesFlujo.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Reglas/IEntregaEnlace.cs" Link="Producto/IEntregaEnlace.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Reglas/IProtectorEnlace.cs" Link="Producto/IProtectorEnlace.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Seguridad.Criptografia/ContrasenasSeguras.cs" Link="Producto/ContrasenasSeguras.cs" />
+    <Compile Include="../PruebasCookies.cs" Link="PruebasCookies.cs" />
+    <Compile Include="../../../ASEISA.Web/Web/Servicios/SesionCookieEvents.cs" Link="Producto/SesionCookieEvents.cs" />
+    <Compile Include="../../../ASEISA.Web/Abstracciones/Interfaces/Reglas/IConfiguracion.cs" Link="Producto/IConfiguracion.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Seguridad.Criptografia/CifradoEnlaces.cs" Link="Producto/CifradoEnlaces.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/API/Seguridad/DespachadorEnlaces.cs" Link="Producto/DespachadorEnlaces.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/DA/ICorreoEnlaceDA.cs" Link="Producto/ICorreoEnlaceDA.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/CorreoEnlacePendiente.cs" Link="Producto/CorreoEnlacePendiente.cs" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+  <ItemGroup><Compile Include="../../../Compartido/Usuarios/ReglasRegistroUsuario.cs" Link="Producto/ReglasRegistroUsuario.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../PruebasRegistroUsuarios.cs" Link="PruebasRegistroUsuarios.cs" /></ItemGroup>
+  <ItemGroup>
+    <Compile Include="../PruebasLoginEstados.cs" Link="PruebasLoginEstados.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Reglas/AutenticacionReglas.cs" Link="Producto/AutenticacionReglas.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/DA/IUsuarioDA.cs" Link="Producto/IUsuarioDA.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Reglas/IAutenticacionBC.cs" Link="Producto/IAutenticacionBC.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Flujo/IAuditoriaSeguridad.cs" Link="Producto/IAuditoriaSeguridad.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/Login.cs" Link="Producto/Login.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/Token.cs" Link="Producto/Token.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/Usuario.cs" Link="Producto/Usuario.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/Cliente.cs" Link="Producto/Cliente.cs" />
+    <Compile Include="../../../Seguridad/Seguridad.API/Abstracciones/Modelos/EventoAuditoriaSeguridad.cs" Link="Producto/EventoAuditoriaSeguridad.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../PruebasAutoadministracion.cs" Link="PruebasAutoadministracion.cs" />
+    <Compile Include="../../../ASEISA.API/API/Seguridad/ImpedirAutoadministracionAttribute.cs" Link="Producto/ImpedirAutoadministracionAttribute.cs" />
+  </ItemGroup>
+</Project>

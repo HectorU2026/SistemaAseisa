@@ -1,5 +1,15 @@
-﻿
+
 document.addEventListener("DOMContentLoaded", () => {
+    const campoToken=document.querySelector('input[name="Cambio.Token"]');
+    const fragmento=new URLSearchParams(window.location.hash.slice(1)).get("token");
+    if(fragmento && /^[A-Fa-f0-9]{64}$/.test(fragmento) && campoToken) campoToken.value=fragmento;
+    if(window.location.hash || window.location.search) history.replaceState(null,"",window.location.pathname);
+    if(!campoToken || !/^[A-Fa-f0-9]{64}$/.test(campoToken.value)) {
+        const aviso=document.createElement("p");aviso.className="alert alert-warning";aviso.setAttribute("role","alert");
+        aviso.textContent="El enlace no es valido. Solicite nuevas instrucciones para establecer su contrasena.";
+        document.getElementById("passwordForm")?.prepend(aviso);
+        document.querySelectorAll('#passwordForm button[type="submit"]').forEach(b=>b.disabled=true);
+    }
 
     const newPassword =
         document.getElementById("newPassword");
@@ -55,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let score = 0;
 
-        if (password.length >= 8) score++;
+        if (password.length >= 12) score++;
         if (password.length >= 12) score++;
         if (/[A-Z]/.test(password) &&
             /[a-z]/.test(password)) score++;
