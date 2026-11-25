@@ -2,6 +2,7 @@ using Abstracciones.Interfaces.Reglas;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace Web.Pages.Banco
@@ -86,17 +87,39 @@ namespace Web.Pages.Banco
                 CuentasBancarias = todas.Where(c => c.IdEstado == 1).ToList();
             }
 
-            // 2. Cargar facturas pendientes (Cuentas por Cobrar)
+            // 2. Cargar facturas pendientes (Cuentas por Cobrar) con la ruta real de la API
+            var contexto = ObtenerContextoSesion();
             string endpointCxc = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCuentasPorCobrar");
-            if (!string.IsNullOrWhiteSpace(endpointCxc))
+            if (contexto != null && !string.IsNullOrWhiteSpace(endpointCxc))
             {
-                var respCxc = await cliente.GetAsync(endpointCxc);
+                var (idEmpresa, idUsuario) = contexto.Value;
+                string urlCxc = $"{endpointCxc}/{idEmpresa}/usuario/{idUsuario}";
+                var respCxc = await cliente.GetAsync(urlCxc);
                 if (respCxc.IsSuccessStatusCode)
                 {
                     var contenidoCxc = await respCxc.Content.ReadAsStringAsync();
                     CuentasPorCobrar = JsonSerializer.Deserialize<List<CuentaPorCobrarResponse>>(contenidoCxc, opciones) ?? new();
                 }
             }
+        }
+
+        private (int IdEmpresa, int IdUsuario)? ObtenerContextoSesion()
+        {
+            var usuarioStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                             ?? User.FindFirst("IdUsuario")?.Value;
+
+            var empresaStr = User.FindFirst("IdEmpresa")?.Value
+                             ?? User.FindFirst("Empresa")?.Value;
+
+            if (!int.TryParse(usuarioStr, out int idUsuario) || idUsuario <= 0)
+                return null;
+
+            if (!int.TryParse(empresaStr, out int idEmpresa) || idEmpresa <= 0)
+            {
+                idEmpresa = 1;
+            }
+
+            return (idEmpresa, idUsuario);
         }
 
         private HttpClient ObtenerClienteConToken()
