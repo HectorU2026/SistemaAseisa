@@ -112,12 +112,12 @@ BEGIN
         INSERT INTO dbo.CUENTA_POR_PAGAR
         (
             id_orden_compra, id_proveedor, fecha_emision, fecha_vencimiento,
-            monto_original, saldo_pendiente, id_estado, id_empresa
+            monto_original, saldo_pendiente, id_estado 
         )
         VALUES
         (
             @id_orden_compra, @id_proveedor_real, @fecha_factura, @fecha_vencimiento,
-            @total, @total, @id_estado_pendiente, @id_empresa
+            @total, @total, @id_estado_pendiente
         );
 
         SET @id_cuenta_pagar = SCOPE_IDENTITY();

@@ -1,4 +1,4 @@
-﻿using Abstracciones.API;
+using Abstracciones.API;
 using Abstracciones.Flujo;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Authorization;
@@ -21,9 +21,36 @@ namespace API.Controllers
         }
 
         [HttpPost("ObtenerInformacionUsuario")]
-        public async Task<IActionResult> ObtenerUsuario([FromBody] LoginBase login)
+        public async Task<IActionResult> ObtenerUsuario([FromBody] InformacionUsuarioRequest solicitud)
         {
-            return Ok( await _usuarioFlujo.ObtenerUsuario(login));
+            var correo = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var idUsuario)
+                || idUsuario <= 0 || string.IsNullOrWhiteSpace(correo)
+                || !int.TryParse(User.FindFirst("Empresa")?.Value, out var idEmpresa) || idEmpresa <= 0)
+                return Unauthorized();
+
+            if (!string.Equals(solicitud.Correo.Trim(), correo, StringComparison.OrdinalIgnoreCase))
+                return Forbid();
+
+            var usuario = await _usuarioFlujo.ObtenerUsuario(new LoginBase
+            {
+                Correo = correo,
+                ContrasenaHash = string.Empty
+            });
+            if (usuario == null || usuario.IdUsuario != idUsuario
+                || !int.TryParse(usuario.IdEmpresa, out var empresaActual)
+                || empresaActual != idEmpresa
+                || !string.Equals(usuario.Correo, correo, StringComparison.OrdinalIgnoreCase))
+                return Forbid();
+
+            return Ok(new InformacionUsuarioResponse
+            {
+                IdUsuario = usuario.IdUsuario,
+                NombreUsuario = usuario.NombreUsuario,
+                Correo = usuario.Correo,
+                IdEmpresa = usuario.IdEmpresa,
+                Rol = usuario.rol
+            });
         }
 
         [AllowAnonymous]

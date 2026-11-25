@@ -1,4 +1,6 @@
-﻿using Abstracciones.Interfaces.Flujo;
+using API.Seguridad;
+using Abstracciones.Interfaces.Servicio;
+using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,66 +10,67 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ImpedirAutoadministracion]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioFlujo usuarioFlujo;
+        private readonly IAdministracionCredenciales credenciales;
 
-        public UsuarioController(IUsuarioFlujo usuarioFlujo)
+        public UsuarioController(IUsuarioFlujo usuarioFlujo, IAdministracionCredenciales credenciales)
         {
             this.usuarioFlujo = usuarioFlujo;
+            this.credenciales = credenciales;
         }
 
-        // Actualizar último acceso
-        [HttpPost("ActualizarUltimoAcceso")]
-        public async Task<ActionResult> ActualizarUltimoAcceso(
-            string correo)
+        private bool ObtenerContexto(
+            out int idEmpresa,
+            out int idUsuarioAccion)
         {
-            await usuarioFlujo.ActualizarUltimoAcceso(correo);
-            return Ok();
+            var empresaClaim = User.FindFirst("Empresa")?.Value;
+
+            var usuarioClaim = User.FindFirst(
+                ClaimTypes.NameIdentifier)?.Value;
+
+            bool empresaValida = int.TryParse(
+                empresaClaim, out idEmpresa);
+
+            bool usuarioValido = int.TryParse(
+                usuarioClaim, out idUsuarioAccion);
+
+            return empresaValida && usuarioValido
+                && idEmpresa > 0 && idUsuarioAccion > 0;
         }
 
-        // Obtener información del usuario por correo
-        [HttpGet("ObtenerInfoUsuario")]
-        public async Task<ActionResult<UsuarioResponse>> ObtenerInfoUsuario(
-            string correo)
-        {
-            var infoUsuario =
-                await usuarioFlujo.ObtenerInfoUsuario(correo);
-
-            return Ok(infoUsuario);
-        }
-
-        // Obtener listado de usuarios de la empresa
         [HttpGet("ObtenerUsuarios")]
         [Authorize(Roles = "Administrador")]
-        public async Task<ActionResult<IEnumerable<UsuarioResponse>>> ObtenerUsuarios()
+        public async Task<ActionResult<IEnumerable<UsuarioResponse>>>
+            ObtenerUsuarios()
         {
-            var idEmpresaClaim = User.FindFirst("idEmpresa")?.Value;
-
-            if (!int.TryParse(idEmpresaClaim, out int idEmpresa))
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out _))
             {
                 return Unauthorized(
-                    "No se pudo identificar la empresa del usuario.");
+                    "No se pudo identificar al usuario o su empresa.");
             }
 
-            var usuarios =
-                await usuarioFlujo.ObtenerUsuarios(idEmpresa);
+            var usuarios = await usuarioFlujo.ObtenerUsuarios(
+                idEmpresa);
 
             return Ok(usuarios);
         }
 
-        // Obtener un usuario por ID
         [HttpGet("ObtenerUsuarioPorId/{idUsuario:int}")]
         [Authorize(Roles = "Administrador")]
-        public async Task<ActionResult<UsuarioResponse>> ObtenerUsuarioPorId(
-            int idUsuario)
+        public async Task<ActionResult<UsuarioResponse>>
+            ObtenerUsuarioPorId(int idUsuario)
         {
-            var idEmpresaClaim = User.FindFirst("idEmpresa")?.Value;
-
-            if (!int.TryParse(idEmpresaClaim, out int idEmpresa))
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out _))
             {
                 return Unauthorized(
-                    "No se pudo identificar la empresa del usuario.");
+                    "No se pudo identificar al usuario o su empresa.");
             }
 
             if (idUsuario <= 0)
@@ -89,79 +92,186 @@ namespace API.Controllers
             return Ok(usuario);
         }
 
-        // Registrar usuario
-        [HttpPost("AgregarUsuario")]
-        public async Task<ActionResult<int>> AgregarUsuario(
-            int idEmpresa,
-            [FromBody] UsuarioRequest usuario)
-        {
-            var idUsuario =
-                await usuarioFlujo.AgregarUsuario(idEmpresa, usuario);
-
-            return Ok(idUsuario);
-        }
-
-        // Editar usuario
-        [HttpPut("EditarUsuario")]
+        [HttpPut("EditarUsuario/{idUsuario:int}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult<int>> EditarUsuario(
-            int idEmpresa,
             int idUsuario,
+            [FromBody] UsuarioEditarRequest usuario)
+        {
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out int idUsuarioAccion))
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario o su empresa.");
+            }
+
+            if (idUsuario <= 0)
+            {
+                return BadRequest(
+                    "El identificador del usuario no es válido.");
+            }
+
+            var actual=await usuarioFlujo.ObtenerUsuarioPorId(idEmpresa,idUsuario);
+            if(actual==null)return NotFound();
+            if(!string.Equals(actual.NombreUsuario,usuario.NombreUsuario,StringComparison.Ordinal))
+                return BadRequest(new {codigo="USUARIO_INMUTABLE",mensaje="El nombre de usuario no puede modificarse."});
+            var resultado = await usuarioFlujo.EditarUsuario(
+                idEmpresa,
+                idUsuario,
+                usuario, idUsuarioAccion);
+
+            return Ok(resultado);
+        }
+
+        [HttpPut("CambiarEstadoUsuario/{idUsuario:int}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult<int>> CambiarEstadoUsuario(
+            int idUsuario,
+            [FromBody] UsuarioCambiarEstadoRequest solicitud)
+        {
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out int idUsuarioAccion))
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario o su empresa.");
+            }
+
+            if (idUsuario <= 0 || solicitud.Activo == null)
+            {
+                return BadRequest(
+                    "Debe indicar el usuario y el estado solicitado.");
+            }
+
+            var resultado = await usuarioFlujo.CambiarEstadoUsuario(
+                idEmpresa,
+                idUsuario,
+                solicitud.Activo.Value,
+                idUsuarioAccion);
+
+            return Ok(resultado);
+        }
+
+        [HttpPost("AsignarRolUsuario/{idUsuario:int}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult<int>> AsignarRolUsuario(
+            int idUsuario,
+            [FromBody] UsuarioAsignarRolRequest solicitud)
+        {
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out int idUsuarioAccion))
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario o su empresa.");
+            }
+
+            if (idUsuario <= 0)
+            {
+                return BadRequest(
+                    "El identificador del usuario no es válido.");
+            }
+
+            var resultado = await usuarioFlujo.AsignarRolUsuario(
+                idEmpresa,
+                idUsuario,
+                solicitud.IdRol,
+                idUsuarioAccion);
+
+            return Ok(resultado);
+        }
+
+        [HttpGet("ObtenerSolicitudesClientesPendientes")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult<
+            IEnumerable<SolicitudClientePendienteResponse>>>
+            ObtenerSolicitudesClientesPendientes()
+        {
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out int idUsuarioAccion))
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario o su empresa.");
+            }
+
+            var solicitudes = await usuarioFlujo
+                .ObtenerSolicitudesClientesPendientes(
+                    idEmpresa,
+                    idUsuarioAccion);
+
+            return Ok(solicitudes);
+        }
+
+        [HttpPut("AprobarRegistroCliente/{idUsuario:int}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult<int>> AprobarRegistroCliente(
+            int idUsuario,
+            [FromBody] UsuarioAprobarSolicitudRequest solicitud)
+        {
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out int idUsuarioAccion))
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario o su empresa.");
+            }
+
+            if (idUsuario <= 0 || solicitud.Aprobar == null)
+            {
+                return BadRequest(
+                    "Debe indicar el usuario y la decisión.");
+            }
+
+            var resultado = await usuarioFlujo.AprobarRegistroCliente(
+                idEmpresa,
+                idUsuario,
+                idUsuarioAccion,
+                solicitud.Aprobar.Value);
+
+            return Ok(resultado);
+        }
+
+        [HttpPost("AgregarUsuario")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult<int>> AgregarUsuario(
             [FromBody] UsuarioRequest usuario)
         {
-            var idUsuarioActualizado =
-                await usuarioFlujo.EditarUsuario(
-                    idEmpresa,
-                    idUsuario,
-                    usuario);
+            if (!ObtenerContexto(
+                out int idEmpresa,
+                out int idUsuarioAccion))
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario o su empresa.");
+            }
 
-            return Ok(idUsuarioActualizado);
+            var resultado=await credenciales.Registrar(usuario,HttpContext.RequestAborted);
+            Response.Headers["X-Invitacion-Estado"]=resultado.EnvioProgramado ? "Programado" : "Pendiente";
+            return Ok(resultado.IdUsuario);
         }
-
-        // Activar o desactivar usuario
-        [HttpPut("CambiarEstadoUsuario")]
-        public async Task<ActionResult<int>> CambiarEstadoUsuario(
-            int idEmpresa,
-            int idUsuario,
-            int idEstado)
+        [HttpDelete("RetirarRolUsuario/{idUsuario:int}/roles/{idRol:int}")]
+        [Authorize(Roles="Administrador")]
+        public async Task<IActionResult> RetirarRol(int idUsuario,int idRol)
         {
-            var idUsuarioActualizado =
-                await usuarioFlujo.CambiarEstadoUsuario(
-                    idEmpresa,
-                    idUsuario,
-                    idEstado);
-
-            return Ok(idUsuarioActualizado);
+            if(!ObtenerContexto(out var empresa,out var actor)) return Unauthorized();
+            if(idUsuario<=0 || idRol<=0) return BadRequest();
+            var objetivo=await usuarioFlujo.ObtenerUsuarioPorId(empresa,idUsuario);
+            if(objetivo==null)return NotFound();
+            if(objetivo.Roles.Any(r=>r.IdRol==idRol) && objetivo.Roles.Select(r=>r.IdRol).Distinct().Count()<=1)
+                return BadRequest(new {codigo="ULTIMO_ROL"});
+            return Ok(await usuarioFlujo.RetirarRolUsuario(empresa,idUsuario,idRol,actor));
         }
-
-        // Restablecer contraseña
-        [HttpPut("RestablecerContrasena")]
-        public async Task<ActionResult<int>> RestablecerContrasenaUsuario(
-            int idEmpresa,
-            int idUsuario,
-            string contrasenaHash)
+        [HttpGet("Catalogos")]
+        [Authorize(Roles="Administrador")]
+        public async Task<IActionResult> Catalogos()
         {
-            var idUsuarioActualizado =
-                await usuarioFlujo.RestablecerContrasenaUsuario(
-                    idEmpresa,
-                    idUsuario,
-                    contrasenaHash);
-
-            return Ok(idUsuarioActualizado);
+            if(!ObtenerContexto(out var empresa,out var actor)) return Unauthorized();
+            return Ok(await usuarioFlujo.ObtenerCatalogos(empresa,actor));
         }
-
-        [HttpPost("AsignarRolUsuario")]
-        public async Task<ActionResult<int>> AsignarRolUsuario(
-            int idEmpresa,
-            int idUsuario,
-            int idRol)
-        {
-            var idUsuarioActualizado =
-                await usuarioFlujo.AsignarRolUsuario(
-                    idEmpresa,
-                    idUsuario,
-                    idRol);
-
-            return Ok(idUsuarioActualizado);
-        }
+        [HttpPost("RestablecerContrasenaUsuario/{idUsuario:int:min(1)}")]
+        [Authorize(Roles="Administrador")]
+        public async Task<IActionResult> Restablecer(int idUsuario)
+            =>Ok(await credenciales.Restablecer(idUsuario,HttpContext.RequestAborted));
     }
 }

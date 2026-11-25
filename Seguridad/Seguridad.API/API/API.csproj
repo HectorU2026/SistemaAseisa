@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -21,4 +21,5 @@
     <ProjectReference Include="..\Reglas\Reglas.csproj" />
   </ItemGroup>
 
+  <ItemGroup><Compile Include="../../../ASEISA.API/API/Seguridad/ImpedirAutoadministracionAttribute.cs" Link="Seguridad/ImpedirAutoadministracionAttribute.cs" /></ItemGroup>
 </Project>

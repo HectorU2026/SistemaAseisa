@@ -1,0 +1,26 @@
+@page
+@model Web.Pages.Usuarios.IndexModel
+@{ViewData["Title"]="Administración de usuarios";}
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+<div class="contactos-page usuarios-page">
+ <div class="contactos-header"><div><div class="contactos-breadcrumb"><i class="bi bi-people"></i> Administración / Usuarios</div><h1>Usuarios</h1><p>Cuentas, permisos y solicitudes de su empresa.</p></div><a asp-page="Crear" class="btn btn-contacto-primary"><i class="bi bi-person-plus"></i> Nuevo usuario</a></div>
+ <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+ @if(TempData["Mensaje"] is string mensaje){<div class="alert alert-success" role="status">@mensaje</div>}
+ <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Vistas de usuarios"><a asp-page="Index" class="btn @(Model.Pendientes?"btn-contacto-outline":"btn-contacto-primary")">Todos los usuarios</a><a asp-page="Index" asp-route-Pendientes="true" class="btn @(Model.Pendientes?"btn-contacto-primary":"btn-contacto-outline")">Solicitudes pendientes</a></nav>
+ @if(TempData["Aviso"] is string aviso){<div class="alert alert-warning" role="alert">@aviso</div>}
+ <section class="contactos-panel">
+ <form method="get" class="usuarios-filtros"><input type="hidden" asp-for="Pendientes" />
+ <div><label asp-for="Busqueda" class="form-label">Buscar usuario</label><input asp-for="Busqueda" class="form-control" placeholder="Nombre, correo o usuario" maxlength="150" /></div>
+ <div><label asp-for="IdEstado" class="form-label">Estado</label><select asp-for="IdEstado" class="form-select"><option value="">Todos</option>@foreach(var e in Model.Catalogos.Estados){<option value="@e.Id">@e.Nombre</option>}</select></div>
+ <div><label asp-for="Aprobacion" class="form-label">Aprobación</label><select asp-for="Aprobacion" class="form-select"><option value="">Todas</option><option>Pendiente</option><option>Aprobado</option><option>Rechazado</option></select></div>
+ <div><label asp-for="Rol" class="form-label">Rol activo</label><select asp-for="Rol" class="form-select"><option value="">Todos</option>@foreach(var r in Model.Catalogos.Roles.OrderBy(r=>r.Nombre)){<option value="@r.Id">@r.Nombre</option>}</select></div>
+ <div class="d-flex gap-2"><button class="btn btn-contacto-primary">Filtrar</button><a asp-page="Index" asp-route-Pendientes="@Model.Pendientes" class="btn btn-contacto-outline" aria-label="Limpiar filtros"><i class="bi bi-arrow-counterclockwise"></i></a></div></form>
+ <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Usuario</th><th>Correo</th><th>Aprobación</th><th>Estado</th><th>Roles activos</th><th>Acciones</th></tr></thead><tbody>
+ @foreach(var u in Model.Usuarios){<tr><td><strong>@u.Nombre @u.PrimerApellido @u.SegundoApellido</strong> @if(Model.EsCuentaPropia(u.IdUsuario)){<span class="badge bg-light text-secondary border">Tu cuenta</span>}<br/><span class="text-muted">@u.NombreUsuario</span></td><td>@u.Correo</td><td><span class="badge @(u.EstadoAprobacion=="Aprobado"?"bg-success":u.EstadoAprobacion=="Pendiente"?"bg-warning text-dark":"bg-danger")">@u.EstadoAprobacion</span></td><td><span class="badge @(Model.Estado(u.IdEstado)=="Activo"?"bg-success":"bg-secondary")">@Model.Estado(u.IdEstado)</span></td><td>@foreach(var rol in u.Roles.OrderBy(r=>r.NombreRol)){<span class="usuario-rol">@rol.NombreRol</span>}@if(u.Roles.Count==0){<span class="text-muted">Sin roles activos</span>}</td><td>@if(!Model.EsCuentaPropia(u.IdUsuario)){<a asp-page="Detalle" asp-route-id="@u.IdUsuario" class="btn btn-contacto-outline btn-sm"><i class="bi bi-gear"></i> Administrar</a>}</td></tr>}
+ @if(Model.Usuarios.Count==0){<tr><td colspan="6" class="text-center text-muted py-5">No hay usuarios que coincidan con los filtros.</td></tr>}
+ </tbody></table></div>
+ <div class="usuarios-pie"><span class="text-muted">@Model.Total resultado(s) · Página @Model.Pagina de @Model.Paginas</span><nav aria-label="Paginación de usuarios" class="d-flex gap-2">
+ @if(Model.Pagina>1){<a asp-page="Index" asp-route-Pagina="@(Model.Pagina-1)" asp-route-Pendientes="@Model.Pendientes" asp-route-Busqueda="@Model.Busqueda" asp-route-IdEstado="@Model.IdEstado" asp-route-Aprobacion="@Model.Aprobacion" asp-route-Rol="@Model.Rol" class="btn btn-contacto-outline">Anterior</a>}
+ @if(Model.Pagina<Model.Paginas){<a asp-page="Index" asp-route-Pagina="@(Model.Pagina+1)" asp-route-Pendientes="@Model.Pendientes" asp-route-Busqueda="@Model.Busqueda" asp-route-IdEstado="@Model.IdEstado" asp-route-Aprobacion="@Model.Aprobacion" asp-route-Rol="@Model.Rol" class="btn btn-contacto-outline">Siguiente</a>}
+ </nav></div></section></div>

@@ -61,7 +61,12 @@ namespace Web.Pages.Seguridad
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (token?.ValidacionExitosa != true || string.IsNullOrWhiteSpace(token.AccessToken))
                 {
-                    MensajeError = "No fue posible validar su sesión. Verifique sus credenciales.";
+                    MensajeError = token?.CodigoEstado switch {
+                        "PENDIENTE"=>"Tu cuenta está pendiente de aprobación por un administrador.",
+                        "RECHAZADO"=>"Tu solicitud de registro fue rechazada. Consultá con la administración.",
+                        "INACTIVO"=>"Tu cuenta está inactiva. Consultá con la administración.",
+                        "NO_DISPONIBLE"=>"Tu cuenta no tiene acceso habilitado. Consultá con la administración.",
+                        _=>"No fue posible validar su sesión. Verifique sus credenciales." };
                     return Page();
                 }
                 var jwt = Autenticacion.leerToken(token.AccessToken);
@@ -101,7 +106,7 @@ namespace Web.Pages.Seguridad
                     propiedadesAutenticacion
                 );
                 await EjecutarSinBloquearLogin(() => ActualizarUltimoAcceso(correo));
-                await EjecutarSinBloquearLogin(() => RegistrarBitacora(correo));
+
                 var returnUrl = Request.Query["ReturnUrl"].ToString();
                 return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
                     ? LocalRedirect(returnUrl) : RedirectToPage("/Index");
@@ -190,82 +195,5 @@ namespace Web.Pages.Seguridad
             respuesta.EnsureSuccessStatusCode();
         }
 
-        private async Task RegistrarBitacora(
-            string correo)
-        {
-            var usuario =
-                await ObtenerInformacionUsuario(correo);
-
-            if (usuario == null)
-                return;
-
-            var bitacora = new
-            {
-                IdUsuario = usuario.IdUsuario,
-                IdEmpresa = usuario.IdEmpresa,
-                TablaAfectada = "Usuario",
-                RegistroId = usuario.IdUsuario?.ToString(),
-                Accion = "Login",
-                ValorAnterior = (string?)null,
-
-                ValorNuevo = JsonSerializer.Serialize(
-                    new
-                    {
-                        usuario.IdUsuario,
-                        usuario.IdEmpresa,
-                        usuario.Nombre,
-                        usuario.PrimerApellido,
-                        usuario.SegundoApellido,
-                        usuario.Correo,
-                        ContrasenaHash = "***",
-                        usuario.NombreUsuario,
-                        usuario.UltimoAcceso,
-                        usuario.IdEstado,
-                        usuario.FechaCreacion,
-                        usuario.FechaModificacion,
-                        fecha = DateTime.UtcNow
-                    }
-                )
-            };
-
-            var endpoint = _configuracion.ObtenerMetodo(
-                "ApiEndPoints",
-                "RegistrarBitacora"
-            );
-
-            using var respuesta =
-                await _httpClientFactory
-                    .CreateClient()
-                    .PostAsJsonAsync(endpoint, bitacora);
-
-            respuesta.EnsureSuccessStatusCode();
-        }
-
-        private async Task<Usuario?> ObtenerInformacionUsuario(
-            string correo)
-        {
-            var endpoint = _configuracion.ObtenerMetodo(
-                "ApiEndPoints",
-                "ObtenerInfoUsuario"
-            );
-
-            var url =
-                $"{endpoint}?correo={Uri.EscapeDataString(correo)}";
-
-            using var respuesta =
-                await _httpClientFactory
-                    .CreateClient()
-                    .PostAsync(url, null);
-
-            respuesta.EnsureSuccessStatusCode();
-
-            return await respuesta.Content
-                .ReadFromJsonAsync<Usuario>(
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }
-                );
-        }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -54,7 +54,10 @@
                     GENERAL
                 </div>
 
-                <nav class="erp-nav">
+                <nav class="erp-nav">                    @if(User.IsInRole("Administrador"))
+                    {
+                        <a asp-page="/Usuarios/Index" class="erp-nav-link"><i class="bi bi-people"></i><span>Usuarios y solicitudes</span></a>
+                    }
 
                     <a asp-page="/Index"
                        class="erp-nav-link"
