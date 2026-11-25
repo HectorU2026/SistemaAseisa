@@ -7,9 +7,9 @@ CREATE   PROCEDURE [dbo].[ObtenerReporteCuentasPorPagar]
 AS
 BEGIN
     SET NOCOUNT ON;
-
+ 
     SET @fecha_corte = ISNULL(@fecha_corte, CAST(GETDATE() AS DATE));
-
+ 
     SELECT 
     p.id_proveedor AS IdProveedor,
     p.nombre_razon_social AS Proveedor,
@@ -40,7 +40,7 @@ BEGIN
       AND (@id_proveedor IS NULL OR cpp.id_proveedor = @id_proveedor)
       AND (@solo_vencidas = 0 OR cpp.fecha_vencimiento < @fecha_corte)
     ORDER BY p.nombre_razon_social, cpp.fecha_vencimiento;
-
+ 
     IF NOT EXISTS (
         SELECT 1 
         FROM dbo.CUENTA_POR_PAGAR cpp

@@ -36,36 +36,33 @@ namespace Web.Pages.Ventas
             }
 
             var cliente = ObtenerClienteConToken();
+            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerCotizacionesFlujo");
-
-            var queryParams = new List<string>();
+            var queryParams = new List<string> { "pagina=1", "tamanoPagina=100" };
             if (!string.IsNullOrWhiteSpace(busqueda))
                 queryParams.Add($"busqueda={Uri.EscapeDataString(busqueda)}");
             if (idEstado.HasValue)
                 queryParams.Add($"idEstado={idEstado}");
 
-            string url = queryParams.Any()
-                ? $"{endpointBase}?{string.Join("&", queryParams)}"
-                : endpointBase;
+            string url = $"{endpointBase}?{string.Join("&", queryParams)}";
+            string endpointTerminos = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerTerminosPago");
 
-            var respuesta = await cliente.GetAsync(url);
+            var tareaCotizaciones = cliente.GetAsync(url);
+            var tareaTerminos = cliente.GetAsync(endpointTerminos);
+            await Task.WhenAll(tareaCotizaciones, tareaTerminos);
 
-            if (respuesta.IsSuccessStatusCode)
+            if (tareaCotizaciones.Result.IsSuccessStatusCode)
             {
-                var contenido = await respuesta.Content.ReadAsStringAsync();
-                var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var contenido = await tareaCotizaciones.Result.Content.ReadAsStringAsync();
                 var resultado = JsonSerializer.Deserialize<RespuestaPaginadaCotizacion>(contenido, opciones);
                 Cotizaciones = resultado?.items ?? new();
             }
 
-            string endpointTerminos = _configuracion.ObtenerMetodo("ApiEndPoints", "ObtenerTerminosPago");
-            var respTerminos = await cliente.GetAsync(endpointTerminos);
-
-            if (respTerminos.IsSuccessStatusCode)
+            if (tareaTerminos.Result.IsSuccessStatusCode)
             {
-                var contenidoTerminos = await respTerminos.Content.ReadAsStringAsync();
-                TerminosPago = JsonSerializer.Deserialize<List<TerminoPagoResponse>>(contenidoTerminos, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+                var contenidoTerminos = await tareaTerminos.Result.Content.ReadAsStringAsync();
+                TerminosPago = JsonSerializer.Deserialize<List<TerminoPagoResponse>>(contenidoTerminos, opciones) ?? new();
             }
         }
 
@@ -80,7 +77,12 @@ namespace Web.Pages.Ventas
             if (respuesta.IsSuccessStatusCode)
                 TempData["Exito"] = "Cotización avanzada a 'Cotización Enviada'.";
             else
-                TempData["Error"] = "Error al avanzar la cotización.";
+            {
+                var error = await respuesta.Content.ReadAsStringAsync();
+                TempData["Error"] = string.IsNullOrWhiteSpace(error)
+                    ? "Error al avanzar la cotización. Verifique que su información esté completa."
+                    : error.Trim('"');
+            }
 
             return RedirectToPage();
         }
@@ -96,11 +98,15 @@ namespace Web.Pages.Ventas
             if (respuesta.IsSuccessStatusCode)
                 TempData["Exito"] = "Cotización cancelada correctamente.";
             else
-                TempData["Error"] = "Error al cancelar la cotización.";
+            {
+                var error = await respuesta.Content.ReadAsStringAsync();
+                TempData["Error"] = string.IsNullOrWhiteSpace(error)
+                    ? "Error al cancelar la cotización."
+                    : error.Trim('"');
+            }
 
             return RedirectToPage();
         }
-
         public async Task<IActionResult> OnPostAceptarAsync(int idCotizacion)
         {
             string endpointBase = _configuracion.ObtenerMetodo("ApiEndPoints", "AvanzarCotizacionAOrdenDeVenta");
