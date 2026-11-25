@@ -1,4 +1,5 @@
-﻿using Abstracciones.API;
+using Microsoft.AspNetCore.RateLimiting;
+using Abstracciones.API;
 using Abstracciones.Flujo;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Authorization;
@@ -26,14 +27,14 @@ namespace API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("recuperarContrasena")]
+        [HttpPost("recuperarContrasena"), EnableRateLimiting("recuperacion")]
         public async Task<IActionResult> RecuperarContrasena([FromBody] UsuarioRecuperar correo)
         {
             return await _autenticacionFlujo.RecuperarContrasena(correo);
         }
 
         [AllowAnonymous]
-        [HttpPost("cambiarContrasena")]
+        [HttpPost("cambiarContrasena"), EnableRateLimiting("recuperacion")]
         public async Task<IActionResult> CambiarContrasena([FromBody] CambiarContrasena usuario)
         {
             return await _autenticacionFlujo.CambiarContrasena(usuario);

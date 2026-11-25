@@ -72,7 +72,7 @@ namespace Web.Pages.Seguridad
                 // Seguridad.API aplicará PBKDF2.
                 ContrasenaHash = Formulario.Contrasena,
 
-                IdEstado = 1
+                IdEstado = null
             };
 
             // Datos del cliente, sea persona física o jurídica.
@@ -92,7 +92,7 @@ namespace Web.Pages.Seguridad
                 Correo = Formulario.Correo.Trim(),
                 Telefono = Formulario.Telefono?.Trim(),
                 Direccion = Formulario.Direccion?.Trim(),
-                IdEstado = 1
+                IdEstado = null
             };
 
             var request = new RegistroRequest
@@ -145,9 +145,9 @@ namespace Web.Pages.Seguridad
 
                 Usuario.IdUsuario = registro.IdUsuario;
 
-                // Conservar la bitácora del registro.
-                await RegistrarBitacora(Usuario, Cliente);
+                // Seguridad.API registra el evento despues de confirmar la creacion.
 
+                TempData["RegistroPendiente"]="Tu solicitud de registro se ha recibido correctamente. Tu cuenta está pendiente de aprobación por un administrador. Podrás iniciar sesión una vez que sea habilitada";
                 return RedirectToPage("/Seguridad/Login");
             }
             catch (HttpRequestException)
@@ -192,60 +192,5 @@ namespace Web.Pages.Seguridad
                     resultado, opciones) ?? new();
         }
 
-        private async Task RegistrarBitacora(
-            Usuario usuario, Cliente cliente)
-        {
-            var bitacora = new Bitacora
-            {
-                IdUsuario = usuario.IdUsuario!.Value,
-                IdEmpresa = usuario.IdEmpresa!.Value,
-                TablaAfectada = "Usuario, Cliente",
-                Accion = "RegistrarUsuarioCliente",
-                RegistroId = usuario.IdUsuario.ToString(),
-                ValorAnterior = null,
-
-                ValorNuevo = JsonSerializer.Serialize(new
-                {
-                    usuario = new
-                    {
-                        usuario.IdEmpresa,
-                        usuario.Nombre,
-                        usuario.PrimerApellido,
-                        usuario.SegundoApellido,
-                        usuario.Correo,
-                        usuario.NombreUsuario,
-                        usuario.IdEstado
-                    },
-
-                    cliente = new
-                    {
-                        cliente.IdEmpresa,
-                        cliente.TipoCliente,
-                        cliente.NombreRazonSocial,
-                        cliente.Identificacion,
-                        cliente.Correo,
-                        cliente.Telefono,
-                        cliente.Direccion,
-                        cliente.IdEstado
-                    },
-
-                    fecha = DateTime.UtcNow
-                })
-            };
-
-            string endpoint = _configuracion.ObtenerMetodo(
-                "ApiEndPoints", "RegistrarBitacora");
-
-            using var client = new HttpClient();
-
-            var respuesta = await client.PostAsJsonAsync(
-                endpoint, bitacora);
-
-            if (!respuesta.IsSuccessStatusCode)
-            {
-                var error = await respuesta.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error bitácora: {error}");
-            }
-        }
     }
 }

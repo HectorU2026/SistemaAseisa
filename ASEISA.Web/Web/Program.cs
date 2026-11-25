@@ -11,6 +11,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/");
 
     options.Conventions.AllowAnonymousToPage("/Seguridad/Login");
+    options.Conventions.AllowAnonymousToPage("/Seguridad/Logout");
     options.Conventions.AllowAnonymousToPage("/Seguridad/Registro_aseisa");
     options.Conventions.AllowAnonymousToPage("/Seguridad/Cambiar_Contrasena");
     options.Conventions.AllowAnonymousToPage("/Seguridad/Restablecer_Contrasena");
@@ -20,6 +21,11 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddScoped<IConfiguracion, Configuracion>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<SesionCookieEvents>();
+builder.Services.AddHttpClient("SesionSeguridad",c=>c.Timeout=TimeSpan.FromSeconds(10))
+    .ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler {AllowAutoRedirect=false});
+builder.Services.AddHttpClient<UsuariosApiService>()
+    .ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler {AllowAutoRedirect=false});
 builder.Services.AddHttpClient<ContactoApiService>();
 builder.Services.AddHttpClient<TerminoPagoApiService>();
 builder.Services.AddHttpClient<MetodoPagoApiService>();
@@ -37,39 +43,7 @@ builder.Services
         options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
         options.SlidingExpiration = false;
 
-        options.Events.OnValidatePrincipal = async context =>
-        {
-            var token = context.Principal?
-                .FindFirst("Token")?.Value;
-
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                await RechazarSesion(context);
-                return;
-            }
-
-            var handler = new JwtSecurityTokenHandler();
-
-            if (!handler.CanReadToken(token))
-            {
-                await RechazarSesion(context);
-                return;
-            }
-
-            try
-            {
-                var jwt = handler.ReadJwtToken(token);
-
-                if (jwt.ValidTo <= DateTime.UtcNow)
-                {
-                    await RechazarSesion(context);
-                }
-            }
-            catch
-            {
-                await RechazarSesion(context);
-            }
-        };
+        options.EventsType = typeof(SesionCookieEvents);
     });
 
 var app = builder.Build();
@@ -87,17 +61,17 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+app.Use(async(context,next)=>
+{
+    if(context.Items.ContainsKey(SesionCookieEvents.NoDisponible))
+    {
+        context.Response.StatusCode=503;context.Response.Headers.CacheControl="no-store";
+        await context.Response.WriteAsync("No fue posible verificar la sesion. Intente nuevamente mas tarde.");return;
+    }
+    await next(context);
+});
 app.UseAuthorization();
 
 app.MapRazorPages();
 
 app.Run();
-
-static async Task RechazarSesion(
-    CookieValidatePrincipalContext context)
-{
-    context.RejectPrincipal();
-
-    await context.HttpContext.SignOutAsync(
-        CookieAuthenticationDefaults.AuthenticationScheme);
-}

@@ -1,4 +1,4 @@
-﻿using Abstracciones.Modelos;
+using Abstracciones.Modelos;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -46,8 +46,8 @@ namespace Web.Servicios
                 jwtToken.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value));
             claims.Add(new Claim(ClaimTypes.Email,
                 jwtToken.Claims.First(c => c.Type == ClaimTypes.Email).Value));
-            claims.Add(new Claim(ClaimTypes.Role,
-                jwtToken.Claims.First(c => c.Type == ClaimTypes.Role).Value));
+            claims.AddRange(jwtToken.Claims.Where(c=>c.Type==ClaimTypes.Role).Select(c=>c.Value)
+                .Distinct(StringComparer.OrdinalIgnoreCase).Select(r=>new Claim(ClaimTypes.Role,r)));
             claims.Add(new Claim("Empresa", 
                 jwtToken.Claims.First(c => c.Type == "Empresa").Value));
             claims.Add(new Claim("Token", accessToken));

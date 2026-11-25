@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using API.Seguridad;
+using System.Security.Claims;
 using Abstracciones.DA;
 using Abstracciones.Flujo;
 using Abstracciones.Modelos;
@@ -24,8 +28,17 @@ var jwtKey = tokenConfiguration.key;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
     options => {
+        options.MapInboundClaims = true;
+        options.IncludeErrorDetails = false;
+        options.EventsType = typeof(RevalidacionJwtEvents);
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
+            RequireSignedTokens = true,
+            RequireExpirationTime = true,
+            ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role,
+            ClockSkew = TimeSpan.Zero,
             ValidateIssuer=true,
             ValidateAudience=true,
             ValidateLifetime=true,
@@ -38,6 +51,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     );
 
 
+builder.Services.AddScoped<IContextoUsuarioDA, ContextoUsuarioDA>();
+builder.Services.AddScoped<IContextoUsuarioFlujo, ContextoUsuarioFlujo>();
+builder.Services.AddScoped<RevalidacionJwtEvents>();
+builder.Services.AddAuthorization();
+builder.Services.AddRateLimiter(options=>
+{
+    options.RejectionStatusCode=429;
+    options.AddPolicy("recuperacion",context=>RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "desconocido",
+        _=>new FixedWindowRateLimiterOptions {PermitLimit=5,Window=TimeSpan.FromMinutes(1),QueueLimit=0}));
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -45,6 +69,15 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IRepositorioDapper, RepositorioDapper>();
 builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
+builder.Services.AddScoped<IAuditoriaSeguridadDA, AuditoriaSeguridadDA>();
+builder.Services.AddScoped<IAuditoriaSeguridad, AuditoriaSeguridad>();
+builder.Services.AddScoped<ICredencialesDA, CredencialesDA>();
+builder.Services.AddScoped<ICredencialesFlujo, CredencialesFlujo>();
+builder.Services.AddScoped<IEntregaEnlace, EntregaEnlace>();
+builder.Services.AddScoped<IProtectorEnlace, ProtectorEnlaces>();
+builder.Services.AddScoped<ICorreoEnlaceDA, CorreoEnlaceDA>();
+
+builder.Services.AddHostedService<DespachadorEnlaces>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
 builder.Services.AddScoped<IAutenticacionFlujo, AutenticacionFlujo>();
 builder.Services.AddScoped<IAutenticacionBC, AutenticacionReglas>();
@@ -65,6 +98,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseMiddleware<API.Seguridad.ErroresUsuariosMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -74,6 +108,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

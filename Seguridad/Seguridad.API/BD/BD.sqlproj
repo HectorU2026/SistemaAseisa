@@ -1,79 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Solo navegacion. No importar SSDT: este proyecto no debe producir un DACPAC parcial. -->
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <Name>BD</Name>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{73e61dd7-788a-4aeb-9ba5-44525d2e996b}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
-    <OutputType>Database</OutputType>
-    <RootPath>
-    </RootPath>
-    <RootNamespace>BD</RootNamespace>
-    <AssemblyName>BD</AssemblyName>
-    <ModelCollation>1033, CI</ModelCollation>
-    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
-    <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetLanguage>CS</TargetLanguage>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <SqlServerVerification>False</SqlServerVerification>
-    <IncludeCompositeObjects>True</IncludeCompositeObjects>
-    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DeployToDatabase>False</DeployToDatabase>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <DefineDebug>false</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineDebug>true</DefineDebug>
-    <DefineTrace>true</DefineTrace>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
-    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
-    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
-  </PropertyGroup>
-  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
-  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
-    <Folder Include="Properties" />
-    <Folder Include="dbo\" />
-    <Folder Include="dbo\Tables\" />
-    <Folder Include="dbo\Stored Procedures\" />
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ObtenerCandidatoAutenticacion.sql"><Link>dbo/Stored Procedures/ObtenerCandidatoAutenticacion.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/CORREO_ENLACE.sql"><Link>dbo/Tables/CORREO_ENLACE.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/TomarCorreoEnlace.sql"><Link>dbo/Stored Procedures/TomarCorreoEnlace.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/FinalizarCorreoEnlace.sql"><Link>dbo/Stored Procedures/FinalizarCorreoEnlace.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/MigrarHashAutenticacion.sql"><Link>dbo/Stored Procedures/MigrarHashAutenticacion.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Functions/EsAdministradorActivo.sql"><Link>dbo/Functions/EsAdministradorActivo.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/SOLICITUD_CONTRASENA.sql"><Link>dbo/Tables/SOLICITUD_CONTRASENA.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/CrearSolicitudContrasena.sql"><Link>dbo/Stored Procedures/CrearSolicitudContrasena.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ConsumirSolicitudContrasena.sql"><Link>dbo/Stored Procedures/ConsumirSolicitudContrasena.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/USUARIO.sql"><Link>dbo/Tables/USUARIO.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/ROL_USUARIO.sql"><Link>dbo/Tables/ROL_USUARIO.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/ROL_PERMISO.sql"><Link>dbo/Tables/ROL_PERMISO.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/ROL.sql"><Link>dbo/Tables/ROL.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/PERMISO.sql"><Link>dbo/Tables/PERMISO.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/ESTADO.sql"><Link>dbo/Tables/ESTADO.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/EMPRESA.sql"><Link>dbo/Tables/EMPRESA.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/InformarionUsurio.sql"><Link>dbo/Stored Procedures/InformarionUsurio.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ObtenerContextoUsuarioAutorizado.sql"><Link>dbo/Stored Procedures/ObtenerContextoUsuarioAutorizado.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ObtenerUsuario.sql"><Link>dbo/Stored Procedures/ObtenerUsuario.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/RegistroUsuario.sql"><Link>dbo/Stored Procedures/RegistroUsuario.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ValidarCorreo.sql"><Link>dbo/Stored Procedures/ValidarCorreo.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/CambiarContrasena.sql"><Link>dbo/Stored Procedures/CambiarContrasena.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ValidarNombreUsuario.sql"><Link>dbo/Stored Procedures/ValidarNombreUsuario.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ValidarCorreoActivo.sql"><Link>dbo/Stored Procedures/ValidarCorreoActivo.sql</Link></None>
   </ItemGroup>
-  <ItemGroup>
-    <Build Include="dbo\Tables\USUARIO.sql" />
-    <Build Include="dbo\Tables\ROL_USUARIO.sql" />
-    <Build Include="dbo\Tables\ROL_PERMISO.sql" />
-    <Build Include="dbo\Tables\ROL.sql" />
-    <Build Include="dbo\Tables\PERMISO.sql" />
-    <Build Include="dbo\Tables\ESTADO.sql" />
-    <Build Include="dbo\Tables\EMPRESA.sql" />
-    <Build Include="dbo\Stored Procedures\InformarionUsurio.sql" />
-    <Build Include="dbo\Stored Procedures\ObtenerUsuario.sql" />
-    <Build Include="dbo\Stored Procedures\RegistroUsuario.sql" />
-    <Build Include="dbo\Stored Procedures\ValidarCorreo.sql" />
-    <Build Include="dbo\Stored Procedures\CambiarContrasena.sql" />
-    <Build Include="dbo\Stored Procedures\ValidarNombreUsuario.sql" />
-    <Build Include="dbo\Stored Procedures\ValidarCorreoActivo.sql" />
-  </ItemGroup>
+  <Target Name="ValidateReferences">
+    <Error Condition="'@(Build)' != ''" Text="El proyecto secundario no puede compilar objetos SQL." />
+    <Error Condition="!Exists('%(None.FullPath)')" Text="Referencia SQL ausente: %(None.Identity)" />
+    <Message Importance="high" Text="Referencias SQL validas. Esquema autoritativo: ASEISA.API/BD." />
+  </Target>
+  <Target Name="_RejectSqlArtifactGeneration">
+    <Error Code="ASEISA_SQL_REFERENCE_ONLY" Text="Proyecto SQL de solo referencias. Compilar y publicar exclusivamente ASEISA.API/BD/BD.sqlproj; este proyecto no genera DACPAC." />
+  </Target>
+  <Target Name="Build" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="Rebuild" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="Publish" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="Deploy" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="SqlBuild" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="SqlPublish" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="SqlDeploy" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="GenerateDeployScript" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="GeneratePublishScript" DependsOnTargets="_RejectSqlArtifactGeneration" />
+  <Target Name="Package" DependsOnTargets="_RejectSqlArtifactGeneration" />
 </Project>
