@@ -12,6 +12,7 @@ namespace Web.Pages
                 return RedirectToPage("/Seguridad/Login");
             }
 
+            if(User.IsInRole("Superadministrador"))return RedirectToPage("/Plataforma/Index");
             return Page();
         }
     }

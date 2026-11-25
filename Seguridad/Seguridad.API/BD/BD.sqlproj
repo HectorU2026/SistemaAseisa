@@ -7,6 +7,12 @@
     <DeployToDatabase>False</DeployToDatabase>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="../../../ASEISA.API/BD/dbo/Functions/EsSuperadministradorActivo.sql"><Link>dbo/Functions/EsSuperadministradorActivo.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Functions/UsuarioVigente.sql"><Link>dbo/Functions/UsuarioVigente.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/InicializarSuperadministrador.sql"><Link>dbo/Stored Procedures/InicializarSuperadministrador.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ValidarAdministradorPlataforma.sql"><Link>dbo/Stored Procedures/ValidarAdministradorPlataforma.sql</Link></None>
+    <None Include="../../../ASEISA.API/BD/dbo/Tables/BITACORA.sql"><Link>dbo/Tables/BITACORA.sql</Link></None>
+
     <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/ObtenerCandidatoAutenticacion.sql"><Link>dbo/Stored Procedures/ObtenerCandidatoAutenticacion.sql</Link></None>
     <None Include="../../../ASEISA.API/BD/dbo/Tables/CORREO_ENLACE.sql"><Link>dbo/Tables/CORREO_ENLACE.sql</Link></None>
     <None Include="../../../ASEISA.API/BD/dbo/Stored Procedures/TomarCorreoEnlace.sql"><Link>dbo/Stored Procedures/TomarCorreoEnlace.sql</Link></None>

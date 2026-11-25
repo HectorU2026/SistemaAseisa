@@ -79,6 +79,8 @@ builder.Services.AddScoped<RevalidacionJwtEvents>();
 
 builder.Services.AddScoped<IRepositorioDapper, RepositorioDapper>();
 builder.Services.AddScoped<IUsuarioDA, UsuarioDA>();
+builder.Services.AddScoped<Abstracciones.Interfaces.DA.IPlataformaDA,DA.PlataformaDA>();
+builder.Services.AddScoped<Abstracciones.Interfaces.Flujo.IPlataformaFlujo,Flujo.PlataformaFlujo>();
 builder.Services.AddScoped<IUsuarioFlujo, UsuarioFlujo>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient("CredencialesSeguridad",c=>c.Timeout=TimeSpan.FromSeconds(15))
@@ -148,6 +150,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.Use(async(context,next)=>
+{
+    if(context.User.IsInRole("Superadministrador") && !context.Request.Path.StartsWithSegments("/api/Plataforma") && context.Request.Path!="/api/Sesion")
+    {context.Response.StatusCode=403;await context.Response.WriteAsJsonAsync(new{mensaje="Esta identidad no tiene contexto empresarial."});return;}
+    await next(context);
+});
 app.UseAuthorization();
 
 app.MapControllers();

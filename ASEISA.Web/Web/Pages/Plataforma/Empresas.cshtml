@@ -1,0 +1,12 @@
+@page
+@model Web.Pages.Plataforma.EmpresasModel
+@{ViewData["Title"]="Empresas";}
+<link rel="stylesheet" href="~/css/contactos.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+<div class="contactos-page usuarios-page">
+<div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+@if(TempData["Mensaje"] is string mensaje){<div class="alert alert-success" role="status">@mensaje</div>}<div class="contactos-header"><div><div class="contactos-breadcrumb"><a asp-page="Index">Plataforma</a> / Empresas</div><h1>Empresas</h1><p>Conserve sus datos al activar o desactivar el acceso.</p></div><a asp-page="Empresa" class="btn btn-contacto-primary"><i class="bi bi-plus-lg"></i> Nueva empresa</a></div>
+<form method="get" class="d-flex gap-2 mb-3"><input asp-for="Busqueda" class="form-control" placeholder="Nombre o cédula" aria-label="Buscar empresa" /><select asp-for="Estado" class="form-select" aria-label="Estado"><option value="">Todos los estados</option><option>Activo</option><option>Inactivo</option></select><button class="btn btn-contacto-primary">Filtrar</button></form>
+<section class="contactos-panel"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Empresa</th><th>Cédula</th><th>Estado</th><th>Administradores habilitados</th><th>Acciones</th></tr></thead><tbody>
+@foreach(var e in Model.Datos.Empresas.Where(e=>(string.IsNullOrWhiteSpace(Model.Busqueda)||$"{e.RazonSocial} {e.NombreComercial} {e.CedulaJuridica}".Contains(Model.Busqueda,StringComparison.OrdinalIgnoreCase))&&(string.IsNullOrEmpty(Model.Estado)||e.Estado==Model.Estado))){<tr><td>@e.RazonSocial<br/><span class="text-muted">@e.NombreComercial</span></td><td>@e.CedulaJuridica</td><td><span class="badge @(e.Estado=="Activo"?"bg-success":"bg-secondary")">@e.Estado</span></td><td>@e.AdministradoresHabilitados</td><td><a asp-page="Empresa" asp-route-id="@e.IdEmpresa" class="btn btn-contacto-outline"><i class="bi bi-gear"></i> Administrar</a></td></tr>}
+</tbody></table></div></section></div>

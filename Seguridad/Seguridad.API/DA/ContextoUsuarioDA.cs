@@ -17,7 +17,7 @@ namespace DA
             _repositorio = repositorio;
         }
 
-        public async Task<ContextoUsuarioAutorizado?> Obtener(int idUsuario, int idEmpresa, CancellationToken cancellationToken)
+        public async Task<ContextoUsuarioAutorizado?> Obtener(int idUsuario, int? idEmpresa, CancellationToken cancellationToken)
         {
             using var conexion = new SqlConnection(_repositorio.ObtenerRepositorioDapper().ConnectionString);
             var fila = await conexion.QuerySingleOrDefaultAsync<FilaContexto>(new CommandDefinition(
