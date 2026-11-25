@@ -31,18 +31,27 @@ BEGIN
         ELSE 0
     END AS DiasAtraso
     FROM dbo.CUENTA_POR_PAGAR cpp
-    INNER JOIN dbo.PROVEEDOR p ON p.id_proveedor = cpp.id_proveedor
-    INNER JOIN dbo.ORDEN_COMPRA oc ON oc.id_orden_compra = cpp.id_orden_compra
-    WHERE cpp.id_empresa = @id_empresa
-      AND cpp.saldo_pendiente > 0
+    INNER JOIN dbo.PROVEEDOR p
+        ON p.id_proveedor = cpp.id_proveedor
+       AND p.id_empresa = @id_empresa
+    INNER JOIN dbo.ORDEN_COMPRA oc
+        ON oc.id_orden_compra = cpp.id_orden_compra
+       AND oc.id_empresa = @id_empresa
+    WHERE cpp.saldo_pendiente > 0
       AND (@id_proveedor IS NULL OR cpp.id_proveedor = @id_proveedor)
       AND (@solo_vencidas = 0 OR cpp.fecha_vencimiento < @fecha_corte)
     ORDER BY p.nombre_razon_social, cpp.fecha_vencimiento;
 
     IF NOT EXISTS (
-        SELECT 1 
-        FROM dbo.CUENTA_POR_PAGAR 
-        WHERE id_empresa = @id_empresa AND saldo_pendiente > 0
+        SELECT 1
+        FROM dbo.CUENTA_POR_PAGAR cpp
+        INNER JOIN dbo.PROVEEDOR p
+            ON p.id_proveedor = cpp.id_proveedor
+           AND p.id_empresa = @id_empresa
+        INNER JOIN dbo.ORDEN_COMPRA oc
+            ON oc.id_orden_compra = cpp.id_orden_compra
+           AND oc.id_empresa = @id_empresa
+        WHERE cpp.saldo_pendiente > 0
     )
     BEGIN
         SELECT 
