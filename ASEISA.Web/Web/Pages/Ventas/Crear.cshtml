@@ -1,0 +1,292 @@
+﻿@page
+@model Web.Pages.Ventas.CrearModel
+@{
+    ViewData["Title"] = "Nueva Cotización";
+}
+
+<link rel="stylesheet" href="~/css/ventas.css" asp-append-version="true" />
+
+<div class="container mt-4 mb-5 ventas-page">
+
+    <!-- ENCABEZADO -->
+    <div class="ventas-header">
+        <div>
+            <div class="ventas-breadcrumb">
+                <i class="bi bi-cart3"></i>
+                <span>Gestión comercial / Ventas / Nueva cotización</span>
+            </div>
+            <h1>Nueva Cotización</h1>
+            <p>Seleccione el cliente y agregue los productos para iniciar el proceso comercial.</p>
+        </div>
+        <a href="/Ventas/Ventas" class="btn-venta-outline text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i> Volver a Ventas
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @Model.MensajeError
+        </div>
+    }
+
+    <form method="post" id="formCotizacion">
+
+        <!-- DATOS GENERALES -->
+        <div class="ventas-panel p-4 mb-4">
+            <div class="panel-titulo">
+                <i class="bi bi-file-earmark-text"></i> Información general de la cotización
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label asp-for="Cotizacion.IdCliente" class="panel-label">Cliente <span class="text-danger">*</span></label>
+                    <select asp-for="Cotizacion.IdCliente" class="form-select input-panel w-100" required>
+                        <option value="">Seleccione un cliente...</option>
+                        @foreach (var cliente in Model.Clientes)
+                        {
+                            <option value="@cliente.IdCliente">@cliente.Nombre (@(cliente.Cedula ?? cliente.IdentificacionFiscal ?? "Sin ID"))</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Cotizacion.NumeroCotizacion" class="panel-label">N° Cotización <span class="text-danger">*</span></label>
+                    <input asp-for="Cotizacion.NumeroCotizacion" class="form-control input-panel" placeholder="COT-2026-001" required />
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Cotizacion.Moneda" class="panel-label">Moneda <span class="text-danger">*</span></label>
+                    <select asp-for="Cotizacion.Moneda" id="selectMoneda" class="form-select input-panel w-100" onchange="actualizarMoneda()" required>
+                        <option value="CRC">Colones (CRC)</option>
+                        <option value="USD">Dólares (USD)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label asp-for="Cotizacion.TipoCambio" class="panel-label">Tipo de cambio</label>
+                    <input asp-for="Cotizacion.TipoCambio" id="inputTipoCambio" type="number" step="0.01" min="0.01" class="form-control input-panel" />
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Cotizacion.FechaEmision" class="panel-label">Fecha de emisión <span class="text-danger">*</span></label>
+                    <input asp-for="Cotizacion.FechaEmision" type="date" class="form-control input-panel"
+                           value="@Model.Cotizacion.FechaEmision.ToString("yyyy-MM-dd")" required />
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="Cotizacion.FechaVencimiento" class="panel-label">Fecha de vencimiento <span class="text-danger">*</span></label>
+                    <input asp-for="Cotizacion.FechaVencimiento" type="date" class="form-control input-panel"
+                           value="@(Model.Cotizacion.FechaVencimiento?.ToString("yyyy-MM-dd") ?? DateTime.Today.AddDays(15).ToString("yyyy-MM-dd"))" required />
+                </div>
+            </div>
+        </div>
+
+        <!-- DETALLE DE PRODUCTOS -->
+        <div class="ventas-panel mb-4">
+            <div class="p-4 pb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="panel-titulo mb-0">
+                    <i class="bi bi-box-seam"></i> Productos de la cotización
+                </div>
+                <button type="button" class="btn-venta-outline" onclick="agregarLinea()">
+                    <i class="bi bi-plus-lg me-1"></i> Agregar producto
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table ventas-table align-middle mb-0" id="tablaDetalles">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 260px;">Producto</th>
+                            <th style="width: 110px;">Cantidad</th>
+                            <th style="width: 145px;">Precio unitario</th>
+                            <th style="width: 110px;">Desc. (%)</th>
+                            <th style="width: 110px;">IVA (%)</th>
+                            <th class="text-end" style="width: 150px;">Subtotal línea</th>
+                            <th class="text-center" style="width: 60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDetalles">
+                        <!-- Filas generadas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- RESUMEN DE TOTALES -->
+            <div class="p-4 bg-light border-top">
+                <div class="row justify-content-end">
+                    <div class="col-md-5 col-lg-4">
+                        <div class="d-flex justify-content-between mb-2 small text-muted">
+                            <span>Subtotal bruto:</span>
+                            <strong class="text-dark" id="lblSubtotal">₡0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 small text-muted">
+                            <span>Descuento:</span>
+                            <strong class="text-success" id="lblDescuento">- ₡0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 small text-muted">
+                            <span>Impuesto (IVA):</span>
+                            <strong class="text-dark" id="lblImpuesto">₡0.00</strong>
+                        </div>
+                        <hr class="my-2" />
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">Total cotización:</span>
+                            <span class="h5 fw-bold mb-0" style="color: #F2382F;" id="lblTotal">₡0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="/Ventas/Ventas" class="btn-venta-outline text-decoration-none">Cancelar</a>
+            <button type="submit" class="btn-venta-primary">
+                <i class="bi bi-check-lg"></i> Guardar Cotización
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- PLANTILLA DE OPCIONES DE PRODUCTO -->
+<template id="tplOpcionesProducto">
+    <option value="">Seleccione un producto...</option>
+    @foreach (var prod in Model.Productos)
+    {
+        <option value="@prod.IdProducto"
+                data-precio="@prod.PrecioVenta.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                data-impuesto="@prod.PorcentajeImpuestoVenta.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+            @prod.Nombre (@prod.TipoProducto)
+        </option>
+    }
+</template>
+
+<script>
+    function simboloMoneda() {
+        return document.getElementById('selectMoneda').value === 'USD' ? '$' : '₡';
+    }
+
+    function actualizarMoneda() {
+        var moneda = document.getElementById('selectMoneda').value;
+        var tcInput = document.getElementById('inputTipoCambio');
+        if (moneda === 'CRC') {
+            tcInput.value = '1.00';
+        } else if (parseFloat(tcInput.value || '1') === 1) {
+            tcInput.value = '510.00';
+        }
+        recalcularTotales();
+    }
+
+    function agregarLinea(item = null) {
+        var tbody = document.getElementById('tbodyDetalles');
+        var opcionesHtml = document.getElementById('tplOpcionesProducto').innerHTML;
+
+        var tr = document.createElement('tr');
+        tr.className = 'fila-detalle';
+        tr.innerHTML = `
+            <td>
+                <select class="form-select input-panel w-100 campo-producto" onchange="onProductoChange(this)" required>
+                    ${opcionesHtml}
+                </select>
+            </td>
+            <td>
+                <input type="number" step="0.01" min="0.01" class="form-control input-panel campo-cantidad"
+                       value="${item ? item.cantidad : 1}" oninput="recalcularTotales()" required />
+            </td>
+            <td>
+                <input type="number" step="0.01" min="0" class="form-control input-panel campo-precio"
+                       value="${item ? item.precioUnitario : 0}" oninput="recalcularTotales()" required />
+            </td>
+            <td>
+                <input type="number" step="0.01" min="0" max="100" class="form-control input-panel campo-descuento"
+                       value="${item ? item.porcentajeDescuento : 0}" oninput="recalcularTotales()" />
+            </td>
+            <td>
+                <input type="number" step="0.01" min="0" max="100" class="form-control input-panel campo-impuesto"
+                       value="${item ? item.porcentajeImpuesto : 13}" oninput="recalcularTotales()" />
+            </td>
+            <td class="text-end fw-bold text-dark celda-subtotal-linea">₡0.00</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-light text-danger border" onclick="eliminarLinea(this)" title="Quitar línea">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+
+        if (item && item.idProducto) {
+            tr.querySelector('.campo-producto').value = item.idProducto;
+        }
+
+        recalcularTotales();
+    }
+
+    function onProductoChange(select) {
+        var opt = select.options[select.selectedIndex];
+        var tr = select.closest('tr');
+        if (opt && opt.value) {
+            var precio = parseFloat(opt.getAttribute('data-precio') || '0');
+            var impuesto = parseFloat(opt.getAttribute('data-impuesto') || '0');
+            tr.querySelector('.campo-precio').value = precio.toFixed(2);
+            tr.querySelector('.campo-impuesto').value = impuesto.toFixed(2);
+        }
+        recalcularTotales();
+    }
+
+    function eliminarLinea(btn) {
+        var tbody = document.getElementById('tbodyDetalles');
+        if (tbody.querySelectorAll('tr').length > 1) {
+            btn.closest('tr').remove();
+            recalcularTotales();
+        }
+    }
+
+    function formatearMonto(valor) {
+        return simboloMoneda() + valor.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function recalcularTotales() {
+        var subtotalBruto = 0;
+        var totalDescuento = 0;
+        var totalImpuesto = 0;
+
+        document.querySelectorAll('#tbodyDetalles tr.fila-detalle').forEach(function (tr) {
+            var cant = parseFloat(tr.querySelector('.campo-cantidad').value) || 0;
+            var precio = parseFloat(tr.querySelector('.campo-precio').value) || 0;
+            var descPct = parseFloat(tr.querySelector('.campo-descuento').value) || 0;
+            var impPct = parseFloat(tr.querySelector('.campo-impuesto').value) || 0;
+
+            var bruto = cant * precio;
+            var desc = bruto * (descPct / 100);
+            var netoLinea = bruto - desc;
+            var imp = netoLinea * (impPct / 100);
+
+            subtotalBruto += bruto;
+            totalDescuento += desc;
+            totalImpuesto += imp;
+
+            tr.querySelector('.celda-subtotal-linea').textContent = formatearMonto(netoLinea);
+        });
+
+        var granTotal = subtotalBruto - totalDescuento + totalImpuesto;
+
+        document.getElementById('lblSubtotal').textContent = formatearMonto(subtotalBruto);
+        document.getElementById('lblDescuento').textContent = '- ' + formatearMonto(totalDescuento);
+        document.getElementById('lblImpuesto').textContent = formatearMonto(totalImpuesto);
+        document.getElementById('lblTotal').textContent = formatearMonto(granTotal);
+    }
+
+    // Re-indexar inputs antes de enviar para que Razor Pages enlace Cotizacion.Detalles[0..N]
+    document.getElementById('formCotizacion').addEventListener('submit', function () {
+        document.querySelectorAll('#tbodyDetalles tr.fila-detalle').forEach(function (tr, idx) {
+            tr.querySelector('.campo-producto').name = `Cotizacion.Detalles[${idx}].IdProducto`;
+            tr.querySelector('.campo-cantidad').name = `Cotizacion.Detalles[${idx}].Cantidad`;
+            tr.querySelector('.campo-precio').name = `Cotizacion.Detalles[${idx}].PrecioUnitario`;
+            tr.querySelector('.campo-descuento').name = `Cotizacion.Detalles[${idx}].PorcentajeDescuento`;
+            tr.querySelector('.campo-impuesto').name = `Cotizacion.Detalles[${idx}].PorcentajeImpuesto`;
+        });
+    });
+
+    // Iniciar con una fila vacía lista para llenar
+    agregarLinea();
+</script>
