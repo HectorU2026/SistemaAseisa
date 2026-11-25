@@ -18,15 +18,26 @@
             <h1>Bancos</h1>
             <p>Gestione sus cuentas y movimientos bancarios.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <a href="/Banco/AgregarCuentaBancaria" class="btn-banco-primary shadow-sm">
                 <i class="bi bi-plus-lg"></i> Nueva cuenta
+            </a>
+            <a href="/Banco/RegistrarPago" class="btn-banco-outline">
+                <i class="bi bi-cash-coin"></i> Registrar pago
             </a>
             <a href="/Banco/Movimientos" class="btn-banco-outline">
                 <i class="bi bi-arrow-left-right"></i> Movimientos
             </a>
         </div>
     </div>
+
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <!-- MIS CUENTAS -->
     <p class="banco-section-title">Mis cuentas</p>
