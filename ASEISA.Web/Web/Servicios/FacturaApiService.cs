@@ -557,12 +557,42 @@ public class FacturaApiService(HttpClient cliente, IConfiguracion configuracion)
         return CambiarEstadoFacturaAsync(token, idFactura, "restablecer", versionFila, ct);
     }
 
+    public Task<FacturaCambioEstadoRespuesta> InactivarFacturaAsync(
+        string token,
+        int idFactura,
+        byte[] versionFila,
+        string motivoAnulacion,
+        CancellationToken ct)
+    {
+        return CambiarEstadoFacturaAsync(
+            token,
+            idFactura,
+            "inactivar",
+            versionFila,
+            ct,
+            new FacturaInactivarRequest
+            {
+                VersionFila = versionFila,
+                MotivoAnulacion = motivoAnulacion
+            });
+    }
+
+    public Task<FacturaCambioEstadoRespuesta> ReactivarFacturaAsync(
+        string token,
+        int idFactura,
+        byte[] versionFila,
+        CancellationToken ct)
+    {
+        return CambiarEstadoFacturaAsync(token, idFactura, "reactivar", versionFila, ct);
+    }
+
     private async Task<FacturaCambioEstadoRespuesta> CambiarEstadoFacturaAsync(
         string token,
         int idFactura,
         string accion,
         byte[] versionFila,
-        CancellationToken ct)
+        CancellationToken ct,
+        object? cuerpo = null)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -577,7 +607,7 @@ public class FacturaApiService(HttpClient cliente, IConfiguracion configuracion)
         solicitud.Headers.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
         solicitud.Content = JsonContent.Create(
-            new FacturaCambioEstadoRequest { VersionFila = versionFila });
+            cuerpo ?? new FacturaCambioEstadoRequest { VersionFila = versionFila });
 
         using var respuesta = await cliente.SendAsync(solicitud, ct);
 

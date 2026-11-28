@@ -106,6 +106,12 @@ public class FacturaCambioEstadoRequest
     public byte[] VersionFila { get; set; } = Array.Empty<byte>();
 }
 
+public class FacturaInactivarRequest
+{
+    public byte[] VersionFila { get; set; } = Array.Empty<byte>();
+    public string MotivoAnulacion { get; set; } = string.Empty;
+}
+
 public class FacturaCambioEstadoRespuesta
 {
     public int? IdFactura { get; set; }
