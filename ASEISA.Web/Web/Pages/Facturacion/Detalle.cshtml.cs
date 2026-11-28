@@ -95,6 +95,42 @@ public class DetalleModel(FacturaApiService servicio) : PageModel
             ct);
     }
 
+    public Task<IActionResult> OnPostInactivarAsync(
+        int idFactura,
+        string? versionFila,
+        string? motivoAnulacion,
+        CancellationToken ct)
+    {
+        if (!User.IsInRole("Contador"))
+            return Task.FromResult<IActionResult>(Forbid());
+
+        var motivo = motivoAnulacion?.Trim();
+        if (string.IsNullOrWhiteSpace(motivo) || motivo.Length > 500)
+        {
+            TempData["MensajeError"] = "El motivo de anulación es obligatorio.";
+            return Task.FromResult<IActionResult>(RedirectToPage(new { idFactura }));
+        }
+
+        return EjecutarCambioEstadoAsync(
+            idFactura,
+            versionFila,
+            (token, id, version, tokenCt) =>
+                servicio.InactivarFacturaAsync(token, id, version, motivo, tokenCt),
+            ct);
+    }
+
+    public Task<IActionResult> OnPostReactivarAsync(
+        int idFactura,
+        string? versionFila,
+        CancellationToken ct)
+    {
+        return EjecutarCambioEstadoAsync(
+            idFactura,
+            versionFila,
+            servicio.ReactivarFacturaAsync,
+            ct);
+    }
+
     private async Task<IActionResult> EjecutarCambioEstadoAsync(
         int idFactura,
         string? versionFila,
